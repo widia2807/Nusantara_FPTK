@@ -122,4 +122,30 @@ class Users extends BaseController
                 ->setJSON(['error' => 'Gagal membuat user']);
         }
     }
+
+    public function changePassword($id)
+{
+    $request = $this->request->getJSON();
+    $oldPassword = $request->old_password ?? '';
+    $newPassword = $request->new_password ?? '';
+
+    $userModel = new \App\Models\UserModel();
+    $user = $userModel->find($id);
+
+    if (!$user) {
+        return $this->respond(['error' => 'User tidak ditemukan'], 404);
+    }
+
+    // verifikasi password lama
+    if (!password_verify($oldPassword, $user['password'])) {
+        return $this->respond(['error' => 'Password lama salah'], 401);
+    }
+
+    // hash password baru
+    $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+    $userModel->update($id, ['password' => $hashed]);
+
+    return $this->respond(['status' => 'success', 'message' => 'Password berhasil diubah']);
+}
+
 }

@@ -25,9 +25,25 @@ class Auth extends ResourceController
             return $this->respond(['error' => 'User tidak ditemukan'], 401);
         }
 
-        if (!password_verify($password, $user['password'])) {
-            return $this->respond(['error' => 'Password salah'], 401);
-        }
+        // if (!password_verify($password, $user['password'])) {
+        //     return $this->respond(['error' => 'Password salah'], 401);
+        // }
+       // if ($password !== $user['password']) {
+   // return $this->respond(['error' => 'Password salah'], 401);
+//}
+
+// Debug log
+log_message('error', '=== DEBUG LOGIN ===');
+log_message('error', 'Input username: ' . $username);
+log_message('error', 'Input password: ' . $password);
+log_message('error', 'DB username: ' . $user['username']);
+log_message('error', 'DB password(hash): ' . $user['password']);
+log_message('error', 'Verify result: ' . (password_verify($password, $user['password']) ? 'true' : 'false'));
+
+if (!password_verify($password, $user['password'])) {
+    return $this->respond(['error' => 'Password salah'], 401);
+}
+
 
         // sukses
         return $this->respond([

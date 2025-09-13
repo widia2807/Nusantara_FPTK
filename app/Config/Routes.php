@@ -12,8 +12,9 @@ $routes->set404Override();
 $routes->setAutoRoute(false); // eksplisit & aman
 
 $routes->get('/', 'PageController::index');
-    $routes->get('/login', 'PageController::login');
+$routes->get('login', 'PageController::login');  // tanpa slash
 $routes->get('dashboard', 'DashboardController::index');
+
 
 
 $routes->group('api', static function($routes) {
@@ -48,5 +49,7 @@ $routes->group('api', static function($routes) {
     $routes->put('pengajuan/(:num)/hr-review', 'Pengajuan::hrReview/$1');
     $routes->put('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
+    $routes->put('api/users/(:num)/change-password', 'Users::changePassword/$1');
+
     
 });
