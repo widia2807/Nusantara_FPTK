@@ -14,18 +14,11 @@ class Users extends BaseController
         $this->response->setHeader('Access-Control-Max-Age', '86400');
     }
 
-    /**
-     * HR create user
-     * POST /api/users
-     * Body JSON:
-     * {
-     *   "username": "jdoe",
-     *   "full_name": "John Doe",
-     *   "password": "Secret123!",
-     *   "role": "HR|Management|Rekrutmen|Divisi",
-     *   "is_active": 1
-     * }
-     */
+    public function createForm()
+    {
+        return view('users/create'); 
+    }
+
     public function create()
     {
         $this->corsHeaders();
@@ -37,13 +30,7 @@ class Users extends BaseController
         }
 
         // --- Authorization (HARUS HR) ---
-        // Prefer: ambil dari session login: session('user.role')
-        $role = session('user.role');
-
-        // Fallback DEV: izinkan pakai header X-Role saat development
-        if (!$role && env('CI_ENVIRONMENT') === 'development') {
-            $role = $this->request->getHeaderLine('X-Role') ?: null;
-        }
+        $role = session('role'); // ✅ ganti dari user.role ke role langsung
 
         if ($role !== 'HR') {
             log_message('notice', 'Create user blocked: required HR, got {role}', ['role' => $role ?: '(none)']);
@@ -58,18 +45,18 @@ class Users extends BaseController
             $data = $this->request->getPost();
         }
 
-        // Sanitasi
         $payload = [
             'username'  => trim($data['username']  ?? ''),
             'full_name' => trim($data['full_name'] ?? ''),
             'password'  => (string)($data['password'] ?? ''),
-            'role'      => (string)($data['role']     ?? ''),
+            'role'      => (string)($data['role'] ?? ''),
             'is_active' => isset($data['is_active']) ? (int)$data['is_active'] : 1,
         ];
 
-       // --- Validasi ---
+        // --- Validasi ---
+        $validRoles = ['HR','Management','Rekrutmen','Divisi']; // ✅ tambahin
         $rules = [
-            'username'  => 'required|min_length[3]|max_length[100]|is_unique[user.username]', // lowercase table
+            'username'  => 'required|min_length[3]|max_length[100]|is_unique[user.username]',
             'full_name' => 'required|min_length[3]|max_length[150]',
             'password'  => 'required|min_length[6]|max_length[255]',
             'role'      => 'required|in_list[' . implode(',', $validRoles) . ']',
@@ -85,7 +72,8 @@ class Users extends BaseController
                 ]);
         }
 
-        // --- Insert data (password hash aman) ---
+        // --- Insert data ---
+        $users = new UserModel(); // ✅ perbaikan
         $insertData = [
             'username'  => $payload['username'],
             'full_name' => $payload['full_name'],
@@ -93,7 +81,6 @@ class Users extends BaseController
             'role'      => $payload['role'],
             'is_active' => $payload['is_active'],
         ];
-
 
         try {
             $users->insert($insertData);
@@ -106,7 +93,7 @@ class Users extends BaseController
             return $this->response
                 ->setStatusCode(ResponseInterface::HTTP_CREATED)
                 ->setJSON([
-                    'message' => 'user created',
+                    'status' => 'success',
                     'user' => [
                         'id_user'   => $id,
                         'username'  => $insertData['username'],
@@ -122,30 +109,4 @@ class Users extends BaseController
                 ->setJSON(['error' => 'Gagal membuat user']);
         }
     }
-
-    public function changePassword($id)
-{
-    $request = $this->request->getJSON();
-    $oldPassword = $request->old_password ?? '';
-    $newPassword = $request->new_password ?? '';
-
-    $userModel = new \App\Models\UserModel();
-    $user = $userModel->find($id);
-
-    if (!$user) {
-        return $this->respond(['error' => 'User tidak ditemukan'], 404);
-    }
-
-    // verifikasi password lama
-    if (!password_verify($oldPassword, $user['password'])) {
-        return $this->respond(['error' => 'Password lama salah'], 401);
-    }
-
-    // hash password baru
-    $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-    $userModel->update($id, ['password' => $hashed]);
-
-    return $this->respond(['status' => 'success', 'message' => 'Password berhasil diubah']);
-}
-
 }

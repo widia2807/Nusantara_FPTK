@@ -50,7 +50,11 @@
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
     <a href="#">📊 Dashboard</a>
-    <a href="#">📂 Twelve</a>
+    <a href="<?= base_url('users/create') ?>">
+  <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
+</a>
+
+    <a href="#">📂 History</a>
     <a href="#">📝 Thirteen</a>
     <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
   </div>
@@ -66,9 +70,11 @@
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="#">Profile</a></li>
           <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li><a class="dropdown-item" href="#">Logout</a></li>
+          <li><a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a>
+</li>
         </ul>
       </div>
+      
     </div>
 
     <!-- Cards -->

@@ -4,21 +4,23 @@ namespace App\Controllers;
 
 class DashboardController extends BaseController
 {
-    public function index()
+    public function hr()
     {
-        $role = session()->get('role'); // ambil role dari session
+        return view('dashboard/hr');
+    }
 
-        switch ($role) {
-            case 'HR':
-                return view('dashboard/hr');
-            case 'Management':
-                return view('dashboard/management');
-            case 'Rekrutmen':
-                return view('dashboard/rekrutmen');
-            case 'Divisi':
-                return view('dashboard/divisi');
-            default:
-                return redirect()->to('/login'); // kalau belum login
-        }
+    public function management()
+    {
+        return view('dashboard/management');
+    }
+
+    public function rekrutmen()
+    {
+        return view('dashboard/rekrutmen');
+    }
+
+    public function divisi()
+    {
+        return view('dashboard/divisi');
     }
 }

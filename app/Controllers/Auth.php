@@ -25,27 +25,24 @@ class Auth extends ResourceController
             return $this->respond(['error' => 'User tidak ditemukan'], 401);
         }
 
-        // if (!password_verify($password, $user['password'])) {
-        //     return $this->respond(['error' => 'Password salah'], 401);
-        // }
-       // if ($password !== $user['password']) {
-   // return $this->respond(['error' => 'Password salah'], 401);
-//}
+        // cek password hash
+        if (!password_verify($password, $user['password'])) {
+            return $this->respond(['error' => 'Password salah'], 401);
+        }
 
-// Debug log
-log_message('error', '=== DEBUG LOGIN ===');
-log_message('error', 'Input username: ' . $username);
-log_message('error', 'Input password: ' . $password);
-log_message('error', 'DB username: ' . $user['username']);
-log_message('error', 'DB password(hash): ' . $user['password']);
-log_message('error', 'Verify result: ' . (password_verify($password, $user['password']) ? 'true' : 'false'));
+        // ✅ set session
+        $session = session();
+        $session->set([
+            'id_user'   => $user['id_user'],
+            'username'  => $user['username'],
+            'full_name' => $user['full_name'],
+            'role'      => $user['role'],
+            'isLoggedIn'=> true
+        ]);
 
-if (!password_verify($password, $user['password'])) {
-    return $this->respond(['error' => 'Password salah'], 401);
-}
+        $session->regenerate();
 
-
-        // sukses
+        // sukses → balikin response JSON
         return $this->respond([
             'status' => 'success',
             'user' => [
@@ -66,4 +63,14 @@ if (!password_verify($password, $user['password'])) {
             'time'    => date('Y-m-d H:i:s')
         ]);
     }
+
+
+    public function logout()
+{
+    $session = session();
+    $session->destroy(); // hapus semua data session
+
+    return redirect()->to('/login'); // arahkan ke halaman login
+}
+
 }

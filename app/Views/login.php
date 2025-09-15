@@ -73,30 +73,48 @@
   document.getElementById('loginForm').addEventListener('submit', async function(e){
     e.preventDefault();
 
-    let formData = new FormData(this);
+    let data = {
+      username: this.username.value.trim(),
+      password: this.password.value.trim()
+    };
 
     try {
       let response = await fetch("<?= base_url('api/login') ?>", {
         method: "POST",
-        body: formData
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
       });
 
       let result = await response.json();
 
-      if(result.user){   // sesuai Auth.php (return 'user')
-        // simpan data user ke localStorage
+      if(result.user){
         localStorage.setItem("user", JSON.stringify(result.user));
 
-        // kalau nanti ada token tinggal ditambah:
-        // localStorage.setItem("auth_token", result.token);
-
-        // redirect ke dashboard
-        window.location.href = "<?= base_url('dashboard') ?>";
+        switch(result.user.role){
+          case "HR":
+            window.location.href = "<?= base_url('dashboard/hr') ?>";
+            break;
+          case "Management":
+            window.location.href = "<?= base_url('dashboard/management') ?>";
+            break;
+          case "Rekrutmen":
+            window.location.href = "<?= base_url('dashboard/rekrutmen') ?>";
+            break;
+          case "Divisi":
+            window.location.href = "<?= base_url('dashboard/divisi') ?>";
+            break;
+          default:
+            alert("Role tidak dikenal!");
+        }
       } else {
         alert(result.error || "Login gagal");
       }
+
     } catch(err) {
       alert("Terjadi error: " + err.message);
+      console.error(err);
     }
   });
   </script>

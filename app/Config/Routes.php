@@ -15,6 +15,16 @@ $routes->get('/', 'PageController::index');
 $routes->get('login', 'PageController::login');  // tanpa slash
 $routes->get('dashboard', 'DashboardController::index');
 
+$routes->get('dashboard/hr', 'DashboardController::hr');
+$routes->get('dashboard/management', 'DashboardController::management');
+$routes->get('dashboard/rekrutmen', 'DashboardController::rekrutmen');
+$routes->get('dashboard/divisi', 'DashboardController::divisi');
+
+$routes->get('users/create', 'Users::createForm'); // GET /users/create
+$routes->get('logout', 'Auth::logout');
+
+
+
 
 
 $routes->group('api', static function($routes) {
@@ -31,6 +41,7 @@ $routes->group('api', static function($routes) {
     $routes->get('dev/set-password', 'Auth::devSetPassword');
 
     $routes->post('users', 'Users::create'); // POST /api/users
+    
 
     $routes->get('divisi', 'Divisi::index');   // GET /api/divisi
     $routes->post('divisi', 'Divisi::create'); // POST /api/divisi
