@@ -24,7 +24,13 @@ $routes->get('users/create', 'Users::createForm'); // GET /users/create
 $routes->get('logout', 'Auth::logout');
 
 
+$routes->get('pengajuan', 'Pengajuan::index');
+$routes->post('pengajuan/store', 'Pengajuan::store');
 
+$routes->get('pengajuan', 'PengajuanForm::index');
+$routes->post('pengajuan/store', 'PengajuanForm::store');
+
+$routes->get('history', 'DashboardController::history');
 
 
 $routes->group('api', static function($routes) {
@@ -41,10 +47,8 @@ $routes->group('api', static function($routes) {
     $routes->get('dev/set-password', 'Auth::devSetPassword');
 
     $routes->post('users', 'Users::create'); // POST /api/users
-    
+     $routes->put('users/(:num)/change-password', 'Users::changePassword/$1');
 
-    $routes->get('divisi', 'Divisi::index');   // GET /api/divisi
-    $routes->post('divisi', 'Divisi::create'); // POST /api/divisi
 
      // DIVISI
     $routes->get('divisi', 'Divisi::index');
@@ -55,12 +59,13 @@ $routes->group('api', static function($routes) {
     $routes->post('posisi', 'Posisi::create');             // tambah posisi
 
     // PENGAJUAN
+     $routes->get('pengajuan', 'Pengajuan::index'); 
     $routes->post('pengajuan', 'Pengajuan::create');       // buat pengajuan baru
     $routes->get('pengajuan/(:num)', 'Pengajuan::show/$1');// detail pengajuan
     $routes->put('pengajuan/(:num)/hr-review', 'Pengajuan::hrReview/$1');
     $routes->put('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
-    $routes->put('api/users/(:num)/change-password', 'Users::changePassword/$1');
+   
 
     
 });
