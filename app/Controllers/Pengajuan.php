@@ -134,12 +134,13 @@ class Pengajuan extends ResourceController
 
         // Catat history
         $this->history->insert([
-            'id_pengajuan' => $id,
-            'id_user'      => session()->get('id_user') ?? null,
-            'role_user'    => 'HR',
-            'action'       => $status,
-            'comment'      => $comment,
-        ]);
+    'id_pengajuan' => $id,
+    'id_user'      => session()->get('id_user') ?? null,
+    'role_user'    => 'HR',
+    'action'       => $status,
+    'comment'      => $comment,
+    'created_at'   => date('Y-m-d H:i:s') // tambahin ini
+]);
 
         // Kalau reject langsung archive
         if ($status === 'Rejected') {

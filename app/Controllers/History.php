@@ -2,18 +2,18 @@
 
 namespace App\Controllers;
 
-use App\Models\HistoryModel;
 use CodeIgniter\RESTful\ResourceController;
+use App\Models\HistoryModel;
 
 class History extends ResourceController
 {
     protected $modelName = HistoryModel::class;
     protected $format    = 'json';
 
-    public function index($pengajuan_id = null)
+    public function index()
     {
-        return $this->respond(
-            $this->model->where('pengajuan_id', $pengajuan_id)->findAll()
-        );
+        $data = $this->model->getWithRelations();
+        return $this->respond(['data' => $data]);
     }
 }
+

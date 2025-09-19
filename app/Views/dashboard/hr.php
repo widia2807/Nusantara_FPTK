@@ -218,14 +218,38 @@ async function loadPengajuan() {
   const tbody = document.getElementById('pengajuanTable');
   tbody.innerHTML = '';
 
-  if (!json.data || json.data.length === 0) {
+ if (!json.data || json.data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada data pengajuan</td></tr>`;
+    // kosongkan card juga
+    document.getElementById('cardPending').textContent = 0;
+    document.getElementById('cardApproved').textContent = 0;
+    document.getElementById('cardRejected').textContent = 0;
     return;
   }
 
+  // === HITUNG CARD ===
+  let pendingCount  = 0;
+  let approvedCount = 0;
+  let rejectedCount = 0;
+
   json.data.forEach(item => {
-    // SKIP jika sudah archived (udah masuk history)
-    //if (item.archived == 1) return;
+  const status = (item.status_hr || '').toLowerCase().trim(); 
+  if (status === 'pending') pendingCount++;
+  else if (status === 'approved' || status === 'disetujui') approvedCount++;
+  else if (status === 'rejected' || status === 'ditolak') rejectedCount++;
+});
+  // update ke card
+  document.getElementById('cardPending').textContent  = pendingCount;
+document.getElementById('cardApproved').textContent = approvedCount;
+document.getElementById('cardRejected').textContent = rejectedCount;
+
+  json.data.forEach(item => {
+    // skip kalau sudah rejected
+    if ((item.status_hr || '').toLowerCase() === 'rejected') return;
+
+    // skip kalau sudah archived
+    if (item.archived == 1) return;
+
 
     const badgeHR  = `<span class="badge bg-${item.status_hr === 'Approved' ? 'success' : item.status_hr === 'Rejected' ? 'danger' : 'secondary'}">${item.status_hr}</span>`;
     const badgeMng = item.status_management === 'Rejected' && item.status_hr === 'Approved'
