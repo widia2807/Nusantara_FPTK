@@ -43,78 +43,112 @@
   </div>
 
   <!-- Sidebar -->
-  <div class="sidebar">
-    <h5>Nusantara</h5>
-    <a href="<?= base_url('dashboard/divisi') ?>">📊 Dashboard</a>
-    <a href="<?= base_url('form') ?>">📝 Pengajuan</a>
-    <a href="<?= base_url('history') ?>">📂 History</a>
-    <a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a>
+<div class="sidebar">
+  <div class="text-center mb-4">
+    <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="40">
+    <h6 class="mt-2">Nusantara Portal</h6>
   </div>
+
+  <a href="<?= base_url('dashboard/divisi') ?>">📊 Dashboard</a>
+  <a href="<?= base_url('pengajuan') ?>">
+    <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
+    Pengajuan
+  </a>
+  <a href="<?= base_url('history') ?>">📂 History</a>
+  <a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a>
+</div>
+
 
   <!-- Content -->
   <div class="content">
     <div class="form-card">
       <h4 class="mb-4 text-center">Form Pengajuan</h4>
 
-      <form id="pengajuanForm">
-        <div class="mb-3">
-          <label class="form-label">Divisi</label>
-          <select name="id_divisi" class="form-select" required>
-            <option value="">Pilih Divisi</option>
-          </select>
+      <!-- Flash message -->
+      <?php if(session()->getFlashdata('success')): ?>
+        <div class="alert alert-success">
+          <?= session()->getFlashdata('success') ?>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Posisi</label>
-          <select name="id_posisi" class="form-select" required>
-            <option value="">Pilih Posisi</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Cabang</label>
-          <select name="id_cabang" class="form-select" required>
-            <option value="">Pilih Cabang</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Jumlah Karyawan</label>
-          <input type="number" name="jumlah_karyawan" class="form-control" placeholder="contoh: 5" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Job Post Number</label>
-          <input type="text" name="job_post_number" class="form-control" placeholder="JP-001" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Tipe Pekerjaan</label>
-          <select name="tipe_pekerjaan" class="form-select" required>
-            <option value="">Pilih Tipe</option>
-            <option value="Intern">Intern</option>
-            <option value="Kontrak">Kontrak</option>
-            <option value="Tetap">Tetap</option>
-            <option value="Freelance">Freelance</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Range Umur</label>
-          <input type="text" name="range_umur" class="form-control" placeholder="20-30 tahun">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Tempat Kerja</label>
-          <input type="text" name="tempat_kerja" class="form-control" placeholder="Jakarta">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Kualifikasi</label>
-          <textarea name="kualifikasi" rows="3" class="form-control" placeholder="contoh: S1 Teknik Informatika"></textarea>
-        </div>
-        <div class="d-flex justify-content-end">
-          <button type="reset" class="btn btn-secondary me-2">Reset</button>
-          <button type="submit" class="btn btn-primary">Ajukan</button>
-        </div>
-      </form>
+      <?php endif; ?>
 
-      <div class="mt-4">
-        <h6>Respon API:</h6>
-        <pre id="result" class="bg-light p-3 border"></pre>
-      </div>
+      <form action="<?= base_url('pengajuan/store') ?>" method="post">
+  <div class="mb-3">
+    <label class="form-label">Divisi</label>
+    <select name="id_divisi" class="form-select" required>
+      <option value="">Pilih Divisi</option>
+      <?php if(!empty($divisi)): ?>
+        <?php foreach($divisi as $d): ?>
+          <option value="<?= $d['id_divisi'] ?>"><?= esc($d['nama_divisi']) ?></option>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Posisi</label>
+    <select name="id_posisi" class="form-select" required>
+      <option value="">Pilih Posisi</option>
+      <?php if(!empty($posisi)): ?>
+        <?php foreach($posisi as $p): ?>
+          <option value="<?= $p['id_posisi'] ?>"><?= esc($p['nama_posisi']) ?></option>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Cabang</label>
+    <select name="id_cabang" class="form-select" required>
+      <option value="">Pilih Cabang</option>
+      <?php if(!empty($cabang)): ?>
+        <?php foreach($cabang as $c): ?>
+          <option value="<?= $c['id_cabang'] ?>"><?= esc($c['nama_cabang']) ?></option>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Jumlah Karyawan</label>
+    <input type="number" name="jumlah_karyawan" class="form-control" placeholder="contoh: 5" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Job Post Number</label>
+    <input type="text" name="job_post_number" class="form-control" placeholder="JP-001" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Tipe Pekerjaan</label>
+    <select name="tipe_pekerjaan" class="form-select" required>
+      <option value="">Pilih Tipe</option>
+      <option value="Intern">Intern</option>
+      <option value="Kontrak">Kontrak</option>
+      <option value="Tetap">Tetap</option>
+      <option value="Freelance">Freelance</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Range Umur</label>
+    <input type="text" name="range_umur" class="form-control" placeholder="20-30 tahun">
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Tempat Kerja</label>
+    <input type="text" name="tempat_kerja" class="form-control" placeholder="Jakarta">
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Kualifikasi</label>
+    <textarea name="kualifikasi" rows="3" class="form-control" placeholder="contoh: S1 Teknik Informatika"></textarea>
+  </div>
+
+  <div class="d-flex justify-content-end">
+    <button type="reset" class="btn btn-secondary me-2">Reset</button>
+    <button type="submit" class="btn btn-primary">Ajukan</button>
+  </div>
+</form>
     </div>
   </div>
 
@@ -122,23 +156,6 @@
   <footer>
     NusantaraIT © 2025. All rights reserved.
   </footer>
-
-  <script>
-    document.getElementById('pengajuanForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData);
-
-      const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json();
-      document.getElementById('result').textContent = JSON.stringify(result, null, 2);
-    });
-  </script>
 
 </body>
 </html>

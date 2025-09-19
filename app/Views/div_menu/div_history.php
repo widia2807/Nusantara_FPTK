@@ -6,49 +6,80 @@
   <title>History Pengajuan - Divisi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background: #f8f9fa; }
+    body {
+      font-family: Arial, sans-serif;
+    }
     .sidebar {
-      width: 220px; position: fixed; top: 0; left: 0; bottom: 0;
-      background: #fff; border-right: 1px solid #ddd; padding: 20px 10px;
+      width: 220px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #f8f9fa;
+      border-right: 1px solid #ddd;
+      padding-top: 20px;
     }
-    .sidebar h5 { font-weight: bold; margin-bottom: 20px; }
     .sidebar a {
-      display: block; padding: 10px 15px; margin-bottom: 5px;
-      color: #333; text-decoration: none; border-radius: 6px;
+      display: block;
+      padding: 10px 20px;
+      color: #333;
+      text-decoration: none;
     }
-    .sidebar a:hover { background: #f0f0f0; }
-    .header {
-      height: 50px; background: #222; color: #fff;
-      display: flex; align-items: center; padding: 0 20px;
+    .sidebar a:hover {
+      background: #e9ecef;
     }
     .content {
-      margin-left: 220px; padding: 30px;
-    }
-    .card {
-      background: #fff; border-radius: 8px; 
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-left: 220px;
+      padding: 20px;
     }
     footer {
-      margin-left: 220px; background: #222; color: #fff;
-      text-align: center; padding: 12px; margin-top: 30px;
+      margin-left: 220px;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
     }
+
+    /* Tabel compact */
+    .table-compact th, 
+    .table-compact td {
+      padding: 4px 6px !important;
+      font-size: 12px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      vertical-align: middle;
+    }
+
+    /* Batasi lebar kolom */
+    .table-compact th:nth-child(1), .table-compact td:nth-child(1) { width: 40px; }   /* ID */
+    .table-compact th:nth-child(2), .table-compact td:nth-child(2) { max-width: 80px; } /* Divisi */
+    .table-compact th:nth-child(3), .table-compact td:nth-child(3) { max-width: 100px; } /* Posisi */
+    .table-compact th:nth-child(4), .table-compact td:nth-child(4) { max-width: 80px; } /* Cabang */
+    .table-compact th:nth-child(5), .table-compact td:nth-child(5) { width: 50px; }   /* Jumlah */
+    .table-compact th:nth-child(6), .table-compact td:nth-child(6) { width: 80px; }   /* Job Post */
+    .table-compact th:nth-child(7), .table-compact td:nth-child(7) { width: 80px; }   /* Tipe */
+    .table-compact th:nth-child(8), .table-compact td:nth-child(8) { width: 110px; }  /* Tanggal */
+    .table-compact th.status-col, .table-compact td.status-col { width: 60px; text-align: center; }
+    .table-compact th:last-child, .table-compact td:last-child { width: 65px; text-align: center; } /* Detail */
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <h6 class="mb-0">History Pengajuan</h6>
-  </div>
-
   <!-- Sidebar -->
   <div class="sidebar">
-    <h5>Nusantara</h5>
+    <div class="text-center mb-4">
+      <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="40">
+      <h6 class="mt-2">Nusantara Portal</h6>
+    </div>
     <a href="<?= base_url('dashboard/divisi') ?>">📊 Dashboard</a>
-    <a href="<?= base_url('form') ?>">📝 Pengajuan</a>
-    <a href="<?= base_url('history') ?>">📂 History</a>
-    <a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a>
-  </div>
+    <a href="<?= base_url('pengajuan') ?>">
+      <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
+      Pengajuan
+    </a>
+   <a href="<?= base_url('history') ?>">📂 History</a>
+    <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
+  </div>z
 
   <!-- Content -->
   <div class="content">

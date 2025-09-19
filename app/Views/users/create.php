@@ -50,7 +50,7 @@
       <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="40">
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
-     <a href="<?= base_url('dashboard/hr') ?>"> Dashboard</a>
+     <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
     <a href="<?= base_url('users/create') ?>">
   <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
 </a>

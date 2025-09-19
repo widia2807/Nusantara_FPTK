@@ -54,7 +54,7 @@
   <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
 </a>
 
-    <a href="#">📂 History</a>
+    <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
     <a href="#">📝 Thirteen</a>
     <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
   </div>
@@ -149,6 +149,7 @@
         <form id="hrForm">
           <input type="hidden" id="detailId">
 
+          <!-- ROW 1 -->
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">Divisi</label>
@@ -160,6 +161,7 @@
             </div>
           </div>
 
+          <!-- ROW 2 -->
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">Status Management</label>
@@ -171,25 +173,43 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Range Gaji</label>
-            <input type="text" id="detailGaji" class="form-control" placeholder="cth: 5.000.000 - 7.000.000">
+          <!-- ✅ Tambahin row ini di bawah status -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tempat Kerja</label>
+              <input type="text" id="detailTempatKerja" class="form-control" disabled>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Kualifikasi</label>
+              <input type="text" id="detailKualifikasi" class="form-control" disabled>
+            </div>
           </div>
 
+          <!-- Range Gaji -->
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Min Gaji</label>
+              <input type="number" id="minGaji" class="form-control" placeholder="5000000">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Max Gaji</label>
+              <input type="number" id="maxGaji" class="form-control" placeholder="7000000">
+            </div>
+          </div>
+
+          <!-- Comment -->
           <div class="mb-3">
             <label class="form-label">Comment (wajib jika Reject)</label>
             <textarea id="detailComment" class="form-control" rows="3" placeholder="Alasan ditolak..."></textarea>
           </div>
-
-          <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-success me-2" onclick="submitReview('Approved')">Approve</button>
-            <button type="button" class="btn btn-danger" onclick="submitReview('Rejected')">Reject</button>
-          </div>
+          
+          ...
         </form>
       </div>
     </div>
   </div>
 </div>
+
 
 <script>
 async function loadPengajuan() {
@@ -198,38 +218,25 @@ async function loadPengajuan() {
   const tbody = document.getElementById('pengajuanTable');
   tbody.innerHTML = '';
 
-    if (json.data.length === 0) {
+  if (!json.data || json.data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada data pengajuan</td></tr>`;
-    document.getElementById('cardPending').innerText  = 0;
-    document.getElementById('cardApproved').innerText = 0;
-    document.getElementById('cardRejected').innerText = 0;
     return;
   }
 
-  // 🔹 Counter
-  let pending = 0, approved = 0, rejected = 0;
-
   json.data.forEach(item => {
-    if (
-      (item.status_hr === null || item.status_hr === 'Pending') &&
-      (item.status_management === null || item.status_management === 'Pending')
-    ) {
-      pending++;
-    } else if (item.status_hr === 'Approved' && item.status_management === 'Approved') {
-      approved++;
-    } else if (item.status_hr === 'Rejected' || item.status_management === 'Rejected') {
-      rejected++;
-    }
-  });
+    // SKIP jika sudah archived (udah masuk history)
+    //if (item.archived == 1) return;
 
-  // 🔹 Update ke card
-  document.getElementById('cardPending').innerText  = pending;
-  document.getElementById('cardApproved').innerText = approved;
-  document.getElementById('cardRejected').innerText = rejected;
-  json.data.forEach(item => {
     const badgeHR  = `<span class="badge bg-${item.status_hr === 'Approved' ? 'success' : item.status_hr === 'Rejected' ? 'danger' : 'secondary'}">${item.status_hr}</span>`;
-    const badgeMng = `<span class="badge bg-${item.status_management === 'Approved' ? 'success' : item.status_management === 'Rejected' ? 'danger' : 'secondary'}">${item.status_management}</span>`;
+    const badgeMng = item.status_management === 'Rejected' && item.status_hr === 'Approved'
+      ? `<span class="badge bg-warning text-dark">Rejected</span>` 
+      : `<span class="badge bg-${item.status_management === 'Approved' ? 'success' : item.status_management === 'Rejected' ? 'danger' : 'secondary'}">${item.status_management}</span>`;
     const badgeRek = `<span class="badge bg-${item.status_rekrutmen === 'Selesai' ? 'success' : 'secondary'}">${item.status_rekrutmen}</span>`;
+
+    // tombol detail warnanya khusus
+    const detailBtnClass = (item.status_hr === 'Approved' && item.status_management === 'Rejected') 
+      ? 'btn-warning text-dark' 
+      : 'btn-info';
 
     tbody.innerHTML += `
       <tr>
@@ -244,7 +251,9 @@ async function loadPengajuan() {
         <td>${badgeHR}</td>
         <td>${badgeMng}</td>
         <td>${badgeRek}</td>
-        <td><button class="btn btn-sm btn-info" data-item='${JSON.stringify(item)}' onclick="showDetail(this)">Detail</button></td>
+        <td>
+          <button class="btn btn-sm ${detailBtnClass}" data-item='${JSON.stringify(item)}' onclick="showDetail(this)">Detail</button>
+        </td>
       </tr>
     `;
   });
@@ -253,23 +262,39 @@ async function loadPengajuan() {
 function showDetail(btn) {
   const data = JSON.parse(btn.getAttribute('data-item'));
 
-  document.getElementById('detailId').value    = data.id_pengajuan;
-  document.getElementById('detailDivisi').value= data.nama_divisi;
-  document.getElementById('detailPosisi').value= data.nama_posisi;
-  document.getElementById('detailMng').value   = data.status_management;
-  document.getElementById('detailRek').value   = data.status_rekrutmen;
-  document.getElementById('detailGaji').value  = data.range_gaji || '';
+  document.getElementById('detailId').value     = data.id_pengajuan;
+  document.getElementById('detailDivisi').value = data.nama_divisi;
+  document.getElementById('detailPosisi').value = data.nama_posisi;
+  document.getElementById('detailMng').value    = data.status_management;
+  document.getElementById('detailRek').value    = data.status_rekrutmen;
+  document.getElementById('minGaji').value      = data.min_gaji || '';
+  document.getElementById('maxGaji').value      = data.max_gaji || '';
   document.getElementById('detailComment').value = data.comment || '';
+  document.getElementById('detailTempatKerja').value = data.tempat_kerja || '';
+document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
+
+
+  // === Kondisi 2: kalau HR approve + Management reject -> auto pindah history setelah dibuka
+  if (data.status_hr === 'Approved' && data.status_management === 'Rejected') {
+    fetch(`http://localhost/nusantara_api/public/api/pengajuan/${data.id_pengajuan}/to-history`, {
+      method: 'POST'
+    }).then(() => loadPengajuan());
+  }
 
   const modal = new bootstrap.Modal(document.getElementById('detailModal'));
   modal.show();
 }
 
 async function submitReview(status) {
-  const id    = document.getElementById('detailId').value;
-  const gaji  = document.getElementById('detailGaji').value;
+  const id      = document.getElementById('detailId').value;
+  const minGaji = document.getElementById('minGaji').value;
+  const maxGaji = document.getElementById('maxGaji').value;
   const comment = document.getElementById('detailComment').value;
 
+  if (!minGaji || !maxGaji) {
+    alert("Range gaji wajib diisi!");
+    return;
+  }
   if (status === 'Rejected' && !comment.trim()) {
     alert("Harus isi alasan jika menolak!");
     return;
@@ -278,7 +303,12 @@ async function submitReview(status) {
   const res = await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${id}/hr-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status_hr: status, range_gaji: gaji, comment: comment })
+    body: JSON.stringify({ 
+      status_hr: status, 
+      min_gaji: minGaji, 
+      max_gaji: maxGaji, 
+      comment: comment 
+    })
   });
 
   if (res.ok) {
@@ -289,6 +319,7 @@ async function submitReview(status) {
     alert("Gagal update data");
   }
 }
+
 
 loadPengajuan();
 </script>

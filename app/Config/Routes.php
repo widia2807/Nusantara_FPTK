@@ -23,14 +23,12 @@ $routes->get('dashboard/divisi', 'DashboardController::divisi');
 $routes->get('users/create', 'Users::createForm'); // GET /users/create
 $routes->get('logout', 'Auth::logout');
 
-
-$routes->get('pengajuan', 'Pengajuan::index');
-$routes->post('pengajuan/store', 'Pengajuan::store');
-
 $routes->get('pengajuan', 'PengajuanForm::index');
 $routes->post('pengajuan/store', 'PengajuanForm::store');
 
 $routes->get('history', 'DashboardController::history');
+$routes->get('users/hr_history', 'Users::hr_history');
+
 
 
 $routes->group('api', static function($routes) {
@@ -65,7 +63,9 @@ $routes->group('api', static function($routes) {
     $routes->put('pengajuan/(:num)/hr-review', 'Pengajuan::hrReview/$1');
     $routes->put('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
-   
+   // HISTORY
+$routes->get('history', 'History::index');
+
 
     
 });

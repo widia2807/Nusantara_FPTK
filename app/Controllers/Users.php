@@ -18,6 +18,10 @@ class Users extends BaseController
     {
         return view('users/create'); 
     }
+public function hr_history()
+{
+    return view('users/hr_history'); // ini akan load app/Views/users/hr_history.php
+}
 
     public function create()
     {
