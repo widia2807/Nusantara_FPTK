@@ -56,8 +56,9 @@
           <input type="password" name="password" class="form-control" placeholder="Enter password" required>
         </div>
         <div class="mb-3">
-          <input type="checkbox"> Remember me
-        </div>
+  <input type="checkbox" id="rememberMe"> Remember me
+</div>
+
         <button type="submit" class="btn btn-primary w-100">Log In</button>
       </form>
     </div>
@@ -89,9 +90,21 @@
 
       let result = await response.json();
 
-      if(result.user){
-        localStorage.setItem("user", JSON.stringify(result.user));
+      // 🔴 Kalau status "force_change_password" dari backend
+if(result.status === "force_change_password"){
+  // Simpan user sementara (supaya tahu ID siapa yg mau ubah password)
+  sessionStorage.setItem("user", JSON.stringify(result.user));
+  alert(result.message || "Anda harus ubah password default terlebih dahulu.");
+  window.location.href = "<?= base_url('auth/change-password') ?>"; 
+  return;
+}
 
+      if(result.user){
+  if(document.getElementById("rememberMe").checked){
+    localStorage.setItem("user", JSON.stringify(result.user));  // tetap tersimpan
+  } else {
+    sessionStorage.setItem("user", JSON.stringify(result.user)); // hilang saat close browser
+  }
         switch(result.user.role){
           case "HR":
             window.location.href = "<?= base_url('dashboard/hr') ?>";

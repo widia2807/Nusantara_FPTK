@@ -38,13 +38,23 @@
       <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
     </a>
     <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
-    <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
+    
   </div>
 
   <!-- Content -->
-  <div class="content">
+   <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dashboard</h2>
+      <h2>Dashboard Divisi</h2>
+      <div class="dropdown">
+        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <img src="https://via.placeholder.com/30" class="rounded-circle"> HR
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">Profile</a></li>
+          <li><a class="dropdown-item" href="#">Settings</a></li>
+          <li><a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a></li>
+        </ul>
+      </div>
     </div>
 
     <!-- Cards -->

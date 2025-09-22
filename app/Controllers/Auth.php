@@ -10,7 +10,9 @@ class Auth extends ResourceController
 {
     use ResponseTrait;
 
+    // ================================
     // POST /api/login
+    // ================================
     public function login()
     {
         $request = $this->request->getJSON() ?? (object) $this->request->getPost();
@@ -26,11 +28,25 @@ class Auth extends ResourceController
         }
 
         // cek password hash
-        if (!password_verify($password, $user['password'])) {
+        if (!isset($user['password']) || !password_verify($password, $user['password'])) {
             return $this->respond(['error' => 'Password salah'], 401);
         }
 
-        // ✅ set session
+        // 🔴 cek password default
+        if (password_verify("123456", $user['password'])) {
+            return $this->respond([
+                'status'  => 'force_change_password',
+                'message' => 'Silakan ubah password default Anda',
+                'user'    => [
+                    'id_user'   => $user['id_user'],
+                    'username'  => $user['username'],
+                    'full_name' => $user['full_name'],
+                    'role'      => $user['role'],
+                ]
+            ]);
+        }
+
+        // ✅ set session kalau bukan default password
         $session = session();
         $session->set([
             'id_user'   => $user['id_user'],
@@ -39,10 +55,8 @@ class Auth extends ResourceController
             'role'      => $user['role'],
             'isLoggedIn'=> true
         ]);
-
         $session->regenerate();
 
-        // sukses → balikin response JSON
         return $this->respond([
             'status' => 'success',
             'user' => [
@@ -54,7 +68,9 @@ class Auth extends ResourceController
         ]);
     }
 
+    // ================================
     // GET /api/ping
+    // ================================
     public function ping()
     {
         return $this->respond([
@@ -64,13 +80,58 @@ class Auth extends ResourceController
         ]);
     }
 
+    // ================================
+    // GET /auth/change-password
+    // ================================
+    public function changePasswordForm()
+    {
+        // Pastikan file ada di: app/Views/change_password.php
+        return view('change_password');
+    }
 
+    // ================================
+    // POST /auth/change-password
+    // ================================
+    public function changePassword()
+    {
+        $idUser       = session()->get('id_user');
+        $oldPass      = $this->request->getPost('old_password');
+        $newPass      = $this->request->getPost('new_password');
+        $confirmPass  = $this->request->getPost('confirm_password');
+
+        if ($newPass !== $confirmPass) {
+            return redirect()->back()->with('error', 'Password baru dan konfirmasi tidak sama');
+        }
+
+        $userModel = new UserModel();
+        $user = $userModel->find($idUser);
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'User tidak ditemukan');
+        }
+
+        if (!isset($user['password']) || !password_verify($oldPass, $user['password'])) {
+            return redirect()->back()->with('error', 'Password lama salah');
+        }
+
+        // update password
+        $userModel->update($idUser, [
+            'password' => password_hash($newPass, PASSWORD_BCRYPT)
+        ]);
+
+        // logout user
+        session()->destroy();
+
+        return redirect()->to('/login')->with('success', 'Password berhasil diubah, silakan login ulang.');
+    }
+
+    // ================================
+    // GET /logout
+    // ================================
     public function logout()
-{
-    $session = session();
-    $session->destroy(); // hapus semua data session
-
-    return redirect()->to('/login'); // arahkan ke halaman login
-}
-
+    {
+        $session = session();
+        $session->destroy();
+        return redirect()->to('/login');
+    }
 }

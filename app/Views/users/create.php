@@ -57,7 +57,7 @@
 
     <a href="#">📂 History</a>
     <a href="#">📝 Thirteen</a>
-    <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
+   
   </div>
 
   <!-- Content -->

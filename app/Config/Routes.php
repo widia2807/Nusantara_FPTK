@@ -29,6 +29,10 @@ $routes->post('pengajuan/store', 'PengajuanForm::store');
 $routes->get('history', 'DashboardController::history');
 $routes->get('users/hr_history', 'Users::hr_history');
 
+$routes->get('auth/change-password', 'Auth::changePasswordForm');
+$routes->post('auth/change-password', 'Auth::changePassword');
+
+
 
 
 $routes->group('api', static function($routes) {
@@ -65,7 +69,5 @@ $routes->group('api', static function($routes) {
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
    // HISTORY
 $routes->get('history', 'History::index');
-
-
     
 });

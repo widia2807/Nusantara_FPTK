@@ -78,7 +78,7 @@
       Pengajuan
     </a>
    <a href="<?= base_url('history') ?>">📂 History</a>
-    <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
+    
   </div>z
 
   <!-- Content -->
@@ -119,6 +119,7 @@
     async function loadHistory() {
       const res = await fetch('http://localhost/nusantara_api/public/api/history');
       const json = await res.json();
+      console.log(json); 
       const tbody = document.getElementById('historyTable');
       tbody.innerHTML = '';
 
@@ -128,28 +129,28 @@
       }
 
       json.data.forEach(item => {
-        // tampilkan hanya yang sudah ditolak HR atau Management
-        if (item.status_hr === 'Rejected' || item.status_management === 'Rejected') {
-          const badgeHR  = `<span class="badge bg-${item.status_hr === 'Rejected' ? 'danger' : 'secondary'}">${item.status_hr}</span>`;
-          const badgeMng = `<span class="badge bg-${item.status_management === 'Rejected' ? 'danger' : 'secondary'}">${item.status_management}</span>`;
+  // hanya tampilkan yang action = Rejected
+  if (item.action === 'Rejected') {
+    const badge = `<span class="badge bg-danger">Rejected</span>`;
 
-          tbody.innerHTML += `
-            <tr>
-              <td>${item.id_pengajuan}</td>
-              <td>${item.nama_divisi}</td>
-              <td>${item.nama_posisi}</td>
-              <td>${item.nama_cabang}</td>
-              <td>${item.jumlah_karyawan}</td>
-              <td>${item.job_post_number}</td>
-              <td>${item.tipe_pekerjaan}</td>
-              <td>${item.created_at}</td>
-              <td>${badgeHR}</td>
-              <td>${badgeMng}</td>
-              <td>${item.comment || '-'}</td>
-            </tr>
-          `;
-        }
-      });
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.id_pengajuan}</td>
+        <td>${item.nama_divisi}</td>
+        <td>${item.nama_posisi}</td>
+        <td>${item.nama_cabang}</td>
+        <td>${item.jumlah_karyawan}</td>
+        <td>${item.job_post_number}</td>
+        <td>${item.tipe_pekerjaan}</td>
+        <td>${item.created_at}</td>
+        <td>${item.role_user}</td>
+        <td>${badge}</td>
+        <td>${item.comment || '-'}</td>
+      </tr>
+    `;
+  }
+});
+
     }
 
     loadHistory();

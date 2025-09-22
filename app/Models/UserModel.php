@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $table         = 'User'; // atau 'users' kalau tabelmu beda
+    protected $table         = 'user'; // atau 'users' kalau tabelmu beda
     protected $primaryKey    = 'id_user';
 
     protected $allowedFields = [

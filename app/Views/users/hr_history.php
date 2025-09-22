@@ -36,7 +36,7 @@
   <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
 </a>
     <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
-    <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
+    
   </div>
 
   <!-- Content -->
@@ -55,7 +55,7 @@
               <th>Job Post</th>
               <th>Tipe</th>
               <th>Tanggal</th>
-              <th>Reviewer</th>
+              <th>  Reviewer</th>
               <th>Role</th>
               <th>Aksi</th>
               <th>Komentar</th>
