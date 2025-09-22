@@ -117,7 +117,7 @@
 
   <script>
     async function loadHistory() {
-      const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
+      const res = await fetch('http://localhost/nusantara_api/public/api/history');
       const json = await res.json();
       const tbody = document.getElementById('historyTable');
       tbody.innerHTML = '';

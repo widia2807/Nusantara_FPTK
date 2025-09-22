@@ -63,7 +63,20 @@ class Pengajuan extends ResourceController
         if (!$this->model->insert($data, true)) {
             return $this->failValidationErrors($this->model->errors());
         }
+
         $id = $this->model->getInsertID();
+
+
+        // Catat ke history (aksi Create)
+        $this->history->insert([
+            'id_pengajuan' => $id,
+            'id_user'      => session()->get('id_user') ?? null,
+            'role_user'    => 'Divisi',
+            'action'       => 'Create',
+            'comment'      => $data['kualifikasi'] ?? null,
+            'created_at'   => date('Y-m-d H:i:s'),
+        ]);
+
         return $this->respondCreated($this->model->find($id));
     }
 
@@ -95,60 +108,90 @@ class Pengajuan extends ResourceController
     // =====================
     // REVIEW HR
     // =====================
-    public function hrReview($id = null)
-    {
-        $data = $this->input();
-        $pengajuan = $this->model->find($id);
-        if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
+    // =====================
+// REVIEW HR
+// =====================
+public function hrReview($id = null)
+{
+    $data = $this->input();
+    $pengajuan = $this->model->find($id);
+    if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
 
-        $status  = $data['status_hr'] ?? null;
-        $minGaji = $data['min_gaji'] ?? null;
-        $maxGaji = $data['max_gaji'] ?? null;
-        $comment = $data['comment'] ?? null;
+    $status  = $data['status_hr'] ?? null;
+    $minGaji = $data['min_gaji'] ?? null;
+    $maxGaji = $data['max_gaji'] ?? null;
+    $comment = $data['comment'] ?? null;
+    $action  = $data['action'] ?? null; // "accept" | "send" | "reject"
 
+    // Validasi
+    if ($status === 'Rejected' && !$comment) {
+        return $this->failValidationErrors("Comment wajib diisi jika Reject");
+    }
+
+    // Reject langsung archive
+    if ($status === 'Rejected') {
+        $this->model->update($id, ['status_hr' => 'Rejected', 'archived' => 1]);
+        $this->history->insert([
+            'id_pengajuan' => $id,
+            'id_user'      => session()->get('id_user') ?? null,
+            'role_user'    => 'HR',
+            'action'       => 'Rejected',
+            'comment'      => $comment,
+            'created_at'   => date('Y-m-d H:i:s')
+        ]);
+        return $this->respond(['message' => 'Pengajuan ditolak HR']);
+    }
+
+    // Accept dulu tanpa gaji
+    if ($action === 'accept') {
+        $this->model->update($id, ['status_hr' => 'Approved']);
+        $this->history->insert([
+            'id_pengajuan' => $id,
+            'id_user'      => session()->get('id_user') ?? null,
+            'role_user'    => 'HR',
+            'action'       => 'Accept',
+            'comment'      => $comment,
+            'created_at'   => date('Y-m-d H:i:s')
+        ]);
+        return $this->respond(['message' => 'HR Accept, menunggu gaji']);
+    }
+
+    // Send → harus ada gaji
+    if ($action === 'send') {
         if (!$minGaji || !$maxGaji) {
-            return $this->failValidationErrors("Range gaji wajib diisi");
-        }
-        if ($status === 'Rejected' && !$comment) {
-            return $this->failValidationErrors("Comment wajib diisi jika Reject");
-        }
-        if ($pengajuan['status_hr'] !== 'Pending') {
-            return $this->fail("HR sudah memberi keputusan, tidak bisa diubah lagi");
+            return $this->failValidationErrors("Range gaji wajib diisi sebelum Send");
         }
 
-        // Update pengajuan
+        // Update status pengajuan
         $this->model->update($id, [
-            'status_hr' => $status,
-            'min_gaji'  => $minGaji,
-            'max_gaji'  => $maxGaji,
-            'comment'   => $comment,
+            'status_hr'         => 'Approved',
+            'status_management' => 'Pending',
         ]);
 
-        // Insert/Update range gaji
-        $this->rangeGaji->where('id_pengajuan', $id)->delete();
+        // Insert ke tabel rangegaji
         $this->rangeGaji->insert([
             'id_pengajuan' => $id,
             'min_gaji'     => $minGaji,
             'max_gaji'     => $maxGaji,
+            'created_by'   => session()->get('id_user') ?? null,
+            'created_at'   => date('Y-m-d H:i:s'),
         ]);
 
         // Catat history
         $this->history->insert([
-    'id_pengajuan' => $id,
-    'id_user'      => session()->get('id_user') ?? null,
-    'role_user'    => 'HR',
-    'action'       => $status,
-    'comment'      => $comment,
-    'created_at'   => date('Y-m-d H:i:s') // tambahin ini
-]);
+            'id_pengajuan' => $id,
+            'id_user'      => session()->get('id_user') ?? null,
+            'role_user'    => 'HR',
+            'action'       => 'Send',
+            'comment'      => "Dikirim ke Management",
+            'created_at'   => date('Y-m-d H:i:s')
+        ]);
 
-        // Kalau reject langsung archive
-        if ($status === 'Rejected') {
-            $this->model->update($id, ['archived' => 1]);
-        }
-
-        return $this->respond(['message' => 'Review HR berhasil']);
+        return $this->respond(['message' => 'Pengajuan HR Approved & dikirim ke Management']);
     }
+
+    return $this->failValidationErrors("Aksi tidak valid");
+}
 
     // =====================
     // REVIEW MANAGEMENT
@@ -170,6 +213,7 @@ class Pengajuan extends ResourceController
             'role_user'    => 'Management',
             'action'       => $status,
             'comment'      => $comment,
+            'created_at'   => date('Y-m-d H:i:s'),
         ]);
 
         // Kalau reject dan HR sebelumnya approve → butuh review ulang
@@ -179,7 +223,7 @@ class Pengajuan extends ResourceController
 
         return $this->respond([
             'message' => 'Review Management berhasil',
-            'data'    => $this->model->find($id)
+            'data'    => $this->model->find($id),
         ]);
     }
 
@@ -205,13 +249,14 @@ class Pengajuan extends ResourceController
                 'role_user'    => 'Rekrutmen',
                 'action'       => 'Finish',
                 'comment'      => $pengajuan['comment'] ?? null,
+                'created_at'   => date('Y-m-d H:i:s'),
             ]);
             $this->model->update($id, ['archived' => 1]);
         }
 
         return $this->respond([
             'message' => 'Review Rekrutmen berhasil',
-            'data'    => $this->model->find($id)
+            'data'    => $this->model->find($id),
         ]);
     }
 
@@ -229,6 +274,7 @@ class Pengajuan extends ResourceController
             'role_user'    => 'System',
             'action'       => 'Move',
             'comment'      => $pengajuan['comment'] ?? null,
+            'created_at'   => date('Y-m-d H:i:s'),
         ]);
 
         $this->model->update($id, ['archived' => 1, 'needs_hr_check' => 0]);
