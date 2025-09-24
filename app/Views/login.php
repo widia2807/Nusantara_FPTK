@@ -37,13 +37,27 @@
   </style>
 </head>
 <body>
-  <!-- Content -->
   <div class="login-container">
     <div class="login-card">
       <div class="text-center mb-4">
         <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="60">
         <h3 class="fw-bold mt-2">Nusantara Portal</h3>
       </div>
+
+      <!-- Flash Messages -->
+      <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <?= session()->getFlashdata('error') ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <?php endif; ?>
+
+      <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <?= session()->getFlashdata('success') ?>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <?php endif; ?>
 
       <!-- Form Login -->
       <form id="loginForm">
@@ -56,20 +70,18 @@
           <input type="password" name="password" class="form-control" placeholder="Enter password" required>
         </div>
         <div class="mb-3">
-  <input type="checkbox" id="rememberMe"> Remember me
-</div>
+          <input type="checkbox" id="rememberMe"> Remember me
+        </div>
 
         <button type="submit" class="btn btn-primary w-100">Log In</button>
       </form>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
     NusantaraIT © 2025. All rights reserved.
   </footer>
 
-  <!-- Script -->
   <script>
   document.getElementById('loginForm').addEventListener('submit', async function(e){
     e.preventDefault();
@@ -90,21 +102,21 @@
 
       let result = await response.json();
 
-      // 🔴 Kalau status "force_change_password" dari backend
-if(result.status === "force_change_password"){
-  // Simpan user sementara (supaya tahu ID siapa yg mau ubah password)
-  sessionStorage.setItem("user", JSON.stringify(result.user));
-  alert(result.message || "Anda harus ubah password default terlebih dahulu.");
-  window.location.href = "<?= base_url('auth/change-password') ?>"; 
-  return;
-}
+      // Handle force password change
+      if(result.status === "force_change_password"){
+        alert(result.message || "Anda harus ubah password default terlebih dahulu.");
+        window.location.href = result.redirect_url || "<?= base_url('auth/change-password') ?>";
+        return;
+      }
 
-      if(result.user){
-  if(document.getElementById("rememberMe").checked){
-    localStorage.setItem("user", JSON.stringify(result.user));  // tetap tersimpan
-  } else {
-    sessionStorage.setItem("user", JSON.stringify(result.user)); // hilang saat close browser
-  }
+      // Handle successful login
+      if(result.status === "success" && result.user){
+        if(document.getElementById("rememberMe").checked){
+          localStorage.setItem("user", JSON.stringify(result.user));
+        } else {
+          sessionStorage.setItem("user", JSON.stringify(result.user));
+        }
+        
         switch(result.user.role){
           case "HR":
             window.location.href = "<?= base_url('dashboard/hr') ?>";

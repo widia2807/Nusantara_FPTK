@@ -11,7 +11,7 @@ class Auth extends ResourceController
     use ResponseTrait;
 
     // ================================
-    // POST /api/login
+    // POST /api/login  
     // ================================
     public function login()
     {
@@ -34,6 +34,16 @@ class Auth extends ResourceController
 
         // 🔴 cek password default
         if (password_verify("123456", $user['password'])) {
+            // ✅ SET SESSION UNTUK FORCE CHANGE PASSWORD
+            $session = session();
+            $session->set([
+                'temp_user_id'   => $user['id_user'],
+                'temp_username'  => $user['username'],
+                'temp_full_name' => $user['full_name'],
+                'temp_role'      => $user['role'],
+                'force_change_password' => true
+            ]);
+            
             return $this->respond([
                 'status'  => 'force_change_password',
                 'message' => 'Silakan ubah password default Anda',
@@ -42,7 +52,8 @@ class Auth extends ResourceController
                     'username'  => $user['username'],
                     'full_name' => $user['full_name'],
                     'role'      => $user['role'],
-                ]
+                ],
+                'redirect_url' => base_url('auth/change-password')
             ]);
         }
 
@@ -69,6 +80,80 @@ class Auth extends ResourceController
     }
 
     // ================================
+    // GET /auth/change-password
+    // ================================
+    public function changePasswordForm()
+    {
+        // Cek apakah user dalam mode force change password
+        $session = session();
+        if (!$session->get('force_change_password')) {
+            return redirect()->to('/login')->with('error', 'Akses tidak valid');
+        }
+
+        return view('change_password');
+    }
+
+    // ================================
+    // POST /auth/change-password
+    // ================================
+    public function changePassword()
+    {
+        $post = $this->request->getPost(); 
+        log_message('debug', 'POST DATA: ' . json_encode($post));
+
+        $session = session();
+        
+        // ✅ AMBIL ID USER DARI SESSION TEMP ATAU SESSION NORMAL
+        $idUser = $session->get('temp_user_id') ?? $session->get('id_user') ?? $post['id_user'] ?? null;
+        
+        $oldPass     = $post['old_password'] ?? null;
+        $newPass     = $post['new_password'] ?? null;
+        $confirmPass = $post['confirm_password'] ?? null;
+
+        log_message('debug', 'ID User from session: ' . $idUser);
+
+        if (!$idUser) {
+            return redirect()->back()->with('error', '❌ ID User kosong, tidak bisa update password');
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $user = $userModel->find($idUser);
+
+        if (!$user) {
+            return redirect()->back()->with('error', '❌ User tidak ditemukan');
+        }
+
+        // cek password lama
+        if (!password_verify($oldPass, $user['password'])) {
+            return redirect()->back()->with('error', '❌ Password lama salah');
+        }
+
+        if ($newPass !== $confirmPass) {
+            return redirect()->back()->with('error', '❌ Konfirmasi password tidak sama');
+        }
+
+        if (strlen($newPass) < 6) {
+            return redirect()->back()->with('error', '❌ Password minimal 6 karakter');
+        }
+
+        // Update password
+        $update = $userModel->update($idUser, [
+            'password' => password_hash($newPass, PASSWORD_DEFAULT)
+        ]);
+
+        log_message('debug', 'UPDATE RESULT: ' . json_encode($update));
+
+        if (!$update) {
+            return redirect()->back()->with('error', '❌ Gagal update password');
+        }
+
+        // ✅ CLEAR SEMUA SESSION DATA
+        $session->destroy();
+        
+        return redirect()->to('/login')->with('success', '✅ Password berhasil diubah, silakan login ulang.');
+    }
+
+    // ================================
     // GET /api/ping
     // ================================
     public function ping()
@@ -78,51 +163,6 @@ class Auth extends ResourceController
             'message' => 'API is running',
             'time'    => date('Y-m-d H:i:s')
         ]);
-    }
-
-    // ================================
-    // GET /auth/change-password
-    // ================================
-    public function changePasswordForm()
-    {
-        // Pastikan file ada di: app/Views/change_password.php
-        return view('change_password');
-    }
-
-    // ================================
-    // POST /auth/change-password
-    // ================================
-    public function changePassword()
-    {
-        $idUser       = session()->get('id_user');
-        $oldPass      = $this->request->getPost('old_password');
-        $newPass      = $this->request->getPost('new_password');
-        $confirmPass  = $this->request->getPost('confirm_password');
-
-        if ($newPass !== $confirmPass) {
-            return redirect()->back()->with('error', 'Password baru dan konfirmasi tidak sama');
-        }
-
-        $userModel = new UserModel();
-        $user = $userModel->find($idUser);
-
-        if (!$user) {
-            return redirect()->back()->with('error', 'User tidak ditemukan');
-        }
-
-        if (!isset($user['password']) || !password_verify($oldPass, $user['password'])) {
-            return redirect()->back()->with('error', 'Password lama salah');
-        }
-
-        // update password
-        $userModel->update($idUser, [
-            'password' => password_hash($newPass, PASSWORD_BCRYPT)
-        ]);
-
-        // logout user
-        session()->destroy();
-
-        return redirect()->to('/login')->with('success', 'Password berhasil diubah, silakan login ulang.');
     }
 
     // ================================

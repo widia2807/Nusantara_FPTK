@@ -32,6 +32,7 @@ $routes->get('users/hr_history', 'Users::hr_history');
 $routes->get('auth/change-password', 'Auth::changePasswordForm');
 $routes->post('auth/change-password', 'Auth::changePassword');
 
+$routes->post('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
 
 
 

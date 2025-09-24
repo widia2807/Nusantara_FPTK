@@ -23,7 +23,8 @@ class Pengajuan extends ResourceController
     // GET /api/pengajuan
     // =====================
     public function index()
-    {
+{
+    try {
         $perPage = (int) ($this->request->getGet('perPage') ?? 20);
         $data = $this->model->getWithRelations($perPage);
 
@@ -36,16 +37,35 @@ class Pengajuan extends ResourceController
                 'pageCount'    => $this->model->pager->getPageCount(),
             ],
         ]);
+    } catch (\Throwable $e) {
+        // ✅ tangkap pesan error biar kelihatan
+        return $this->respond([
+            'error' => $e->getMessage(),
+            'file'  => $e->getFile(),
+            'line'  => $e->getLine(),
+        ], 500);
     }
-
+}
     // Helper ambil input (JSON, raw, atau form)
+// =====================
+    // HELPER AMBIL INPUT
+    // =====================
     private function input(): array
     {
-        $d = $this->request->getJSON(true);
-        if ($d === null) $d = $this->request->getRawInput();
-        if (!$d) $d = $this->request->getPost();
-        return $d ?? [];
+        $data = $this->request->getJSON(true);
+        if (is_array($data) && !empty($data)) {
+            return $data;
+        }
+
+        $data = $this->request->getRawInput();
+        if (is_array($data) && !empty($data)) {
+            return $data;
+        }
+
+        $data = $this->request->getPost();
+        return is_array($data) ? $data : [];
     }
+
 
     // =====================
     // POST /api/pengajuan
@@ -108,9 +128,7 @@ class Pengajuan extends ResourceController
     // =====================
     // REVIEW HR
     // =====================
-    // =====================
-// REVIEW HR
-// =====================
+    
 public function hrReview($id = null)
 {
     $data = $this->input();
@@ -192,40 +210,58 @@ public function hrReview($id = null)
 
     return $this->failValidationErrors("Aksi tidak valid");
 }
-
-    // =====================
-    // REVIEW MANAGEMENT
-    // =====================
-    public function managementReview($id = null)
-    {
-        $data = $this->input();
-        $pengajuan = $this->model->find($id);
-        if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
-
-        $status  = $data['status_management'] ?? null;
-        $comment = $data['comment'] ?? null;
-
-        $this->model->update($id, ['status_management' => $status]);
-
-        $this->history->insert([
-            'id_pengajuan' => $id,
-            'id_user'      => session()->get('id_user') ?? null,
-            'role_user'    => 'Management',
-            'action'       => $status,
-            'comment'      => $comment,
-            'created_at'   => date('Y-m-d H:i:s'),
-        ]);
-
-        // Kalau reject dan HR sebelumnya approve → butuh review ulang
-        if ($status === 'Rejected' && $pengajuan['status_hr'] === 'Approved') {
-            $this->model->update($id, ['needs_hr_check' => 1]);
-        }
-
-        return $this->respond([
-            'message' => 'Review Management berhasil',
-            'data'    => $this->model->find($id),
-        ]);
+ // =====================
+// REVIEW MANAGEMENT
+// =====================
+public function managementReview($id = null)
+{
+    $data = $this->input();
+    $pengajuan = $this->model->find($id);
+    if (!$pengajuan) {
+        return $this->failNotFound('Pengajuan tidak ditemukan');
     }
+
+    $status  = $data['status_management'] ?? null;
+    $comment = $data['comment'] ?? null;
+
+    // Ambil id_user dari session atau fallback dari request
+    $idUser = session()->get('id_user') ?? ($data['id_user'] ?? 0);
+
+    // Validasi
+    if (!$status) {
+        return $this->failValidationErrors("Status management wajib diisi");
+    }
+    if ($status === 'Rejected' && !$comment) {
+        return $this->failValidationErrors("Comment wajib diisi jika Reject");
+    }
+
+    // Update pengajuan
+    $this->model->update($id, [
+        'status_management'  => $status,
+        'comment_management' => $comment,
+    ]);
+
+    // Insert history
+    $this->history->insert([
+        'id_pengajuan' => $id,
+        'id_user'      => $idUser,   // ✅ sudah ada, tidak undefined
+        'role_user'    => 'Management',
+        'action'       => $status,
+        'comment'      => $comment,
+        'created_at'   => date('Y-m-d H:i:s'),
+    ]);
+
+    // Kalau reject & HR sebelumnya sudah Approved → butuh review ulang HR
+    if ($status === 'Rejected' && $pengajuan['status_hr'] === 'Approved') {
+        $this->model->update($id, ['needs_hr_check' => 1]);
+    }
+
+    return $this->respond([
+        'message' => "Review Management berhasil ($status)",
+        'data'    => $this->model->find($id),
+    ]);
+}
+
 
     // =====================
     // REVIEW REKRUTMEN
