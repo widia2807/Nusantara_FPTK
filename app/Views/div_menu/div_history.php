@@ -32,13 +32,7 @@
       margin-left: 220px;
       padding: 20px;
     }
-    footer {
-      margin-left: 220px;
-      background: #222;
-      color: #fff;
-      text-align: center;
-      padding: 15px;
-    }
+    
 
     /* Tabel compact */
     .table-compact th, 
@@ -110,10 +104,6 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <!-- <footer>
-    NusantaraIT © 2025. All rights reserved.
-  </footer> -->
 
   <script>
     async function loadHistory() {

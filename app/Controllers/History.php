@@ -1,19 +1,35 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Models;
 
-use CodeIgniter\RESTful\ResourceController;
-use App\Models\HistoryModel;
+use CodeIgniter\Model;
 
-class History extends ResourceController
+class HistoryModel extends Model
 {
-    protected $modelName = HistoryModel::class;
-    protected $format    = 'json';
+    protected $table      = 'history';
+    protected $primaryKey = 'id_history';
 
-    public function index()
+    protected $allowedFields = [
+        'id_pengajuan',
+        'nama_divisi',
+        'nama_posisi',
+        'nama_cabang',
+        'jumlah_karyawan',
+        'job_post_number',
+        'tipe_pekerjaan',
+        'created_at',
+        'role_user',
+        'action',
+        'comment'
+    ];
+
+    public function getWithRelations()
     {
-        $data = $this->model->getWithRelations();
-        return $this->respond(['data' => $data]);
+        return $this->db->table($this->table)
+            ->select('history.*, pengajuan.nama_divisi, pengajuan.nama_posisi, pengajuan.nama_cabang')
+            ->join('pengajuan', 'pengajuan.id_pengajuan = history.id_pengajuan', 'left')
+            ->get()
+            ->getResultArray();
     }
 }
 

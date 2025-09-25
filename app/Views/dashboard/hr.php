@@ -14,10 +14,7 @@
     .sidebar a { display: block; padding: 10px 20px; color: #333; text-decoration: none; }
     .sidebar a:hover { background: #e9ecef; }
     .content { margin-left: 220px; padding: 20px; }
-    footer {
-      margin-left: 220px; background: #222; color: #fff;
-      text-align: center; padding: 15px;
-    }
+    
     /* Tabel lebih besar */
     table.table th, table.table td {
       font-size: 14px;
@@ -182,8 +179,7 @@
     </div>
   </div>
 
-  <footer>NusantaraIT © 2025. All rights reserved.</footer>
-
+ 
   <script>
 let currentId = null;
 

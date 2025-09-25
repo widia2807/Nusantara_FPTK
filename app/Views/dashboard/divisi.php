@@ -199,7 +199,7 @@
       <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
       Pengajuan
     </a>
-   <a href="<?= base_url('history/div') ?>">📂 History</a>
+   <a href="<?= base_url('history/divisi') ?>">📂 History</a>
     
   </div>
 
