@@ -11,30 +11,40 @@ $routes->setTranslateURIDashes(false);
 $routes->set404Override();
 $routes->setAutoRoute(false); // eksplisit & aman
 
+// ==================
+// WEB ROUTES
+// ==================
 $routes->get('/', 'PageController::index');
-$routes->get('login', 'PageController::login');  // tanpa slash
-$routes->get('dashboard', 'DashboardController::index');
-
-$routes->get('dashboard/hr', 'DashboardController::hr');
-$routes->get('dashboard/management', 'DashboardController::management');
-$routes->get('dashboard/rekrutmen', 'DashboardController::rekrutmen');
-$routes->get('dashboard/divisi', 'DashboardController::divisi');
-
-$routes->get('users/create', 'Users::createForm'); // GET /users/create
+$routes->get('login', 'PageController::login');
 $routes->get('logout', 'Auth::logout');
 
+// Dashboard
+$routes->group('dashboard', static function ($routes) {
+    $routes->get('/', 'DashboardController::index');
+    $routes->get('hr', 'DashboardController::hr');
+    $routes->get('management', 'DashboardController::management');
+    $routes->get('rekrutmen', 'DashboardController::rekrutmen');
+    $routes->get('divisi', 'DashboardController::divisi');
+});
+
+// History (khusus web / tampilan)
+$routes->group('history', static function ($routes) {
+    $routes->get('/', 'DashboardController::history');
+    $routes->get('management', 'DashboardController::mng_history');
+    $routes->get('divisi', 'DashboardController::div_history');
+    $routes->get('rekrutmen', 'DashboardController::rek_history');
+    $routes->get('hr', 'Users::hr_history');
+});
+
+// Pengajuan Form
 $routes->get('pengajuan', 'PengajuanForm::index');
 $routes->post('pengajuan/store', 'PengajuanForm::store');
 
-$routes->get('history', 'DashboardController::history');
-$routes->get('users/hr_history', 'Users::hr_history');
-
-$routes->get('auth/change-password', 'Auth::changePasswordForm');
-$routes->post('auth/change-password', 'Auth::changePassword');
-
-$routes->post('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
-
-
+// Auth change password
+$routes->group('auth', static function ($routes) {
+    $routes->get('change-password', 'Auth::changePasswordForm');
+    $routes->post('change-password', 'Auth::changePassword');
+});
 
 $routes->group('api', static function($routes) {
     // Preflight untuk semua /api/*

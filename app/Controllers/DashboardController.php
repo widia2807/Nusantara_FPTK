@@ -23,8 +23,25 @@ class DashboardController extends BaseController
     {
         return view('dashboard/divisi');
     }
-    public function history()
-    {
-        return view('div_menu/div_history'); // history divisi
-    }
+    public function mng_history()
+{
+    return view('mng_history');
+}
+
+public function div_history()
+{
+    return view('div_history');
+}
+
+public function hr_history()
+{
+    return view('hr_history');
+}
+
+public function rek_history()
+{
+    return view('rek_history');
+}
+
+
 }

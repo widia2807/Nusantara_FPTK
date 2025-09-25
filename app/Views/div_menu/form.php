@@ -55,7 +55,7 @@
     Pengajuan
   </a>
   <a href="<?= base_url('history') ?>">📂 History</a>
-  <a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a>
+  
 </div>
 
 

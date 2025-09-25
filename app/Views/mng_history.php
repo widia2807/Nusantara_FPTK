@@ -32,57 +32,52 @@
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
     <a href="<?= base_url('dashboard/management') ?>">📊 Dashboard</a>
-    <a href="<?= base_url('views/mng_history') ?>">📂 History</a>
+    <a href="<?= base_url('history/management') ?>">📂 History</a>
+
   </div>
 
   <!-- Content -->
   <div class="content">
     <div class="card p-4">
-      <h4 class="mb-3">History Pengajuan Divisi</h4>
-      <div class="table-responsive">
-        <table class="table table-hover table-sm align-middle table-compact">
-          <thead class="table-dark">
-            <tr>
-              <th>ID</th>
-              <th>Divisi</th>
-              <th>Posisi</th>
-              <th>Cabang</th>
-              <th>Jumlah</th>
-              <th>Job Post</th>
-              <th>Tipe</th>
-              <th>Tanggal</th>
-              <th>Reviewer</th>
-              <th>Role</th>
-              <th>Aksi</th>
-              <th>Komentar</th>
-            </tr>
-          </thead>
-          <tbody id="historyTable">
-            <tr><td colspan="12" class="text-center">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+      <h4 class="mb-3">History Pengajuan Management</h4>
+<div class="table-responsive">
+  <table class="table table-hover table-sm align-middle table-compact">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Divisi</th>
+        <th>Posisi</th>
+        <th>Cabang</th>
+        <th>Jumlah</th>
+        <th>Job Post</th>
+        <th>Tipe</th>
+        <th>Tanggal</th>
+        <th>Reviewer</th>
+        <th>Status</th>
+        <th>Komentar</th>
+      </tr>
+    </thead>
+    <tbody id="historyTable">
+      <tr><td colspan="11" class="text-center">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
 
-  <!-- Footer -->
-  <footer>
-    NusantaraIT © 2025. All rights reserved.
-  </footer>
+<script>
+  async function loadHistory() {
+    const res = await fetch('http://localhost/nusantara_api/public/api/history');
+    const json = await res.json();
+    const tbody = document.getElementById('historyTable');
+    tbody.innerHTML = '';
 
-  <script>
-    async function loadHistory() {
-      const res = await fetch('http://localhost/nusantara_api/public/api/history');
-      const json = await res.json();
-      const tbody = document.getElementById('historyTable');
-      tbody.innerHTML = '';
+    if (!json.data || json.data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11" class="text-center">Belum ada history</td></tr>`;
+      return;
+    }
 
-      if (!json.data || json.data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada history</td></tr>`;
-        return;
-      }
-
-      json.data.forEach(item => {
+    json.data.forEach(item => {
+      // ✅ filter hanya history dari Management
+      if (item.role_user === 'Management') {
         const badge = `<span class="badge bg-${
           item.action === 'Approved' ? 'success' : 
           item.action === 'Rejected' ? 'danger' : 'secondary'
@@ -99,16 +94,16 @@
             <td>${item.tipe_pekerjaan}</td>
             <td>${item.created_at}</td>
             <td>${item.full_name || '-'}</td>
-            <td>${item.role_user}</td>
             <td>${badge}</td>
             <td>${item.comment || '-'}</td>
           </tr>
         `;
-      });
-    }
+      }
+    });
+  }
 
-    loadHistory();
-  </script>
+  loadHistory();
+</script>
 
 </body>
 </html>
