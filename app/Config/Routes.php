@@ -33,7 +33,7 @@ $routes->group('history', static function ($routes) {
     $routes->get('management', 'DashboardController::mng_history');
     $routes->get('divisi', 'DashboardController::div_history');
     $routes->get('rekrutmen', 'DashboardController::rek_history');
-    $routes->get('hr', 'Users::hr_history');
+    $routes->get('hr', 'DashboardController::hr_history'); // ✅ arahkan ke DashboardController
 });
 
 // Pengajuan Form

@@ -7,32 +7,68 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
-      height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #313233ff, #0dcaf0);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
-    .login-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 2rem;
-      width: 100%;
-      max-width: 400px;
-    }
+
     .login-container {
       flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
     }
+
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .login-card img {
+      height: 65px;
+    }
+
+    .login-card h3 {
+      font-weight: 700;
+      color: #2f2f30ff;
+    }
+
+    .form-label {
+      font-weight: 500;
+    }
+
+    .btn-login {
+      background: linear-gradient(90deg, #525457ff, #0dcaf0);
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      padding: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
     footer {
-      background: #222;
-      color: #fff;
+      background: #111;
+      color: #bbb;
       padding: 15px;
       font-size: 14px;
       text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -40,8 +76,8 @@
   <div class="login-container">
     <div class="login-card">
       <div class="text-center mb-4">
-        <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="60">
-        <h3 class="fw-bold mt-2">Nusantara Portal</h3>
+        <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo">
+        <h3 class="mt-3">Nusantara Portal</h3>
       </div>
 
       <!-- Flash Messages -->
@@ -69,11 +105,12 @@
           <label class="form-label">Password</label>
           <input type="password" name="password" class="form-control" placeholder="Enter password" required>
         </div>
-        <div class="mb-3">
-          <input type="checkbox" id="rememberMe"> Remember me
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="rememberMe">
+          <label class="form-check-label" for="rememberMe">Remember me</label>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">Log In</button>
+        <button type="submit" class="btn btn-login w-100">Log In</button>
       </form>
     </div>
   </div>

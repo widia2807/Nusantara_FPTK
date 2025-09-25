@@ -77,7 +77,7 @@
       <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
       Pengajuan
     </a>
-   <a href="<?= base_url('history') ?>">📂 History</a>
+   <a href="<?= base_url('history/divisi') ?>">📂 History</a>
     
   </div>z
 
@@ -111,9 +111,9 @@
   </div>
 
   <!-- Footer -->
-  <footer>
+  <!-- <footer>
     NusantaraIT © 2025. All rights reserved.
-  </footer>
+  </footer> -->
 
   <script>
     async function loadHistory() {

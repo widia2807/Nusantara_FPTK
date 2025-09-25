@@ -6,32 +6,109 @@
   <title>Form Pengajuan</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background: #f8f9fa; }
-    .sidebar {
-      width: 220px; position: fixed; top: 0; left: 0; bottom: 0;
-      background: #fff; border-right: 1px solid #ddd; padding: 20px 10px;
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9fafc;
+      color: #212529;
     }
-    .sidebar h5 { font-weight: bold; margin-bottom: 20px; }
-    .sidebar a {
-      display: block; padding: 10px 15px; margin-bottom: 5px;
-      color: #333; text-decoration: none; border-radius: 6px;
-    }
-    .sidebar a:hover { background: #f0f0f0; }
+
+    /* Header */
     .header {
-      height: 50px; background: #222; color: #fff;
-      display: flex; align-items: center; padding: 0 20px;
+      height: 55px;
+      background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      padding: 20px 10px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+    }
+    .sidebar h6 {
+      color: #0d6efd;
+      font-weight: 700;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 15px;
+      margin-bottom: 5px;
+      color: #444;
+      text-decoration: none;
+      font-size: 14px;
+      border-left: 3px solid transparent;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .sidebar a:hover {
+      background: #e7f1ff;
+      border-left: 3px solid #0d6efd;
+      color: #0d6efd;
+    }
+
+    /* Content */
     .content {
-      margin-left: 220px; padding: 30px;
-    }
-    .form-card {
-      background: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-left: 220px;
       padding: 30px;
     }
-    .form-label { font-weight: 600; }
+
+    /* Form Card */
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 30px;
+      transition: transform 0.2s ease;
+    }
+    .form-card:hover {
+      transform: translateY(-2px);
+    }
+    .form-card h4 {
+      font-weight: 700;
+      color: #0d6efd;
+    }
+
+    /* Label */
+    .form-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Button */
+    .btn-primary {
+      background: #0d6efd;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      background: #0b5ed7;
+    }
+    .btn-secondary {
+      background: #6c757d;
+      border: none;
+    }
+
+    /* Footer */
     footer {
-      margin-left: 220px; background: #222; color: #fff;
-      text-align: center; padding: 12px; margin-top: 30px;
+      margin-left: 220px;
+      background: #111;
+      color: #bbb;
+      text-align: center;
+      padding: 12px;
+      font-size: 14px;
+      margin-top: 30px;
     }
   </style>
 </head>
@@ -153,9 +230,9 @@
   </div>
 
   <!-- Footer -->
-  <footer>
+  <!-- <footer>
     NusantaraIT © 2025. All rights reserved.
-  </footer>
+  </footer> -->
 
 </body>
 </html>

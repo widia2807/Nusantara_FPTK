@@ -32,7 +32,7 @@
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
     <a href="<?= base_url('dashboard/rekrutmen') ?>">📊 Dashboard</a>
-    <a href="<?= base_url('history') ?>">📂 History</a>
+    <a href="<?= base_url('history/rekrutmen') ?>">📂 History</a>
   </div>
 
   <!-- Content -->

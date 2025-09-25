@@ -16,6 +16,7 @@ class Filters extends BaseConfig
 
         // custom
         'cors'         => \App\Filters\Cors::class,
+        'rememberme' => \App\Filters\RememberMeFilter::class,
     ];
 
     // === GLOBAL FILTERS ===

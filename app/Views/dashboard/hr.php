@@ -37,7 +37,8 @@
     <a href="<?= base_url('users/create') ?>">
       <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
     </a>
-    <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
+   <a href="<?= base_url('history/hr') ?>">📂 History</a>
+
     
   </div>
 

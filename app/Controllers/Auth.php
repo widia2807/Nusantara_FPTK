@@ -14,70 +14,89 @@ class Auth extends ResourceController
     // POST /api/login  
     // ================================
     public function login()
-    {
-        $request = $this->request->getJSON() ?? (object) $this->request->getPost();
+{
+    $request = $this->request->getJSON() ?? (object) $this->request->getPost();
 
-        $username = $request->username ?? '';
-        $password = $request->password ?? '';
+    $username = $request->username ?? '';
+    $password = $request->password ?? '';
+    $remember = $request->rememberMe ?? false; // ✅ tangkap rememberMe dari request
 
-        $userModel = new UserModel();
-        $user = $userModel->where('username', $username)->first();
+    $userModel = new UserModel();
+    $user = $userModel->where('username', $username)->first();
 
-        if (!$user) {
-            return $this->respond(['error' => 'User tidak ditemukan'], 401);
-        }
+    if (!$user) {
+        return $this->respond(['error' => 'User tidak ditemukan'], 401);
+    }
 
-        // cek password hash
-        if (!isset($user['password']) || !password_verify($password, $user['password'])) {
-            return $this->respond(['error' => 'Password salah'], 401);
-        }
+    // cek password hash
+    if (!isset($user['password']) || !password_verify($password, $user['password'])) {
+        return $this->respond(['error' => 'Password salah'], 401);
+    }
 
-        // 🔴 cek password default
-        if (password_verify("123456", $user['password'])) {
-            // ✅ SET SESSION UNTUK FORCE CHANGE PASSWORD
-            $session = session();
-            $session->set([
-                'temp_user_id'   => $user['id_user'],
-                'temp_username'  => $user['username'],
-                'temp_full_name' => $user['full_name'],
-                'temp_role'      => $user['role'],
-                'force_change_password' => true
-            ]);
-            
-            return $this->respond([
-                'status'  => 'force_change_password',
-                'message' => 'Silakan ubah password default Anda',
-                'user'    => [
-                    'id_user'   => $user['id_user'],
-                    'username'  => $user['username'],
-                    'full_name' => $user['full_name'],
-                    'role'      => $user['role'],
-                ],
-                'redirect_url' => base_url('auth/change-password')
-            ]);
-        }
-
-        // ✅ set session kalau bukan default password
+    // 🔴 cek password default
+    if (password_verify("123456", $user['password'])) {
         $session = session();
         $session->set([
-            'id_user'   => $user['id_user'],
-            'username'  => $user['username'],
-            'full_name' => $user['full_name'],
-            'role'      => $user['role'],
-            'isLoggedIn'=> true
+            'temp_user_id'   => $user['id_user'],
+            'temp_username'  => $user['username'],
+            'temp_full_name' => $user['full_name'],
+            'temp_role'      => $user['role'],
+            'force_change_password' => true
         ]);
-        $session->regenerate();
 
         return $this->respond([
-            'status' => 'success',
-            'user' => [
+            'status'  => 'force_change_password',
+            'message' => 'Silakan ubah password default Anda',
+            'user'    => [
                 'id_user'   => $user['id_user'],
                 'username'  => $user['username'],
                 'full_name' => $user['full_name'],
                 'role'      => $user['role'],
-            ]
+            ],
+            'redirect_url' => base_url('auth/change-password')
         ]);
     }
+
+    // ✅ set session kalau bukan default password
+    $session = session();
+    $session->set([
+        'id_user'   => $user['id_user'],
+        'username'  => $user['username'],
+        'full_name' => $user['full_name'],
+        'role'      => $user['role'],
+        'isLoggedIn'=> true
+    ]);
+    $session->regenerate();
+
+    // ✅ remember me logic
+    if ($remember) {
+        helper('text');
+        $token   = bin2hex(random_bytes(32));
+        $expired = date('Y-m-d H:i:s', strtotime('+30 days'));
+
+        // simpan token ke DB
+        $db = \Config\Database::connect();
+        $db->table('user_tokens')->insert([
+            'id_user'    => $user['id_user'],
+            'token'      => $token,
+            'expired_at' => $expired
+        ]);
+
+        // simpan token ke cookie
+        setcookie("remember_token", $token, time() + (86400 * 30), "/");
+    }
+
+    return $this->respond([
+        'status' => 'success',
+        'user' => [
+            'id_user'   => $user['id_user'],
+            'username'  => $user['username'],
+            'full_name' => $user['full_name'],
+            'role'      => $user['role'],
+        ]
+    ]);
+}
+
 
     // ================================
     // GET /auth/change-password
@@ -168,10 +187,18 @@ class Auth extends ResourceController
     // ================================
     // GET /logout
     // ================================
-    public function logout()
-    {
-        $session = session();
-        $session->destroy();
-        return redirect()->to('/login');
+   public function logout()
+{
+    $session = session();
+    $session->destroy();
+
+    // hapus cookie
+    if (isset($_COOKIE['remember_token'])) {
+        $db = \Config\Database::connect();
+        $db->table('user_tokens')->where('token', $_COOKIE['remember_token'])->delete();
+        setcookie('remember_token', '', time() - 3600, "/");
     }
+
+    return redirect()->to(base_url('login'))->with('success', 'Berhasil logout');
+}
 }

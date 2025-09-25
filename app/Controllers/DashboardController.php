@@ -30,12 +30,14 @@ class DashboardController extends BaseController
 
 public function div_history()
 {
-    return view('div_history');
+   return view('div_menu/div_history');
+
 }
 
 public function hr_history()
 {
-    return view('hr_history');
+    // arahkan ke view yang sudah ada di /views/users/hr_history.php
+    return view('users/hr_history');
 }
 
 public function rek_history()

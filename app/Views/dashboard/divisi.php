@@ -65,6 +65,128 @@
   </style>
 </head>
 <body>
+  <style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f9fafc;
+    color: #212529;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    padding-top: 20px;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+  }
+  .sidebar h6 {
+    color: #0d6efd;
+    font-weight: 700;
+  }
+  .sidebar a {
+    display: block;
+    padding: 10px 20px;
+    color: #444;
+    text-decoration: none;
+    font-size: 14px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+  .sidebar a:hover {
+    background: #e7f1ff;
+    border-left: 3px solid #0d6efd;
+    color: #0d6efd;
+  }
+
+  /* Content */
+  .content {
+    margin-left: 220px;
+    padding: 25px;
+  }
+
+  /* Header */
+  h2 {
+    font-weight: 700;
+    color: #0d6efd;
+  }
+
+  /* Cards */
+  .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+  }
+  .card h3 {
+    font-weight: 700;
+    color: #0d6efd;
+  }
+
+  /* Table */
+  .table thead {
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    color: #fff;
+  }
+  .table-hover tbody tr:hover {
+    background: #f1f5ff;
+  }
+
+  /* Badge Status */
+  .badge {
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 8px;
+  }
+
+  /* Dropdown avatar */
+  .dropdown-toggle img {
+    border: 2px solid #0d6efd;
+  }
+
+  /* Modal */
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+  .modal-header {
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    color: #fff;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+
+  /* Button */
+  .btn-info {
+    background: #0dcaf0;
+    border: none;
+    color: #fff;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .btn-info:hover {
+    background: #0bb8dc;
+  }
+
+  /* Footer (kalau dipakai lagi) */
+  footer {
+    margin-left: 220px;
+    background: #111;
+    color: #bbb;
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+  }
+</style>
+
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -77,8 +199,8 @@
       <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
       Pengajuan
     </a>
-   <a href="<?= base_url('history') ?>">📂 History</a>
-    <a href="#" class="btn btn-dark w-100 mt-4">Logout</a>
+   <a href="<?= base_url('history/div') ?>">📂 History</a>
+    
   </div>
 
   <!-- Content -->
@@ -91,7 +213,6 @@
         </button>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="#">Profile</a></li>
-          <li><a class="dropdown-item" href="#">Settings</a></li>
           <li><a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a></li>
         </ul>
       </div>
@@ -157,9 +278,9 @@
   </div>
 
   <!-- Footer -->
-  <footer>
+  <!-- <footer>
     NusantaraIT © 2025. All rights reserved.
-  </footer>
+  </footer> -->
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
  <script>
