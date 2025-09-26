@@ -6,23 +6,53 @@
   <title>Dashboard Management - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9fafc;
+    }
+
+    /* Sidebar */
     .sidebar {
-      width: 220px;
-      position: fixed;
-      top: 0; left: 0; height: 100%;
-      background: #f8f9fa; border-right: 1px solid #ddd;
+      width: 220px; position: fixed; top: 0; left: 0; height: 100%;
+      background: #fff; border-right: 1px solid #ddd;
       padding-top: 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+    }
+    .sidebar h6 {
+      color: #0d6efd; font-weight: 700;
     }
     .sidebar a {
       display: block; padding: 10px 20px;
       color: #333; text-decoration: none;
+      font-size: 14px; border-left: 3px solid transparent;
+      transition: all 0.2s;
     }
-    .sidebar a:hover { background: #e9ecef; }
-    .content { margin-left: 220px; padding: 20px; }
-    footer {
-      margin-left: 220px; background: #222; color: #fff;
-      text-align: center; padding: 15px;
+    .sidebar a:hover {
+      background: #e7f1ff;
+      border-left: 3px solid #0d6efd;
+      color: #0d6efd;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 240px; padding: 30px;
+    }
+
+    /* Card */
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+    .card h6 { color: #6c757d; }
+
+    /* Table */
+    .table-dark th {
+      background: #0d6efd !important;
+      border-color: #0b5ed7;
+    }
+    .table th, .table td {
+      font-size: 14px;
+      padding: 8px 10px;
     }
   </style>
 </head>
@@ -36,7 +66,6 @@
     </div>
     <a href="<?= base_url('dashboard/management') ?>">📊 Dashboard</a>
     <a href="<?= base_url('history/management') ?>">📂 History</a>
-
   </div>
 
   <!-- Content -->
@@ -45,7 +74,7 @@
       <h2>Dashboard Management</h2>
       <div class="dropdown">
         <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <img src="https://via.placeholder.com/30" class="rounded-circle"> Management
+          <img src="https://via.placeholder.com/30" class="rounded-circle me-2"> Management
         </button>
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="#">Profile</a></li>
@@ -60,7 +89,7 @@
       <div class="col-md-4">
         <div class="card text-center">
           <div class="card-body">
-            <h6 class="text-muted">Total Pengajuan</h6>
+            <h6>Total Pengajuan</h6>
             <h3 id="cardTotal">0</h3>
           </div>
         </div>
@@ -68,7 +97,7 @@
       <div class="col-md-4">
         <div class="card text-center">
           <div class="card-body">
-            <h6 class="text-muted">Disetujui</h6>
+            <h6>Disetujui</h6>
             <h3 id="cardApproved">0</h3>
           </div>
         </div>
@@ -76,7 +105,7 @@
       <div class="col-md-4">
         <div class="card text-center">
           <div class="card-body">
-            <h6 class="text-muted">Ditolak</h6>
+            <h6>Ditolak</h6>
             <h3 id="cardRejected">0</h3>
           </div>
         </div>
@@ -112,10 +141,55 @@
     </div>
   </div>
 
-  <!-- Footer -->
-  <!-- <footer>
-    NusantaraIT © 2025. All rights reserved.
-  </footer> -->
+  <!-- Modal Detail -->
+  <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detail Pengajuan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
+          <form>
+            <input type="hidden" id="detailIdPengajuan">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Divisi</label>
+                <input type="text" id="detailDivisi" class="form-control" disabled>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Posisi</label>
+                <input type="text" id="detailPosisi" class="form-control" disabled>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Cabang</label>
+                <input type="text" id="detailCabang" class="form-control" disabled>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Jumlah Karyawan</label>
+                <input type="text" id="detailJumlah" class="form-control" disabled>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Kualifikasi</label>
+              <textarea id="detailKualifikasi" class="form-control" rows="2" disabled></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Comment Management <span class="text-danger">*</span></label>
+              <textarea id="detailCommentMng" class="form-control" rows="2" placeholder="Wajib diisi jika reject..."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnReject" class="btn btn-danger">Reject</button>
+          <button type="button" id="btnAccept" class="btn btn-success">Accept</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
@@ -126,30 +200,22 @@
       tbody.innerHTML = '';
 
       if (!json.data || json.data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="text-center">Belum ada data pengajuan</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">Belum ada data</td></tr>`;
         return;
       }
 
       let total = 0, approved = 0, rejected = 0;
 
       json.data.forEach(item => {
-        // hanya tampil kalau HR sudah Approved dan status management masih Pending
         if (item.status_hr !== 'Approved') return;
-        
-        // MODIFIKASI: Jangan tampilkan yang sudah Approved/Rejected di dashboard
-        if (item.status_management === 'Approved' || item.status_management === 'Rejected') {
-          // Hitung untuk statistik tapi jangan tampilkan di tabel
-          total++;
-          if (item.status_management === 'Approved') approved++;
-          if (item.status_management === 'Rejected') rejected++;
-          return;
-        }
-
         total++;
         if (item.status_management === 'Approved') approved++;
         if (item.status_management === 'Rejected') rejected++;
 
-        const badgeMng = `<span class="badge bg-${item.status_management === 'Approved' ? 'success' : item.status_management === 'Rejected' ? 'danger' : 'warning'}">${item.status_management || 'Pending'}</span>`;
+        const badgeMng = `<span class="badge bg-${
+          item.status_management === 'Approved' ? 'success' : 
+          item.status_management === 'Rejected' ? 'danger' : 'warning'
+        }">${item.status_management || 'Pending'}</span>`;
 
         tbody.innerHTML += `
           <tr>
@@ -163,20 +229,10 @@
             <td>${item.created_at}</td>
             <td>${badgeMng}</td>
             <td>
-              <button class="btn btn-sm btn-info" 
-                data-item='${JSON.stringify(item)}' 
-                onclick="showDetail(this)">
-                Detail
-              </button>
+              <button class="btn btn-sm btn-info" data-item='${JSON.stringify(item)}' onclick="showDetail(this)">Detail</button>
             </td>
-          </tr>
-        `;
+          </tr>`;
       });
-
-      // Jika tidak ada data pending, tampilkan pesan
-      if (tbody.innerHTML === '') {
-        tbody.innerHTML = `<tr><td colspan="10" class="text-center">Tidak ada pengajuan yang perlu direview</td></tr>`;
-      }
 
       document.getElementById('cardTotal').innerText = total;
       document.getElementById('cardApproved').innerText = approved;
@@ -185,206 +241,46 @@
 
     function showDetail(btn) {
       const data = JSON.parse(btn.getAttribute('data-item'));
-
       document.getElementById('detailIdPengajuan').value = data.id_pengajuan;
-      document.getElementById('detailDivisi').value      = data.nama_divisi;
-      document.getElementById('detailPosisi').value      = data.nama_posisi;
-      document.getElementById('detailCabang').value      = data.nama_cabang;
-      document.getElementById('detailJumlah').value      = data.jumlah_karyawan;
-      document.getElementById('detailJobPost').value     = data.job_post_number;
-      document.getElementById('detailTipe').value        = data.tipe_pekerjaan;
-      document.getElementById('detailUmur').value        = data.range_umur;
-      document.getElementById('detailTempat').value      = data.tempat_kerja;
-      document.getElementById('detailKualifikasi').value = data.kualifikasi;
-      document.getElementById('detailCreated').value     = data.created_at;
-      document.getElementById('detailMinGaji').value     = data.min_gaji ?? '-';
-      document.getElementById('detailMaxGaji').value     = data.max_gaji ?? '-';
-      document.getElementById('detailCommentMng').value  = data.comment_management ?? '';
-
-      const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-      modal.show();
+      document.getElementById('detailDivisi').value = data.nama_divisi;
+      document.getElementById('detailPosisi').value = data.nama_posisi;
+      document.getElementById('detailCabang').value = data.nama_cabang;
+      document.getElementById('detailJumlah').value = data.jumlah_karyawan;
+      document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
+      document.getElementById('detailCommentMng').value = data.comment_management || '';
+      new bootstrap.Modal(document.getElementById('detailModal')).show();
     }
 
     async function updateStatus(id, status) {
       const comment = document.getElementById('detailCommentMng').value.trim();
-
-      if (status === 'Rejected' && comment === '') {
+      if (status === 'Rejected' && !comment) {
         alert('Comment wajib diisi jika Reject!');
         return;
       }
 
-      try {
-        const res = await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${id}/management-review`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            status_management: status,
-            comment: comment
-          }),
-          credentials: 'include' 
-        });
+      await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${id}/management-review`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status_management: status, comment }),
+        credentials: 'include'
+      });
 
-        const json = await res.json();
-        if (res.ok) {
-          // MODIFIKASI: Jika rejected, langsung pindahkan ke history
-          if (status === 'Rejected') {
-            await moveToHistory(id, status, comment);
-          }
-          
-          alert(`Pengajuan berhasil di${status}`);
-          const modal = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
-          modal.hide();
-          loadPengajuan(); // reload tabel
-        } else {
-          alert('Gagal update: ' + (json.error || 'Unknown error'));
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
+      loadPengajuan();
     }
 
-    // FUNGSI BARU: Pindahkan ke history
-    async function moveToHistory(id, status, comment) {
-      try {
-        const res = await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${id}/move-to-history`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            final_status: status,
-            final_comment: comment,
-            reviewed_by: 'Management',
-            reviewed_at: new Date().toISOString()
-          }),
-          credentials: 'include'
-        });
-
-        if (!res.ok) {
-          console.error('Failed to move to history:', await res.text());
-        }
-      } catch (err) {
-        console.error('Error moving to history:', err);
-      }
-    }
-
-    // Pasang ke tombol
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('btnReject').addEventListener('click', () => {
         const id = document.getElementById('detailIdPengajuan').value;
-        
-        // Konfirmasi sebelum reject
-        if (confirm('Apakah Anda yakin ingin menolak pengajuan ini? Pengajuan akan dipindahkan ke history.')) {
-          updateStatus(id, 'Rejected');
-        }
+        if (confirm('Yakin ingin menolak pengajuan ini?')) updateStatus(id, 'Rejected');
       });
-
       document.getElementById('btnAccept').addEventListener('click', () => {
         const id = document.getElementById('detailIdPengajuan').value;
-        
-        if (confirm('Apakah Anda yakin ingin menyetujui pengajuan ini?')) {
-          updateStatus(id, 'Approved');
-        }
+        if (confirm('Yakin ingin menyetujui pengajuan ini?')) updateStatus(id, 'Approved');
       });
     });
 
     loadPengajuan();
   </script>
-
-  <!-- Modal Detail Pengajuan -->
-  <div class="modal fade" id="detailModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detail Pengajuan</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        
-        <div class="modal-body" style="max-height:70vh; overflow-y:auto;"> 
-          <form>
-            <input type="hidden" id="detailIdPengajuan">
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Divisi</label>
-                <input type="text" id="detailDivisi" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Posisi</label>
-                <input type="text" id="detailPosisi" class="form-control" disabled>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Cabang</label>
-                <input type="text" id="detailCabang" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Jumlah Karyawan</label>
-                <input type="text" id="detailJumlah" class="form-control" disabled>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Job Post Number</label>
-              <input type="text" id="detailJobPost" class="form-control" disabled>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Tipe Pekerjaan</label>
-              <input type="text" id="detailTipe" class="form-control" disabled>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Range Umur</label>
-              <input type="text" id="detailUmur" class="form-control" disabled>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Tempat Kerja</label>
-              <input type="text" id="detailTempat" class="form-control" disabled>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Kualifikasi</label>
-              <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Tanggal Dibuat</label>
-              <input type="text" id="detailCreated" class="form-control" disabled>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Min Gaji</label>
-                <input type="text" id="detailMinGaji" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Max Gaji</label>
-                <input type="text" id="detailMaxGaji" class="form-control" disabled>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Comment Management <span class="text-danger">*</span></label>
-              <textarea id="detailCommentMng" class="form-control" rows="2" placeholder="Wajib diisi jika reject..."></textarea>
-              <small class="text-muted">Catatan: Comment wajib diisi jika pengajuan ditolak</small>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" id="btnReject" class="btn btn-danger">
-            <i class="bi bi-x-circle"></i> Reject & Move to History
-          </button>
-          <button type="button" id="btnAccept" class="btn btn-success">
-            <i class="bi bi-check-circle"></i> Accept
-          </button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>

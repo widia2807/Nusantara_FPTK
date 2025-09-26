@@ -7,55 +7,73 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9fafc;
+      color: #212529;
     }
+
     .sidebar {
       width: 220px;
       position: fixed;
       top: 0;
       left: 0;
       height: 100%;
-      background: #f8f9fa;
-      border-right: 1px solid #ddd;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
       padding-top: 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+    }
+    .sidebar h6 {
+      color: #0d6efd;
+      font-weight: 700;
     }
     .sidebar a {
       display: block;
       padding: 10px 20px;
-      color: #333;
+      color: #444;
       text-decoration: none;
+      font-size: 14px;
+      border-left: 3px solid transparent;
+      transition: all 0.2s ease;
     }
     .sidebar a:hover {
-      background: #e9ecef;
+      background: #e7f1ff;
+      border-left: 3px solid #0d6efd;
+      color: #0d6efd;
     }
+
     .content {
       margin-left: 220px;
-      padding: 20px;
+      padding: 25px;
     }
-    
 
-    /* Tabel compact */
+    ./* Card */
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .card h4 {
+      color: #0d6efd;
+      font-weight: 700;
+    }
+
+    /* Table */
     .table-compact th, 
     .table-compact td {
-      padding: 4px 6px !important;
-      font-size: 12px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
+      padding: 6px 10px !important;
+      font-size: 13px;
       vertical-align: middle;
     }
+    .table-dark th {
+      background: #0d6efd !important;
+      border-color: #0b5ed7;
+    }
 
-    /* Batasi lebar kolom */
-    .table-compact th:nth-child(1), .table-compact td:nth-child(1) { width: 40px; }   /* ID */
-    .table-compact th:nth-child(2), .table-compact td:nth-child(2) { max-width: 80px; } /* Divisi */
-    .table-compact th:nth-child(3), .table-compact td:nth-child(3) { max-width: 100px; } /* Posisi */
-    .table-compact th:nth-child(4), .table-compact td:nth-child(4) { max-width: 80px; } /* Cabang */
-    .table-compact th:nth-child(5), .table-compact td:nth-child(5) { width: 50px; }   /* Jumlah */
-    .table-compact th:nth-child(6), .table-compact td:nth-child(6) { width: 80px; }   /* Job Post */
-    .table-compact th:nth-child(7), .table-compact td:nth-child(7) { width: 80px; }   /* Tipe */
-    .table-compact th:nth-child(8), .table-compact td:nth-child(8) { width: 110px; }  /* Tanggal */
-    .table-compact th.status-col, .table-compact td.status-col { width: 60px; text-align: center; }
-    .table-compact th:last-child, .table-compact td:last-child { width: 65px; text-align: center; } /* Detail */
+    /* .badge {
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 8px;
+    } */
   </style>
 </head>
 <body>
@@ -71,9 +89,8 @@
       <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
       Pengajuan
     </a>
-   <a href="<?= base_url('history/divisi') ?>">📂 History</a>
-    
-  </div>z
+    <a href="<?= base_url('history/divisi') ?>">📂 History</a>
+  </div>
 
   <!-- Content -->
   <div class="content">
@@ -81,7 +98,7 @@
       <h4 class="mb-3">History Pengajuan Divisi</h4>
       <div class="table-responsive">
         <table class="table table-hover table-sm align-middle">
-          <thead class="table-dark">
+          <thead>
             <tr>
               <th>ID</th>
               <th>Divisi</th>
@@ -91,56 +108,81 @@
               <th>Job Post</th>
               <th>Tipe</th>
               <th>Tanggal</th>
-              <th>Status HR</th>
-              <th>Status Mng</th>
-              <th>Comment</th>
+              <th>Status</th>
+              <th>Reviewer</th>
+              <th>Role</th>
+              <th>Komentar</th>
             </tr>
           </thead>
           <tbody id="historyTable">
-            <tr><td colspan="11" class="text-center">Loading...</td></tr>
+            <tr><td colspan="12" class="text-center">Loading...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-
   <script>
     async function loadHistory() {
       const res = await fetch('http://localhost/nusantara_api/public/api/history');
       const json = await res.json();
-      console.log(json); 
       const tbody = document.getElementById('historyTable');
       tbody.innerHTML = '';
 
       if (!json.data || json.data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="text-center">Belum ada history</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada history</td></tr>`;
         return;
       }
 
       json.data.forEach(item => {
-  // hanya tampilkan yang action = Rejected
-  if (item.action === 'Rejected') {
-    const badge = `<span class="badge bg-danger">Rejected</span>`;
+        let statusBadge = `<span class="badge bg-secondary">Pending</span>`;
+        let reviewer = item.full_name || "-";
+        let role = item.role_user || "-";
 
-    tbody.innerHTML += `
-      <tr>
-        <td>${item.id_pengajuan}</td>
-        <td>${item.nama_divisi}</td>
-        <td>${item.nama_posisi}</td>
-        <td>${item.nama_cabang}</td>
-        <td>${item.jumlah_karyawan}</td>
-        <td>${item.job_post_number}</td>
-        <td>${item.tipe_pekerjaan}</td>
-        <td>${item.created_at}</td>
-        <td>${item.role_user}</td>
-        <td>${badge}</td>
-        <td>${item.comment || '-'}</td>
-      </tr>
-    `;
-  }
-});
+        const hr = item.status_hr ? item.status_hr.toLowerCase() : "";
+        const mng = item.status_management ? item.status_management.toLowerCase() : "";
+        const rek = item.status_rekrutmen ? item.status_rekrutmen.toLowerCase() : "";
 
+        // Urutan prioritas review
+        if (rek === "selesai") {
+          statusBadge = `<span class="badge bg-success">Rekrutmen Selesai</span>`;
+          reviewer = item.reviewer_rekrutmen || reviewer;
+          role = "Rekrutmen";
+        } else if (mng === "rejected") {
+          statusBadge = `<span class="badge bg-danger">Mng Rejected</span>`;
+          reviewer = item.reviewer_management || reviewer;
+          role = "Management";
+        } else if (hr === "rejected") {
+          statusBadge = `<span class="badge bg-danger">HR Rejected</span>`;
+          reviewer = item.reviewer_hr || reviewer;
+          role = "HR";
+        } else if (mng === "accepted" || mng === "approved") {
+          statusBadge = `<span class="badge bg-primary">Mng Approved</span>`;
+          reviewer = item.reviewer_management || reviewer;
+          role = "Management";
+        } else if (hr === "accepted" || hr === "approved") {
+          statusBadge = `<span class="badge bg-primary">HR Approved</span>`;
+          reviewer = item.reviewer_hr || reviewer;
+          role = "HR";
+        }
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.id_pengajuan}</td>
+            <td>${item.nama_divisi}</td>
+            <td>${item.nama_posisi}</td>
+            <td>${item.nama_cabang}</td>
+            <td>${item.jumlah_karyawan}</td>
+            <td>${item.job_post_number}</td>
+            <td>${item.tipe_pekerjaan}</td>
+            <td>${item.created_at}</td>
+            <td>${statusBadge}</td>
+            <td>${reviewer}</td>
+            <td>${role}</td>
+            <td>${item.comment || '-'}</td>
+          </tr>
+        `;
+      });
     }
 
     loadHistory();

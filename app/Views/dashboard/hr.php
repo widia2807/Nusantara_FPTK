@@ -3,22 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Nusantara Portal</title>
+  <title>Dashboard HR - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; }
-    .sidebar {
-      width: 220px; position: fixed; top: 0; left: 0; height: 100%;
-      background: #f8f9fa; border-right: 1px solid #ddd; padding-top: 20px;
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f9fafc;
+      color: #212529;
     }
-    .sidebar a { display: block; padding: 10px 20px; color: #333; text-decoration: none; }
-    .sidebar a:hover { background: #e9ecef; }
-    .content { margin-left: 220px; padding: 20px; }
-    
-    /* Tabel lebih besar */
-    table.table th, table.table td {
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      padding-top: 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+    }
+    .sidebar h6 {
+      color: #0d6efd;
+      font-weight: 700;
+    }
+    .sidebar a {
+      display: block;
+      padding: 10px 20px;
+      color: #444;
+      text-decoration: none;
       font-size: 14px;
-      padding: 8px 10px;
+      border-left: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .sidebar a:hover {
+      background: #e7f1ff;
+      border-left: 3px solid #0d6efd;
+      color: #0d6efd;
+    }
+
+    /* Content */
+    .content {
+      margin-left: 220px;
+      padding: 25px;
+    }
+
+    /* Header */
+    h2 {
+      font-weight: 700;
+      color: #0d6efd;
+    }
+
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    .card h3 {
+      font-weight: 700;
+      color: #0d6efd;
+    }
+
+    /* Table */
+    .table thead {
+      background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+      color: #fff;
+    }
+    .table-hover tbody tr:hover {
+      background: #f1f5ff;
+    }
+
+    /* Badge */
+    .badge {
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 8px;
+    }
+
+    /* Modal */
+    .modal-content {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+    .modal-header {
+      background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+      color: #fff;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    .modal-title {
+      font-weight: 600;
+    }
+    .modal-footer .btn {
+      border-radius: 8px;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -30,19 +115,15 @@
       <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="40">
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
-    <a href="#">📊 Dashboard</a>
-    <a href="<?= base_url('users/create') ?>">
-      <img src="https://img.icons8.com/ios-filled/50/000000/add-user-male.png" width="30"> Tambah Akun
-    </a>
-   <a href="<?= base_url('history/hr') ?>">📂 History</a>
-
-    
+    <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
+    <a href="<?= base_url('users/create') ?>">➕ Tambah Akun</a>
+    <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
   </div>
 
   <!-- Content -->
-   <div class="content">
+  <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dashboard Divisi</h2>
+      <h2>Dashboard HR</h2>
       <div class="dropdown">
         <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
           <img src="https://via.placeholder.com/30" class="rounded-circle"> HR
@@ -50,7 +131,7 @@
         <ul class="dropdown-menu">
           <li><a class="dropdown-item" href="#">Profile</a></li>
           <li><a class="dropdown-item" href="#">Settings</a></li>
-          <li><a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a></li>
+          <li><a href="<?= base_url('logout') ?>" class="dropdown-item text-danger">Logout</a></li>
         </ul>
       </div>
     </div>
@@ -89,7 +170,7 @@
         <h5 class="mb-3">Review Pengajuan HR</h5>
         <div class="table-responsive">
           <table class="table table-hover table-sm align-middle">
-            <thead class="table-dark">
+            <thead>
               <tr>
                 <th>ID</th>
                 <th>Divisi</th>
@@ -126,7 +207,6 @@
           <form id="hrForm">
             <input type="hidden" id="detailId">
 
-            <!-- Info -->
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Divisi</label>
@@ -139,17 +219,16 @@
             </div>
 
             <div class="row">
-  <div class="col-md-6 mb-3">
-    <label class="form-label">Kualifikasi</label>
-    <textarea id="detailKualifikasi" class="form-control" rows="2" disabled></textarea>
-  </div>
-  <div class="col-md-6 mb-3">
-    <label class="form-label">Range Umur</label>
-    <input type="text" id="detailUmur" class="form-control" disabled>
-  </div>
-</div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Kualifikasi</label>
+                <textarea id="detailKualifikasi" class="form-control" rows="2" disabled></textarea>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Range Umur</label>
+                <input type="text" id="detailUmur" class="form-control" disabled>
+              </div>
+            </div>
 
-            <!-- Gaji (hidden dulu) -->
             <div class="row" id="gajiRow" style="display:none;">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Min Gaji</label>
@@ -161,15 +240,12 @@
               </div>
             </div>
 
-            <!-- Comment -->
             <div class="mb-3">
               <label class="form-label">Comment (wajib jika Reject)</label>
               <textarea id="detailComment" class="form-control" rows="3"></textarea>
             </div>
           </form>
         </div>
-
-        <!-- Tombol di modal-footer -->
         <div class="modal-footer d-flex justify-content-end gap-2">
           <button type="button" class="btn btn-success" id="btnAccept" onclick="acceptPengajuan()">Accept</button>
           <button type="button" class="btn btn-danger" id="btnReject" onclick="rejectPengajuan()">Reject</button>
@@ -178,7 +254,6 @@
       </div>
     </div>
   </div>
-
  
   <script>
 let currentId = null;
@@ -200,12 +275,21 @@ async function loadPengajuan() {
   let pendingCount = 0, approvedCount = 0, rejectedCount = 0;
 
   json.data.forEach(item => {
-    const status = (item.status_hr || '').toLowerCase();
-    if (status === 'pending') pendingCount++;
-    else if (status === 'approved') approvedCount++;
-    else if (status === 'rejected') rejectedCount++;
+    const hr = (item.status_hr || '').toLowerCase();
+    const mng = (item.status_management || '').toLowerCase();
 
+    if (hr === 'pending') pendingCount++;
+    else if (hr === 'approved') approvedCount++;
+    else if (hr === 'rejected') rejectedCount++;
+
+    // ❌ skip kalau archived
     if (item.archived == 1) return;
+
+    // ❌ skip kalau HR sudah reject
+    if (item.status_hr === 'Rejected') return;
+
+    // ❌ skip kalau Management sudah reject
+    if (item.status_management === 'Rejected') return;
 
     const badgeHR  = `<span class="badge bg-${item.status_hr === 'Approved' ? 'success' : item.status_hr === 'Rejected' ? 'danger' : 'secondary'}">${item.status_hr}</span>`;
     const badgeMng = `<span class="badge bg-${item.status_management === 'Approved' ? 'success' : item.status_management === 'Rejected' ? 'danger' : 'secondary'}">${item.status_management}</span>`;
@@ -234,6 +318,8 @@ async function loadPengajuan() {
   document.getElementById('cardApproved').textContent = approvedCount;
   document.getElementById('cardRejected').textContent = rejectedCount;
 }
+
+
 
 function showDetail(btn) {
   const data = JSON.parse(btn.getAttribute('data-item'));

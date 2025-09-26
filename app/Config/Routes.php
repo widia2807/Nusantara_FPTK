@@ -27,6 +27,12 @@ $routes->group('dashboard', static function ($routes) {
     $routes->get('divisi', 'DashboardController::divisi');
 });
 
+// Users - WEB ROUTES (tambahkan ini)
+$routes->group('users', static function ($routes) {
+    $routes->get('create', 'Users::createForm');  // ✅ Route yang hilang!
+    $routes->get('hr_history', 'DashboardController::hr_history'); 
+});
+$routes->get('history', 'DashboardController::div_history');
 // History (khusus web / tampilan)
 $routes->group('history', static function ($routes) {
     $routes->get('/', 'DashboardController::history');
@@ -46,6 +52,9 @@ $routes->group('auth', static function ($routes) {
     $routes->post('change-password', 'Auth::changePassword');
 });
 
+// ==================
+// API ROUTES
+// ==================
 $routes->group('api', static function($routes) {
     // Preflight untuk semua /api/*
     $routes->options('(:any)', 'Auth::options');     // OPTIONS /api/*
@@ -54,16 +63,15 @@ $routes->group('api', static function($routes) {
     $routes->get('ping', 'Auth::ping');              // GET /api/ping
 
     // Auth
-     $routes->post('login', 'Auth::login');
+    $routes->post('login', 'Auth::login');
 
     // Dev util (hapus di produksi)
     $routes->get('dev/set-password', 'Auth::devSetPassword');
 
     $routes->post('users', 'Users::create'); // POST /api/users
-     $routes->put('users/(:num)/change-password', 'Users::changePassword/$1');
+    $routes->put('users/(:num)/change-password', 'Users::changePassword/$1');
 
-
-     // DIVISI
+    // DIVISI
     $routes->get('divisi', 'Divisi::index');
     $routes->post('divisi', 'Divisi::create');
 
@@ -72,13 +80,13 @@ $routes->group('api', static function($routes) {
     $routes->post('posisi', 'Posisi::create');             // tambah posisi
 
     // PENGAJUAN
-     $routes->get('pengajuan', 'Pengajuan::index'); 
+    $routes->get('pengajuan', 'Pengajuan::index'); 
     $routes->post('pengajuan', 'Pengajuan::create');       // buat pengajuan baru
     $routes->get('pengajuan/(:num)', 'Pengajuan::show/$1');// detail pengajuan
     $routes->put('pengajuan/(:num)/hr-review', 'Pengajuan::hrReview/$1');
     $routes->put('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
-   // HISTORY
-$routes->get('history', 'History::index');
     
+    // HISTORY
+    $routes->get('history', 'History::index');
 });
