@@ -47,33 +47,29 @@
       padding: 25px;
     }
 
-    ./* Card */
     .card {
+      border: none;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
     .card h4 {
-      color: #0d6efd;
       font-weight: 700;
+      color: #0d6efd;
     }
 
-    /* Table */
-    .table-compact th, 
-    .table-compact td {
-      padding: 6px 10px !important;
-      font-size: 13px;
-      vertical-align: middle;
+    .table thead {
+      background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+      color: #fff;
     }
-    .table-dark th {
-      background: #0d6efd !important;
-      border-color: #0b5ed7;
+    .table-hover tbody tr:hover {
+      background: #f1f5ff;
     }
 
-    /* .badge {
+    .badge {
       font-size: 11px;
       padding: 5px 8px;
       border-radius: 8px;
-    } */
+    }
   </style>
 </head>
 <body>
