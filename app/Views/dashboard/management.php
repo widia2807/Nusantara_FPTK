@@ -142,54 +142,106 @@
   </div>
 
   <!-- Modal Detail -->
-  <div class="modal fade" id="detailModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detail Pengajuan</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
-          <form>
-            <input type="hidden" id="detailIdPengajuan">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Divisi</label>
-                <input type="text" id="detailDivisi" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Posisi</label>
-                <input type="text" id="detailPosisi" class="form-control" disabled>
-              </div>
+<div class="modal fade" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Detail Pengajuan</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="max-height:75vh; overflow-y:auto;">
+        <form>
+          <input type="hidden" id="detailIdPengajuan">
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Divisi</label>
+              <input type="text" id="detailDivisi" class="form-control" disabled>
             </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Cabang</label>
-                <input type="text" id="detailCabang" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Jumlah Karyawan</label>
-                <input type="text" id="detailJumlah" class="form-control" disabled>
-              </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Posisi</label>
+              <input type="text" id="detailPosisi" class="form-control" disabled>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Kualifikasi</label>
-              <textarea id="detailKualifikasi" class="form-control" rows="2" disabled></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cabang</label>
+              <input type="text" id="detailCabang" class="form-control" disabled>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Comment Management <span class="text-danger">*</span></label>
-              <textarea id="detailCommentMng" class="form-control" rows="2" placeholder="Wajib diisi jika reject..."></textarea>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Jumlah Karyawan</label>
+              <input type="text" id="detailJumlah" class="form-control" disabled>
             </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" id="btnReject" class="btn btn-danger">Reject</button>
-          <button type="button" id="btnAccept" class="btn btn-success">Accept</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Job Post Number</label>
+              <input type="text" id="detailJobPost" class="form-control" disabled>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tipe Pekerjaan</label>
+              <input type="text" id="detailTipe" class="form-control" disabled>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Range Umur</label>
+              <input type="text" id="detailUmur" class="form-control" disabled>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tanggal Pengajuan</label>
+              <input type="text" id="detailTanggal" class="form-control" disabled>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Min Gaji</label>
+              <input type="number" id="detailMinGaji" class="form-control" disabled>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Max Gaji</label>
+              <input type="number" id="detailMaxGaji" class="form-control" disabled>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Kualifikasi</label>
+            <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Status HR</label>
+              <input type="text" id="detailStatusHR" class="form-control" disabled>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Status Management</label>
+              <input type="text" id="detailStatusMng" class="form-control" disabled>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Status Rekrutmen</label>
+              <input type="text" id="detailStatusRek" class="form-control" disabled>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Komentar Management <span class="text-danger">*</span></label>
+            <textarea id="detailCommentMng" class="form-control" rows="3" placeholder="Wajib diisi jika reject..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btnReject" class="btn btn-danger">Reject</button>
+        <button type="button" id="btnAccept" class="btn btn-success">Accept</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
@@ -240,16 +292,27 @@
     }
 
     function showDetail(btn) {
-      const data = JSON.parse(btn.getAttribute('data-item'));
-      document.getElementById('detailIdPengajuan').value = data.id_pengajuan;
-      document.getElementById('detailDivisi').value = data.nama_divisi;
-      document.getElementById('detailPosisi').value = data.nama_posisi;
-      document.getElementById('detailCabang').value = data.nama_cabang;
-      document.getElementById('detailJumlah').value = data.jumlah_karyawan;
-      document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
-      document.getElementById('detailCommentMng').value = data.comment_management || '';
-      new bootstrap.Modal(document.getElementById('detailModal')).show();
-    }
+  const data = JSON.parse(btn.getAttribute('data-item'));
+
+  document.getElementById('detailIdPengajuan').value = data.id_pengajuan;
+  document.getElementById('detailDivisi').value = data.nama_divisi;
+  document.getElementById('detailPosisi').value = data.nama_posisi;
+  document.getElementById('detailCabang').value = data.nama_cabang;
+  document.getElementById('detailJumlah').value = data.jumlah_karyawan;
+  document.getElementById('detailJobPost').value = data.job_post_number || '';
+  document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
+  document.getElementById('detailUmur').value = data.range_umur || '';
+  document.getElementById('detailTanggal').value = data.created_at || '';
+  document.getElementById('detailMinGaji').value = data.min_gaji || '';
+  document.getElementById('detailMaxGaji').value = data.max_gaji || '';
+  document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
+  document.getElementById('detailStatusHR').value = data.status_hr || '';
+  document.getElementById('detailStatusMng').value = data.status_management || '';
+  document.getElementById('detailStatusRek').value = data.status_rekrutmen || '';
+  document.getElementById('detailCommentMng').value = data.comment_management || '';
+
+  new bootstrap.Modal(document.getElementById('detailModal')).show();
+}
 
     async function updateStatus(id, status) {
       const comment = document.getElementById('detailCommentMng').value.trim();

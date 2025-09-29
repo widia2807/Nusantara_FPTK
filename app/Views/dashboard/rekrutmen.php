@@ -165,56 +165,143 @@
   </div>
 
   <!-- Modal Detail -->
-  <div class="modal fade" id="detailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detail Pengajuan Rekrutmen</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="rekForm">
-            <input type="hidden" id="detailId">
+<div class="modal fade" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Detail Pengajuan Rekrutmen</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="max-height:75vh; overflow-y:auto;">
+        <form id="rekForm">
+          <input type="hidden" id="detailId">
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Divisi</label>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Divisi</label>
+              <div class="input-group">
                 <input type="text" id="detailDivisi" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailDivisi')">📋</button>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Posisi</label>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Posisi</label>
+              <div class="input-group">
                 <input type="text" id="detailPosisi" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailPosisi')">📋</button>
               </div>
             </div>
+          </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Cabang</label>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cabang</label>
+              <div class="input-group">
                 <input type="text" id="detailCabang" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailCabang')">📋</button>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Jumlah Karyawan</label>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Jumlah Karyawan</label>
+              <div class="input-group">
                 <input type="text" id="detailJumlah" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailJumlah')">📋</button>
               </div>
             </div>
+          </div>
 
-            <div class="mb-3">
-              <label class="form-label">Kualifikasi</label>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Job Post Number</label>
+              <div class="input-group">
+                <input type="text" id="detailJobPost" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailJobPost')">📋</button>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tipe Pekerjaan</label>
+              <div class="input-group">
+                <input type="text" id="detailTipe" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailTipe')">📋</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Range Umur</label>
+              <div class="input-group">
+                <input type="text" id="detailUmur" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailUmur')">📋</button>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tanggal</label>
+              <div class="input-group">
+                <input type="text" id="detailTanggal" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailTanggal')">📋</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Min Gaji</label>
+              <div class="input-group">
+                <input type="number" id="detailMinGaji" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailMinGaji')">📋</button>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Max Gaji</label>
+              <div class="input-group">
+                <input type="number" id="detailMaxGaji" class="form-control" disabled>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailMaxGaji')">📋</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Kualifikasi</label>
+            <div class="input-group">
               <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
+              <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailKualifikasi')">📋</button>
             </div>
+          </div>
 
-            <div class="mb-3">
-              <label class="form-label">Comment</label>
-              <textarea id="detailComment" class="form-control" rows="3" disabled></textarea>
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Status HR</label>
+              <input type="text" id="detailStatusHR" class="form-control" disabled>
             </div>
-          </form>
-        </div>
-        <div class="modal-footer d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-success" id="btnSelesai" onclick="selesaiPengajuan()">Selesai</button>
-        </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Status Management</label>
+              <input type="text" id="detailStatusMng" class="form-control" disabled>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Status Rekrutmen</label>
+              <input type="text" id="detailStatusRek" class="form-control" disabled>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Comment</label>
+            <div class="input-group">
+              <textarea id="detailComment" class="form-control" rows="3" disabled></textarea>
+              <button class="btn btn-outline-secondary" type="button" onclick="copyField('detailComment')">📋</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="btnSelesai" onclick="selesaiPengajuan()">Tandai Selesai</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
+</div>
+
 
   <script>
 let currentId = null;
@@ -272,10 +359,29 @@ function showDetail(btn) {
   document.getElementById('detailPosisi').value = data.nama_posisi;
   document.getElementById('detailCabang').value = data.nama_cabang;
   document.getElementById('detailJumlah').value = data.jumlah_karyawan;
+  document.getElementById('detailJobPost').value = data.job_post_number || '';
+  document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
+  document.getElementById('detailUmur').value = data.range_umur || '';
+  document.getElementById('detailTanggal').value = data.created_at || '';
+  document.getElementById('detailMinGaji').value = data.min_gaji || '';
+  document.getElementById('detailMaxGaji').value = data.max_gaji || '';
   document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
+  document.getElementById('detailStatusHR').value = data.status_hr || '';
+  document.getElementById('detailStatusMng').value = data.status_management || '';
+  document.getElementById('detailStatusRek').value = data.status_rekrutmen || '';
   document.getElementById('detailComment').value = data.comment || '';
 
   new bootstrap.Modal(document.getElementById('detailModal')).show();
+}
+
+function copyField(id) {
+  const el = document.getElementById(id);
+  const value = el.value || el.textContent;
+  navigator.clipboard.writeText(value).then(() => {
+    alert("Disalin: " + value);
+  }).catch(err => {
+    console.error("Gagal copy", err);
+  });
 }
 
 async function selesaiPengajuan() {

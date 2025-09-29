@@ -27,11 +27,24 @@ $routes->group('dashboard', static function ($routes) {
     $routes->get('divisi', 'DashboardController::divisi');
 });
 
-// Users - WEB ROUTES (tambahkan ini)
+// Users - WEB ROUTES
 $routes->group('users', static function ($routes) {
-    $routes->get('create', 'Users::createForm');  // ✅ Route yang hilang!
-    $routes->get('hr_history', 'DashboardController::hr_history'); 
+    $routes->get('create', 'Users::createForm');
+    $routes->get('hr_history', 'Users::hr_history');
+    $routes->get('manage', function() {
+        return view('users/manage');   // ✅ arahkan ke view manage.php
+    });
 });
+
+
+$routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('users', 'Users::index');
+    $routes->post('users/create', 'Users::create');
+    $routes->post('users/activate/(:num)', 'Users::activate/$1');
+    $routes->post('users/deactivate/(:num)', 'Users::deactivate/$1');
+    $routes->post('users/reset_password/(:num)', 'Users::reset_password/$1');
+});
+
 $routes->get('history', 'DashboardController::div_history');
 // History (khusus web / tampilan)
 $routes->group('history', static function ($routes) {

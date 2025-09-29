@@ -113,4 +113,57 @@ public function hr_history()
                 ->setJSON(['error' => 'Gagal membuat user']);
         }
     }
+     // ========== LIST USER ==========
+    public function index()
+    {
+        $this->corsHeaders();
+        $users = new UserModel();
+        $data = $users->select('id_user, username, full_name, role, is_active, created_at')->findAll();
+        return $this->response->setJSON(['status' => 'success', 'data' => $data]);
+    }
+
+    // ========== AKTIFKAN ==========
+    public function activate($id = null)
+    {
+        $this->corsHeaders();
+        if (!$id) return $this->response->setStatusCode(400)->setJSON(['error'=>'Missing id']);
+        
+        $users = new UserModel();
+        if (!$users->find($id)) return $this->response->setStatusCode(404)->setJSON(['error'=>'User tidak ditemukan']);
+        
+        $users->update($id, ['is_active'=>1]);
+        return $this->response->setJSON(['status'=>'success','message'=>'User diaktifkan']);
+    }
+
+    // ========== NONAKTIFKAN ==========
+    public function deactivate($id = null)
+    {
+        $this->corsHeaders();
+        if (!$id) return $this->response->setStatusCode(400)->setJSON(['error'=>'Missing id']);
+        
+        $users = new UserModel();
+        if (!$users->find($id)) return $this->response->setStatusCode(404)->setJSON(['error'=>'User tidak ditemukan']);
+        
+        $users->update($id, ['is_active'=>0]);
+        return $this->response->setJSON(['status'=>'success','message'=>'User dinonaktifkan']);
+    }
+
+    // ========== RESET PASSWORD ==========
+    public function reset_password($id = null)
+    {
+        $this->corsHeaders();
+        if (!$id) return $this->response->setStatusCode(400)->setJSON(['error'=>'Missing id']);
+        
+        $users = new UserModel();
+        $user = $users->find($id);
+        if (!$user) return $this->response->setStatusCode(404)->setJSON(['error'=>'User tidak ditemukan']);
+
+        $data = $this->request->getJSON(true) ?? [];
+        $newPass = trim($data['password'] ?? '123456');
+
+        $hash = password_hash($newPass, PASSWORD_DEFAULT);
+        $users->update($id, ['password'=>$hash]);
+
+        return $this->response->setJSON(['status'=>'success','message'=>'Password direset ke default']);
+    }
 }

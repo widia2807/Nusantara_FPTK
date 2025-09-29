@@ -80,6 +80,7 @@
     </div>
     <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
     <a href="<?= base_url('users/create') ?>">➕ Tambah Akun</a>
+    <a href="<?= base_url('users/manage') ?>" class="active">👥 Manajemen User</a>
     <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
   </div>
 

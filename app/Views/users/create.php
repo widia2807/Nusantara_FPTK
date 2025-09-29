@@ -93,6 +93,7 @@
     </div>
     <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
     <a href="<?= base_url('users/create') ?>">➕ Tambah Akun</a>
+    <a href="<?= base_url('users/manage') ?>" class="active">👥 Manajemen User</a>
     <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
   </div>
 
@@ -103,18 +104,13 @@
 
       <form id="createUserForm">
         <div class="mb-3">
-          <label class="form-label">Username</label>
-          <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
+          <label class="form-label">Username (Email)</label>
+          <input type="email" name="username" class="form-control" placeholder="contoh: user@gmail.com" required>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Full Name</label>
           <input type="text" name="full_name" class="form-control" placeholder="Masukkan nama lengkap" required>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
         </div>
 
         <div class="mb-3">
@@ -128,10 +124,8 @@
           </select>
         </div>
 
-        <div class="form-check mb-3">
-          <input class="form-check-input" type="checkbox" name="is_active" value="1" checked>
-          <label class="form-check-label">Aktif</label>
-        </div>
+        <!-- ⚠️ Checkbox aktif dihilangkan, default is_active = 0 -->
+        <small class="text-muted d-block mb-3">*Akun baru otomatis tidak aktif. Aktifkan nanti melalui menu Aktivasi.</small>
 
         <div class="d-flex justify-content-end gap-2">
           <a href="<?= base_url('dashboard/hr') ?>" class="btn btn-secondary">Batal</a>
@@ -146,12 +140,21 @@
     document.getElementById('createUserForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
+      const emailRegex = /^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$/;
+      const username = this.username.value.trim();
+
+      // ✅ Validasi email format
+      if (!emailRegex.test(username)) {
+        alert("Username harus berupa alamat email yang valid!");
+        return;
+      }
+
       const data = {
-        username: this.username.value.trim(),
+        username: username,
         full_name: this.full_name.value.trim(),
-        password: this.password.value.trim(),
+        password: "123456", // default password
         role: this.role.value,
-        is_active: this.is_active.checked ? 1 : 0
+        is_active: 0 // default akun belum aktif
       };
 
       try {
@@ -173,7 +176,7 @@
         let result = await response.json();
 
         if (result.status === "success") {
-          alert("User berhasil ditambahkan!");
+          alert("User berhasil dibuat dengan password default 123456. Akun belum aktif.");
           window.location.href = "<?= base_url('dashboard/hr') ?>";
         } else {
           alert(result.error || "Gagal menambahkan user");

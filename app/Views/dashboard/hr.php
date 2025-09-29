@@ -117,6 +117,7 @@
     </div>
     <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
     <a href="<?= base_url('users/create') ?>">➕ Tambah Akun</a>
+    <a href="<?= base_url('users/manage') ?>" class="active">👥 Manajemen User</a>
     <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
   </div>
 
@@ -196,64 +197,92 @@
   </div>
 
   <!-- Modal Detail -->
-  <div class="modal fade" id="detailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detail Pengajuan</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form id="hrForm">
-            <input type="hidden" id="detailId">
+<div class="modal fade" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-xl"> <!-- ✅ lebih besar -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detail Pengajuan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="hrForm">
+          <input type="hidden" id="detailId">
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Divisi</label>
-                <input type="text" id="detailDivisi" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Posisi</label>
-                <input type="text" id="detailPosisi" class="form-control" disabled>
-              </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Divisi</label>
+              <input type="text" id="detailDivisi" class="form-control" disabled>
             </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Posisi</label>
+              <input type="text" id="detailPosisi" class="form-control" disabled>
+            </div>
+          </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Kualifikasi</label>
-                <textarea id="detailKualifikasi" class="form-control" rows="2" disabled></textarea>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Range Umur</label>
-                <input type="text" id="detailUmur" class="form-control" disabled>
-              </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cabang</label>
+              <input type="text" id="detailCabang" class="form-control" disabled>
             </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Jumlah Karyawan</label>
+              <input type="number" id="detailJumlah" class="form-control" disabled>
+            </div>
+          </div>
 
-            <div class="row" id="gajiRow" style="display:none;">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Min Gaji</label>
-                <input type="number" id="minGaji" class="form-control" placeholder="5000000">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Max Gaji</label>
-                <input type="number" id="maxGaji" class="form-control" placeholder="7000000">
-              </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Job Post Number</label>
+              <input type="text" id="detailJobPost" class="form-control" disabled>
             </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tipe Pekerjaan</label>
+              <input type="text" id="detailTipe" class="form-control" disabled>
+            </div>
+          </div>
 
-            <div class="mb-3">
-              <label class="form-label">Comment (wajib jika Reject)</label>
-              <textarea id="detailComment" class="form-control" rows="3"></textarea>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Range Umur</label>
+              <input type="text" id="detailUmur" class="form-control" disabled>
             </div>
-          </form>
-        </div>
-        <div class="modal-footer d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-success" id="btnAccept" onclick="acceptPengajuan()">Accept</button>
-          <button type="button" class="btn btn-danger" id="btnReject" onclick="rejectPengajuan()">Reject</button>
-          <button type="button" class="btn btn-primary" id="btnSend" onclick="sendPengajuan()" disabled>Send</button>
-        </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tanggal Pengajuan</label>
+              <input type="text" id="detailTanggal" class="form-control" disabled>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Kualifikasi</label>
+            <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
+          </div>
+
+          <div class="row" id="gajiRow" style="display:none;">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Min Gaji</label>
+              <input type="number" id="minGaji" class="form-control" placeholder="5000000">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Max Gaji</label>
+              <input type="number" id="maxGaji" class="form-control" placeholder="7000000">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Komentar</label>
+            <textarea id="detailComment" class="form-control" rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-success" id="btnAccept" onclick="acceptPengajuan()">Accept</button>
+        <button type="button" class="btn btn-danger" id="btnReject" onclick="rejectPengajuan()">Reject</button>
+        <button type="button" class="btn btn-primary" id="btnSend" onclick="sendPengajuan()" disabled>Send</button>
       </div>
     </div>
   </div>
+</div>
+
  
   <script>
 let currentId = null;
@@ -330,6 +359,12 @@ function showDetail(btn) {
   document.getElementById('detailPosisi').value = data.nama_posisi;
   document.getElementById('detailUmur').value = data.range_umur || '';
   document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
+  document.getElementById('detailCabang').value = data.nama_cabang || '';
+document.getElementById('detailJumlah').value = data.jumlah_karyawan || '';
+document.getElementById('detailJobPost').value = data.job_post_number || '';
+document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
+document.getElementById('detailTanggal').value = data.created_at || '';
+
 
 
   document.getElementById('detailComment').value = data.comment || '';
