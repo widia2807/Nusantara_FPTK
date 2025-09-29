@@ -246,7 +246,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     async function loadPengajuan() {
-      const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
+      const res = await fetch('http://10.101.56.69:8080/api/pengajuan');
       const json = await res.json();
       const tbody = document.getElementById('pengajuanTable');
       tbody.innerHTML = '';
@@ -321,7 +321,7 @@
         return;
       }
 
-      await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${id}/management-review`, {
+      await fetch(`http://10.101.56.69:8080/api/pengajuan/${id}/management-review`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status_management: status, comment }),

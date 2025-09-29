@@ -288,7 +288,7 @@
 let currentId = null;
 
 async function loadPengajuan() {
-  const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
+  const res = await fetch('http://10.101.56.69:8080/api/pengajuan');
   const json = await res.json();
   const tbody = document.getElementById('pengajuanTable');
   tbody.innerHTML = '';
@@ -413,7 +413,7 @@ document.getElementById('detailTanggal').value = data.created_at || '';
 async function acceptPengajuan() {
   try {
     // panggil API untuk update status_hr
-    const res = await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/hr-review`, {
+    const res = await fetch(`http://10.101.56.69:8080/api/pengajuan/${currentId}/hr-review`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -452,7 +452,7 @@ async function rejectPengajuan() {
     return;
   }
 
-  await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/hr-review`, {
+  await fetch(`http://10.101.56.69:8080/nusantara_api/public/api/pengajuan/${currentId}/hr-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status_hr: 'Rejected', comment })
@@ -471,7 +471,7 @@ async function sendPengajuan() {
     return;
   }
 
-  await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/hr-review`, {
+  await fetch(`http://10.101.56.69:8080/api/pengajuan/${currentId}/hr-review`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

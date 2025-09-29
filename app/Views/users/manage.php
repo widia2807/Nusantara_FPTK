@@ -100,7 +100,7 @@
   </div>
 
   <script>
-  const apiBase = "http://localhost/nusantara_api/public/api";
+  const apiBase = "http://10.101.56.69:8080/api";
   let currentResetId = null;
 
   function showAlert(msg, type='success') {

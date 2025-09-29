@@ -158,7 +158,7 @@
       };
 
       try {
-        let response = await fetch("http://localhost/nusantara_api/public/api/users", {
+        let response = await fetch("http://10.101.56.69:8080/api/users", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

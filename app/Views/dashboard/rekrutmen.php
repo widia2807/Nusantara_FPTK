@@ -307,7 +307,7 @@
 let currentId = null;
 
 async function loadPengajuanRekrutmen() {
-  const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
+  const res = await fetch('http://10.101.56.69:8080/api/pengajuan');
   const json = await res.json();
   const tbody = document.getElementById('pengajuanTable');
   tbody.innerHTML = '';
@@ -386,7 +386,7 @@ function copyField(id) {
 
 async function selesaiPengajuan() {
   try {
-    await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/rekrutmen-review`, {
+    await fetch(`http://10.101.56.69:8080/api/pengajuan/${currentId}/rekrutmen-review`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status_rekrutmen: 'Selesai' })
