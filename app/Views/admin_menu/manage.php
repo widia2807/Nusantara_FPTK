@@ -5,40 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manajemen User - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f9fafc; color: #212529; }
-    /* Sidebar */
-    .sidebar {
-      width: 220px; position: fixed; top: 0; left: 0; height: 100%;
-      background: #fff; border-right: 1px solid #e5e7eb; padding-top: 20px;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-    }
-    .sidebar h6 { color: #0d6efd; font-weight: 700; }
-    .sidebar a {
-      display: block; padding: 10px 20px; color: #444; text-decoration: none;
-      font-size: 14px; border-left: 3px solid transparent; transition: all 0.2s ease;
-    }
-    .sidebar a:hover, .sidebar a.active {
-      background: #e7f1ff; border-left: 3px solid #0d6efd; color: #0d6efd;
-    }
-
-    /* Content */
-    .content { margin-left: 240px; padding: 25px; }
-    h2 { font-weight: 700; color: #0d6efd; }
-
-    /* Table */
-    .table thead { background: linear-gradient(90deg, #0d6efd, #0dcaf0); color: #fff; }
-    .table-hover tbody tr:hover { background: #f1f5ff; }
-
-    /* Badge */
-    .badge { font-size: 12px; padding: 5px 10px; border-radius: 8px; }
-
-    /* Modal */
-    .modal-content { border-radius: 12px; border: none; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
-    .modal-header { background: linear-gradient(90deg, #0d6efd, #0dcaf0); color: #fff; }
-    .modal-title { font-weight: 600; }
-    .modal-footer .btn { border-radius: 8px; font-weight: 500; }
-  </style>
+  <link rel="stylesheet" href="<?= base_url('assets/css/admin-shared.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('assets/css/admin-manage.css') ?>">
 </head>
 <body>
 
@@ -49,9 +17,10 @@
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
     <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
-    <a href="<?= base_url('users/create') ?>">➕ Tambah Akun</a>
-    <a href="<?= base_url('users/manage') ?>" class="active">👥 Manajemen User</a>
-        <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
+    <a href="<?= base_url('admin_menu/create') ?>">➕ Tambah Akun</a>
+    <a href="<?= base_url('admin_menu/manage') ?>">👥 Manajemen User</a>
+    <a href="<?= base_url('admin_menu/manage_all') ?>" class="active">⚙️ Kelola Data</a>
+    <a href="<?= base_url('history/hr') ?>">📂 History</a>
   </div>
 
   <!-- Content -->
@@ -100,7 +69,7 @@
   </div>
 
   <script>
-  const apiBase = "http://10.101.56.69:8080/api";
+  const apiBase = "http://localhost/nusantara_api/public/api";
   let currentResetId = null;
 
   function showAlert(msg, type='success') {

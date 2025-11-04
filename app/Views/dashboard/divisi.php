@@ -5,189 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Divisi - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-    }
-    .sidebar {
-      width: 220px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      background: #f8f9fa;
-      border-right: 1px solid #ddd;
-      padding-top: 20px;
-    }
-    .sidebar a {
-      display: block;
-      padding: 10px 20px;
-      color: #333;
-      text-decoration: none;
-    }
-    .sidebar a:hover {
-      background: #e9ecef;
-    }
-    .content {
-      margin-left: 220px;
-      padding: 20px;
-    }
-    footer {
-      margin-left: 220px;
-      background: #222;
-      color: #fff;
-      text-align: center;
-      padding: 15px;
-    }
-
-    /* Tabel compact */
-    .table-compact th, 
-    .table-compact td {
-      padding: 4px 6px !important;
-      font-size: 12px;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      vertical-align: middle;
-    }
-
-    /* Batasi lebar kolom */
-    .table-compact th:nth-child(1), .table-compact td:nth-child(1) { width: 40px; }   /* ID */
-    .table-compact th:nth-child(2), .table-compact td:nth-child(2) { max-width: 80px; } /* Divisi */
-    .table-compact th:nth-child(3), .table-compact td:nth-child(3) { max-width: 100px; } /* Posisi */
-    .table-compact th:nth-child(4), .table-compact td:nth-child(4) { max-width: 80px; } /* Cabang */
-    .table-compact th:nth-child(5), .table-compact td:nth-child(5) { width: 50px; }   /* Jumlah */
-    .table-compact th:nth-child(6), .table-compact td:nth-child(6) { width: 80px; }   /* Job Post */
-    .table-compact th:nth-child(7), .table-compact td:nth-child(7) { width: 80px; }   /* Tipe */
-    .table-compact th:nth-child(8), .table-compact td:nth-child(8) { width: 110px; }  /* Tanggal */
-    .table-compact th.status-col, .table-compact td.status-col { width: 60px; text-align: center; }
-    .table-compact th:last-child, .table-compact td:last-child { width: 65px; text-align: center; } /* Detail */
-  </style>
+  <link rel="stylesheet" href="<?= base_url('assets/css/divisi.css') ?>">
 </head>
-<body>
-  <style>
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f9fafc;
-    color: #212529;
-  }
 
-  /* Sidebar */
-  .sidebar {
-    width: 220px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    background: #fff;
-    border-right: 1px solid #e5e7eb;
-    padding-top: 20px;
-    box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-  }
-  .sidebar h6 {
-    color: #0d6efd;
-    font-weight: 700;
-  }
-  .sidebar a {
-    display: block;
-    padding: 10px 20px;
-    color: #444;
-    text-decoration: none;
-    font-size: 14px;
-    border-left: 3px solid transparent;
-    transition: all 0.2s ease;
-  }
-  .sidebar a:hover {
-    background: #e7f1ff;
-    border-left: 3px solid #0d6efd;
-    color: #0d6efd;
-  }
-
-  /* Content */
-  .content {
-    margin-left: 220px;
-    padding: 25px;
-  }
-
-  /* Header */
-  h2 {
-    font-weight: 700;
-    color: #0d6efd;
-  }
-
-  /* Cards */
-  .card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease;
-  }
-  .card:hover {
-    transform: translateY(-3px);
-  }
-  .card h3 {
-    font-weight: 700;
-    color: #0d6efd;
-  }
-
-  /* Table */
-  .table thead {
-    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
-    color: #fff;
-  }
-  .table-hover tbody tr:hover {
-    background: #f1f5ff;
-  }
-
-  /* Badge Status */
-  .badge {
-    font-size: 11px;
-    padding: 5px 8px;
-    border-radius: 8px;
-  }
-
-  /* Dropdown avatar */
-  .dropdown-toggle img {
-    border: 2px solid #0d6efd;
-  }
-
-  /* Modal */
-  .modal-content {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  }
-  .modal-header {
-    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
-    color: #fff;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-  }
-
-  /* Button */
-  .btn-info {
-    background: #0dcaf0;
-    border: none;
-    color: #fff;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  .btn-info:hover {
-    background: #0bb8dc;
-  }
-
-  /* Footer (kalau dipakai lagi) */
-  footer {
-    margin-left: 220px;
-    background: #111;
-    color: #bbb;
-    text-align: center;
-    padding: 15px;
-    font-size: 14px;
-  }
-</style>
-
-
+<body class="role-divisi page-dashboard">
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="text-center mb-4">
@@ -199,52 +20,77 @@
       <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
       Pengajuan
     </a>
-   <a href="<?= base_url('history/divisi') ?>">📂 History</a>
-    
+    <a href="<?= base_url('history/divisi') ?>">📂 History</a>
   </div>
 
   <!-- Content -->
   <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2>Dashboard Divisi</h2>
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <img src="https://via.placeholder.com/30" class="rounded-circle"> Divisi
+
+      <!-- Dropdown profil -->
+      <div class="dropdown text-end">
+        <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm"
+                type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                style="border-radius: 50px;">
+          <img id="profilePic"
+               src="<?= base_url('uploads/profile/default.png') ?>"
+               onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+               class="rounded-circle border border-primary"
+               width="32" height="32"
+               style="object-fit: cover;">
+          <span class="fw-semibold">Divisi</span>
         </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Profile</a></li>
-          <li><a href="<?= base_url('logout') ?>" class="btn btn-dark w-100 mt-4">Logout</a></li>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" style="width: 250px;">
+          <div class="text-center">
+            <img id="profilePreview"
+                 src="<?= base_url('uploads/profile/default.png') ?>"
+                 onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+                 class="rounded-circle mb-2 border border-2 border-primary"
+                 width="70" height="70"
+                 style="object-fit: cover;">
+
+            <h6 class="fw-bold mb-0"><?= session()->get('nama_user') ?? 'Nama Divisi' ?></h6>
+            <p class="text-muted small mb-2"><?= session()->get('email_user') ?? 'divisi@example.com' ?></p>
+
+            <input type="file" id="uploadProfile" accept="image/*"
+                   class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
+            <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
+            <hr class="my-2">
+            <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
+          </div>
         </ul>
       </div>
     </div>
 
-   <!-- Cards -->
-<div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h6 class="text-muted">Total Pengajuan</h6>
-        <h3 id="cardTotal">0</h3>
+    <!-- Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <h6 class="text-muted">Total Pengajuan</h6>
+            <h3 id="cardTotal">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <h6 class="text-muted">Disetujui</h6>
+            <h3 id="cardApproved">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <h6 class="text-muted">Ditolak</h6>
+            <h3 id="cardRejected">0</h3>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h6 class="text-muted">Disetujui</h6>
-        <h3 id="cardApproved">0</h3>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card text-center">
-      <div class="card-body">
-        <h6 class="text-muted">Ditolak</h6>
-        <h3 id="cardRejected">0</h3>
-      </div>
-    </div>
-  </div>
-</div>
 
     <!-- Tabel Status Pengajuan -->
     <div class="card shadow mt-4">
@@ -275,94 +121,173 @@
         </div>
       </div>
     </div>
-  </div>
 
-  
+  </div><!-- /.content -->
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- <script>
+
+  <!-- Script 1: load & render tabel (dipisah agar tidak nested) -->
+  <script>
   async function loadPengajuan() {
-    const res = await fetch('http://10.101.56.69:8080/api/pengajuan');
-    const json = await res.json();
     const tbody = document.getElementById('pengajuanTable');
-    tbody.innerHTML = '';
 
-    if (json.data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada data pengajuan</td></tr>`;
-      return;
+    try {
+      const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+
+      const data = Array.isArray(json?.data) ? json.data : [];
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada data pengajuan</td></tr>`;
+        document.getElementById('cardTotal').innerText = 0;
+        document.getElementById('cardApproved').innerText = 0;
+        document.getElementById('cardRejected').innerText = 0;
+        return;
+      }
+
+      // Hitung kartu
+      let total = data.length;
+      let approved = 0;
+      let rejected = 0;
+
+      data.forEach(item => {
+        if (item.status_hr === 'Approved' && item.status_management === 'Approved') approved++;
+        else if (item.status_hr === 'Rejected' || item.status_management === 'Rejected') rejected++;
+      });
+
+      document.getElementById('cardTotal').innerText = total;
+      document.getElementById('cardApproved').innerText = approved;
+      document.getElementById('cardRejected').innerText = rejected;
+
+      // Render tabel (skip selesai/ditolak)
+      data.forEach(item => {
+        if (
+          item.status_rekrutmen === 'Selesai' ||
+          item.status_hr === 'Rejected' ||
+          item.status_management === 'Rejected'
+        ) return;
+
+        const badgeHR  = `<span class="badge bg-${item.status_hr === 'Approved' ? 'success' : item.status_hr === 'Rejected' ? 'danger' : 'secondary'}">${item.status_hr ?? '-'}</span>`;
+        const badgeMng = `<span class="badge bg-${item.status_management === 'Approved' ? 'success' : item.status_management === 'Rejected' ? 'danger' : 'secondary'}">${item.status_management ?? '-'}</span>`;
+        const badgeRek = `<span class="badge bg-${item.status_rekrutmen === 'Selesai' ? 'success' : 'secondary'}">${item.status_rekrutmen ?? '-'}</span>`;
+
+        // encode agar aman dimasukkan ke atribut data-item
+        const safe = encodeURIComponent(JSON.stringify(item));
+
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${item.id_pengajuan}</td>
+            <td>${item.nama_divisi ?? '-'}</td>
+            <td>${item.nama_posisi ?? '-'}</td>
+            <td>${item.nama_cabang ?? '-'}</td>
+            <td>${item.jumlah_karyawan ?? '-'}</td>
+            <td>${item.job_post_number ?? '-'}</td>
+            <td>${item.tipe_pekerjaan ?? '-'}</td>
+            <td>${item.created_at ?? '-'}</td>
+            <td class="status-col">${badgeHR}</td>
+            <td class="status-col">${badgeMng}</td>
+            <td class="status-col">${badgeRek}</td>
+            <td><button class="btn btn-sm btn-info" data-item="${safe}" onclick="showDetail(this)">Detail</button></td>
+          </tr>
+        `);
+      });
+
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="12" class="text-center text-danger">Gagal memuat data pengajuan</td></tr>`;
+      document.getElementById('cardTotal').innerText = 0;
+      document.getElementById('cardApproved').innerText = 0;
+      document.getElementById('cardRejected').innerText = 0;
     }
-
-    // --- Hitung statistik ---
-    let total = json.data.length;
-    let approved = 0;
-    let rejected = 0;
-
-    json.data.forEach(item => {
-      if (item.status_hr === 'Approved' && item.status_management === 'Approved') {
-        approved++;
-      } else if (item.status_hr === 'Rejected' || item.status_management === 'Rejected') {
-        rejected++;
-      }
-    });
-
-    // --- Tampilkan di Cards ---
-    document.getElementById('cardTotal').innerText = total;
-    document.getElementById('cardApproved').innerText = approved;
-    document.getElementById('cardRejected').innerText = rejected;
-
-    // --- Render tabel, skip yang Rejected ---
-    json.data.forEach(item => {
-      if (item.status_hr === 'Rejected' || item.status_management === 'Rejected') {
-        return; // <-- skip tampil di dashboard
-      }
-
-      const badgeHR  = `<span class="badge bg-${item.status_hr === 'Approved' ? 'success' : item.status_hr === 'Rejected' ? 'danger' : 'secondary'}">${item.status_hr}</span>`;
-      const badgeMng = `<span class="badge bg-${item.status_management === 'Approved' ? 'success' : item.status_management === 'Rejected' ? 'danger' : 'secondary'}">${item.status_management}</span>`;
-      const badgeRek = `<span class="badge bg-${item.status_rekrutmen === 'Selesai' ? 'success' : 'secondary'}">${item.status_rekrutmen}</span>`;
-
-      tbody.innerHTML += `
-        <tr>
-          <td>${item.id_pengajuan}</td>
-          <td>${item.nama_divisi}</td>
-          <td>${item.nama_posisi}</td>
-          <td>${item.nama_cabang}</td>
-          <td>${item.jumlah_karyawan}</td>
-          <td>${item.job_post_number}</td>
-          <td>${item.tipe_pekerjaan}</td>
-          <td>${item.created_at}</td>
-          <td class="status-col">${badgeHR}</td>
-          <td class="status-col">${badgeMng}</td>
-          <td class="status-col">${badgeRek}</td>
-          <td><button class="btn btn-sm btn-info" data-item='${JSON.stringify(item)}' onclick="showDetail(this)">Detail</button></td>
-        </tr>
-      `;
-    });
   }
 
   function showDetail(btn) {
-    const data = JSON.parse(btn.getAttribute('data-item'));
+    try {
+      const data = JSON.parse(decodeURIComponent(btn.getAttribute('data-item')));
 
-    document.getElementById('detailDivisi').value      = data.nama_divisi;
-    document.getElementById('detailPosisi').value      = data.nama_posisi;
-    document.getElementById('detailCabang').value      = data.nama_cabang;
-    document.getElementById('detailJumlah').value      = data.jumlah_karyawan;
-    document.getElementById('detailJobPost').value     = data.job_post_number;
-    document.getElementById('detailTipe').value        = data.tipe_pekerjaan;
-    document.getElementById('detailUmur').value        = data.range_umur;
-    document.getElementById('detailTempat').value      = data.tempat_kerja;
-    document.getElementById('detailKualifikasi').value = data.kualifikasi;
-    document.getElementById('detailCreated').value     = data.created_at;
+      document.getElementById('detailDivisi').value      = data.nama_divisi ?? '';
+      document.getElementById('detailPosisi').value      = data.nama_posisi ?? '';
+      document.getElementById('detailCabang').value      = data.nama_cabang ?? '';
+      document.getElementById('detailJumlah').value      = data.jumlah_karyawan ?? '';
+      document.getElementById('detailJobPost').value     = data.job_post_number ?? '';
+      document.getElementById('detailTipe').value        = data.tipe_pekerjaan ?? '';
+      document.getElementById('detailUmur').value        = data.range_umur ?? '';
+      document.getElementById('detailTempat').value      = data.tempat_kerja ?? '';
+      // Quill HTML -> plain text
+      const qual = (data.kualifikasi ?? '').replace(/<[^>]*>/g, '');
+      document.getElementById('detailKualifikasi').value = qual;
+      document.getElementById('detailCreated').value     = data.created_at ?? '';
 
-    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-    modal.show();
+      // Optional jika field ini ada di API
+      if (document.getElementById('detailCommentHR')) {
+        document.getElementById('detailCommentHR').value = data.comment_hr ?? '';
+      }
+      if (document.getElementById('detailCommentMng')) {
+        document.getElementById('detailCommentMng').value = data.comment_management ?? '';
+      }
+
+      const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+      modal.show();
+    } catch (e) {
+      console.error('Bad data-item', e);
+    }
   }
 
+  // initial load
   loadPengajuan();
-</script>
+  </script>
 
+  <!-- Script 2: profil (dipisah, tidak nested) -->
+  <script>
+  function previewProfile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('profilePreview').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function saveProfile() {
+    const fileInput = document.getElementById('uploadProfile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert('Pilih foto profil terlebih dahulu.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profile', file);
+
+    try {
+      // Ganti ke host API kamu yang benar
+      const res = await fetch('http://10.101.56.69:8080/api/users/upload-profile', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Upload gagal');
+
+      alert('Foto profil berhasil diperbarui!');
+      if (data.url) {
+        document.getElementById('profilePic').src = data.url;
+        document.getElementById('profilePreview').src = data.url;
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengupload foto.');
+    }
+  }
+  </script>
 
   <!-- Modal Detail Pengajuan -->
   <div class="modal fade" id="detailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Detail Pengajuan</h5>
@@ -422,17 +347,17 @@
               <input type="text" id="detailCreated" class="form-control" disabled>
             </div>
 
-             <!-- Tambahan Comment HR -->
-          <div class="mb-3">
-            <label class="form-label">Comment HR</label>
-            <textarea id="detailCommentHR" class="form-control" rows="2" disabled></textarea>
-          </div>
+            <!-- Tambahan Comment HR -->
+            <div class="mb-3">
+              <label class="form-label">Comment HR</label>
+              <textarea id="detailCommentHR" class="form-control" rows="2" disabled></textarea>
+            </div>
 
-          <!-- Tambahan Comment Management -->
-          <div class="mb-3">
-            <label class="form-label">Comment Management</label>
-            <textarea id="detailCommentMng" class="form-control" rows="2" disabled></textarea>
-          </div>
+            <!-- Tambahan Comment Management -->
+            <div class="mb-3">
+              <label class="form-label">Comment Management</label>
+              <textarea id="detailCommentMng" class="form-control" rows="2" disabled></textarea>
+            </div>
 
           </form>
         </div>

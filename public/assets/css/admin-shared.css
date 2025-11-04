@@ -1,0 +1,561 @@
+/* =========================================================
+   Admin Shared Styles
+   Path: public/assets/css/admin-shared.css
+   Catatan: Hanya CSS. Tidak mengubah HTML/logic.
+   ========================================================= */
+
+/* ============ CSS Variables (Theme) ============ */
+:root {
+  /* layout */
+  --sidebar-w: 220px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* colors */
+  --brand: #0d6efd;               /* primary */
+  --brand-2: #0dcaf0;             /* info-ish (gradients) */
+  --text: #212529;
+  --muted: #6c757d;
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --hover: #e7f1ff;
+
+  /* shadows */
+  --shadow-sm: 0 2px 6px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.07);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,.12);
+
+  /* focus ring */
+  --ring: 0 0 0 3px rgba(13,110,253,.25);
+}
+
+/* ============ Base ============ */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: inherit; text-decoration: none; }
+a:focus { outline: none; box-shadow: var(--ring); border-radius: 6px; }
+
+/* ============ Sidebar ============ */
+.sidebar {
+  width: var(--sidebar-w);
+  position: fixed;
+  inset: 0 auto 0 0; /* top:0 right:auto bottom:0 left:0 */
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  box-shadow: var(--shadow-sm);
+  z-index: 1030;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .text-center img {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.12));
+}
+
+.sidebar h6 {
+  color: var(--brand);
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #444;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: var(--hover);
+  border-left: 3px solid var(--brand);
+  color: var(--brand);
+  transform: translateX(2px);
+}
+
+/* tipis: garis pemisah opsional */
+.sidebar .divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
+/* custom scrollbar untuk sidebar (WebKit) */
+.sidebar::-webkit-scrollbar { width: 8px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+  background: #d7dbe2;
+  border-radius: 10px;
+}
+.sidebar:hover::-webkit-scrollbar-thumb { background: #c6cad1; }
+
+/* ============ Content ============ */
+.content {
+  margin-left: var(--sidebar-w);
+  padding: 25px;
+  min-height: 100vh;
+}
+
+/* ============ Headings ============ */
+h1, h2, h3, h4, h5, h6 { letter-spacing: .2px; }
+h2, .card h3 { font-weight: 700; color: var(--brand); }
+
+/* ============ Cards ============ */
+.card {
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.card .card-header {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  color: #fff;
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+/* “form-card” khusus halaman Tambah User */
+.form-card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 22px;
+}
+
+/* ============ Tables ============ */
+.table thead {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  color: #fff;
+}
+.table-hover tbody tr:hover { background: #f1f5ff; }
+
+.table-compact th,
+.table-compact td {
+  padding: 6px 10px !important;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.table-dark th {
+  background: var(--brand) !important;
+  border-color: #0b5ed7;
+}
+
+/* state rows opsional */
+tr.is-success td { background: #eaf7ef; }
+tr.is-warning td { background: #fff7e6; }
+tr.is-danger  td { background: #fdebec; }
+
+/* ============ Badges ============ */
+.badge {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  letter-spacing: .2px;
+}
+
+/* ============ Buttons Enhancement (opsional) ============ */
+.btn {
+  border-radius: 10px;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.btn:focus { box-shadow: var(--ring); }
+.btn:active { transform: translateY(1px); }
+
+.btn-soft-primary   { background: rgba(13,110,253,.12); color: var(--brand); border: 1px solid rgba(13,110,253,.25); }
+.btn-soft-success   { background: rgba(25,135,84,.12); color: #198754; border: 1px solid rgba(25,135,84,.25); }
+.btn-soft-danger    { background: rgba(220,53,69,.12); color: #dc3545; border: 1px solid rgba(220,53,69,.25); }
+.btn-soft-secondary { background: rgba(108,117,125,.12); color: #6c757d; border: 1px solid rgba(108,117,125,.25); }
+
+/* ============ Forms ============ */
+.form-control, .form-select {
+  border-radius: 10px;
+  border-color: var(--border);
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand);
+  box-shadow: var(--ring);
+}
+
+.form-label { font-weight: 600; }
+
+/* helper untuk input kecil di dropdown (avatar upload) */
+.dropdown-menu .form-control,
+.dropdown-menu .form-select {
+  border-radius: 8px;
+}
+
+/* ============ Modal ============ */
+.modal-content {
+  border-radius: var(--radius-md);
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  color: #fff;
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+.modal-title { font-weight: 600; }
+.modal-footer .btn { border-radius: 10px; font-weight: 600; }
+
+/* ============ Dropdown (profil) ============ */
+.dropdown-menu {
+  border: none;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: var(--shadow-lg);
+}
+.dropdown-menu .rounded-circle {
+  box-shadow: 0 0 0 3px rgba(13,110,253,.15);
+}
+
+/* ============ Utilities ============ */
+.shadow-soft   { box-shadow: var(--shadow-sm); }
+.shadow-medium { box-shadow: var(--shadow-md); }
+.shadow-bold   { box-shadow: var(--shadow-lg); }
+
+.rounded-2xl { border-radius: 20px; }
+
+.text-muted-2 { color: var(--muted) !important; }
+
+/* gradient text utility */
+.text-gradient {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* avatar helper */
+.avatar {
+  width: 32px; height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--brand);
+}
+
+/* subtle lift on hover for clickable items (like rows/buttons) */
+.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* ============ Responsive ============ */
+/* layar < 992px: longgarin padding dan atur sidebar behavior */
+@media (max-width: 991.98px) {
+  :root { --sidebar-w: 200px; }
+  .content { padding: 18px; }
+}
+
+/* layar < 768px: sidebar jadi lebih ramping; content penuh jika sidebar disembunyikan via util kelas .sidebar-hidden (opsional) */
+@media (max-width: 767.98px) {
+  :root { --sidebar-w: 180px; }
+  .sidebar { box-shadow: var(--shadow-md); }
+  .content { margin-left: var(--sidebar-w); }
+
+  /* Kalau suatu saat kamu menambahkan kelas .sidebar-hidden ke <body> via JS,
+     konten akan melebar full. (Tidak aktif jika tidak dipakai) */
+  body.sidebar-hidden .content { margin-left: 0; }
+}
+
+/* ============ Reduced Motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* ============ Dark Mode (opsional via class) ============ */
+/* Tambah class .theme-dark di <body> jika ingin dark */
+body.theme-dark {
+  --bg: #0f1217;
+  --card: #151a21;
+  --text: #e6e8ea;
+  --muted: #a2a8b0;
+  --border: #242b33;
+  --hover: #142038;
+  background: var(--bg);
+  color: var(--text);
+}
+body.theme-dark .sidebar { background: var(--card); border-right-color: var(--border); }
+body.theme-dark .card,
+body.theme-dark .form-card { background: var(--card); }
+body.theme-dark .table-hover tbody tr:hover { background: rgba(255,255,255,.04); }
+body.theme-dark .badge { filter: brightness(1.05); }
+
+
+/* =========================================================
+   Tambah User page tweaks (aman untuk halaman lain juga)
+   ========================================================= */
+
+/* card container untuk form Tambah User */
+.form-card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 22px;
+}
+
+/* judul form */
+.form-card h3 {
+  font-weight: 700;
+  color: var(--brand);
+  margin-bottom: 18px;
+}
+
+/* label dan field */
+.form-label { font-weight: 600; }
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border-color: var(--border);
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--brand);
+  box-shadow: var(--ring);
+}
+
+/* helper teks kecil */
+.text-muted { color: var(--muted) !important; }
+
+/* tombol */
+.btn {
+  border-radius: 10px;
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.btn:focus { box-shadow: var(--ring); }
+.btn:active { transform: translateY(1px); }
+
+/* primary & secondary lebih halus */
+.btn-primary {
+  background-color: var(--brand);
+  border-color: var(--brand);
+}
+.btn-primary:hover {
+  filter: brightness(0.95);
+}
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+.btn-secondary:hover {
+  filter: brightness(0.95);
+}
+
+/* sidebar (biar konsisten highlight aktif & hover) */
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #444;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.sidebar a:hover,
+.sidebar a.active {
+  background: var(--hover);
+  border-left: 3px solid var(--brand);
+  color: var(--brand);
+  transform: translateX(2px);
+}
+
+/* layout */
+.content { margin-left: var(--sidebar-w); padding: 25px; }
+
+/* kamu pakai body class role-divisi page-history—nggak wajib,
+   tapi kalau mau tweak khusus halaman ini, bisa taruh di bawah: */
+/*
+body.role-divisi.page-history .content { ... }
+*/
+
+/* ==========================
+   MANAGE ALL - PROFESSIONAL STYLE
+   ========================== */
+
+body {
+  background: #f5f7fb;
+  color: #1e293b;
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+h2, h5 {
+  font-weight: 700;
+}
+
+/* CARD CONTAINERS */
+.card {
+  border: none;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.card h5 {
+  font-size: 1.05rem;
+}
+
+/* TABLES */
+.table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table th {
+  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+}
+
+.table td, .table th {
+  vertical-align: middle;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f7ff;
+  transition: 0.2s ease;
+}
+
+/* BUTTONS */
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+  border: none;
+}
+
+.btn-warning {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  border: none;
+  color: #fff;
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  border: none;
+  color: #fff;
+}
+
+.btn-sm {
+  padding: 5px 9px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+/* FORM ELEMENTS */
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  box-shadow: none;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+  background: #fff;
+}
+
+.form-control::placeholder {
+  color: #9ca3af;
+}
+
+/* TEXT EFFECTS */
+.text-gradient {
+  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+/* SIDEBAR STYLE (optional enhancement) */
+.sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  width: 220px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 25px 10px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px 18px;
+  color: #374151;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  transition: all 0.2s ease;
+}
+
+.sidebar a:hover {
+  background: #e0ecff;
+  color: #0d6efd;
+}
+
+.sidebar a.active {
+  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* MAIN CONTENT */
+.content {
+  margin-left: 240px;
+  padding: 30px;
+}
+
+/* SMALL UI TWEAKS */
+.table-responsive {
+  border-radius: 10px;
+  background: #fff;
+}
+
+input[type="text"]:disabled {
+  background-color: #f9fafb;
+  color: #6b7280;
+}
+

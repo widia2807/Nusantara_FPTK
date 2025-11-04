@@ -25,24 +25,24 @@ class DashboardController extends BaseController
     }
     public function mng_history()
 {
-    return view('mng_history');
+    return view('history/mng_history');
 }
 
 public function div_history()
 {
-   return view('div_menu/div_history');
+   return view('history/div_history');
 
 }
 
 public function hr_history()
 {
     // arahkan ke view yang sudah ada di /views/users/hr_history.php
-    return view('users/hr_history');
+    return view('history/hr_history');
 }
 
 public function rek_history()
 {
-    return view('rek_history');
+    return view('history/rek_history');
 }
 
 

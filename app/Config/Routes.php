@@ -9,7 +9,7 @@ $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');
 $routes->setTranslateURIDashes(false);
 $routes->set404Override();
-$routes->setAutoRoute(false); // eksplisit & aman
+$routes->setAutoRoute(false); 
 
 // ==================
 // WEB ROUTES
@@ -17,6 +17,8 @@ $routes->setAutoRoute(false); // eksplisit & aman
 $routes->get('/', 'PageController::index');
 $routes->get('login', 'PageController::login');
 $routes->get('logout', 'Auth::logout');
+$routes->post('api/users/upload-profile', 'User::uploadProfile');
+
 
 // Dashboard
 $routes->group('dashboard', static function ($routes) {
@@ -27,23 +29,25 @@ $routes->group('dashboard', static function ($routes) {
     $routes->get('divisi', 'DashboardController::divisi');
 });
 
-// Users - WEB ROUTES
-$routes->group('users', static function ($routes) {
-    $routes->get('create', 'Users::createForm');
+// Admin Menu - WEB ROUTES
+$routes->group('admin_menu', static function ($routes) {
+    $routes->get('create', 'Users::createForm');  // halaman tambah user
     $routes->get('hr_history', 'Users::hr_history');
     $routes->get('manage', function() {
-        return view('users/manage');   // ✅ arahkan ke view manage.php
+        return view('admin_menu/manage');  // ubah folder view juga kalau perlu
     });
+     $routes->get('manage_all', 'Users::manageAll');
 });
 
 
-$routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
-    $routes->get('users', 'Users::index');
-    $routes->post('users/create', 'Users::create');
-    $routes->post('users/activate/(:num)', 'Users::activate/$1');
-    $routes->post('users/deactivate/(:num)', 'Users::deactivate/$1');
-    $routes->post('users/reset_password/(:num)', 'Users::reset_password/$1');
-});
+
+// $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
+//     $routes->get('users', 'Users::index');
+//     $routes->post('users/create', 'Users::create');
+//     $routes->post('users/activate/(:num)', 'Users::activate/$1');
+//     $routes->post('users/deactivate/(:num)', 'Users::deactivate/$1');
+//     $routes->post('users/reset_password/(:num)', 'Users::reset_password/$1');
+// });
 
 $routes->get('history', 'DashboardController::div_history');
 // History (khusus web / tampilan)
@@ -100,6 +104,12 @@ $routes->group('api', static function($routes) {
     $routes->put('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
     
+    // CABANG
+    $routes->get('cabang', 'Cabang::index');    // ambil semua cabang
+    $routes->post('cabang', 'Cabang::create');  // tambah cabang baru
+    $routes->put('cabang/(:num)', 'Cabang::update/$1');  // edit
+    $routes->delete('cabang/(:num)', 'Cabang::delete/$1'); // hapus
+
     // HISTORY
     $routes->get('history', 'History::index');
 });

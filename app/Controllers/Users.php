@@ -14,13 +14,19 @@ class Users extends BaseController
         $this->response->setHeader('Access-Control-Max-Age', '86400');
     }
 
-    public function createForm()
-    {
-        return view('users/create'); 
-    }
+    public function createForm() {
+    return view('admin_menu/create');
+}
+
+public function manageAll()
+{
+    return view('admin_menu/manage_all');
+}
+
+
 public function hr_history()
 {
-    return view('users/hr_history'); // ini akan load app/Views/users/hr_history.php
+    return view('history/hr'); // ini akan load app/Views/users/hr_history.php
 }
 
     public function create()
@@ -166,4 +172,27 @@ public function hr_history()
 
         return $this->response->setJSON(['status'=>'success','message'=>'Password direset ke default']);
     }
+    public function uploadProfile()
+{
+    $file = $this->request->getFile('profile');
+    if (!$file->isValid()) {
+        return $this->failValidationErrors('File tidak valid.');
+    }
+
+    $newName = $file->getRandomName();
+    $file->move(FCPATH . 'uploads/profile', $newName);
+
+    // simpan path ke DB user
+    $userId = session()->get('id_user');
+    if ($userId) {
+        $userModel = new \App\Models\UserModel();
+        $userModel->update($userId, ['foto_profil' => 'uploads/profile/' . $newName]);
+    }
+
+    return $this->respond([
+        'status' => 'success',
+        'url'    => base_url('uploads/profile/' . $newName)
+    ]);
+}
+
 }

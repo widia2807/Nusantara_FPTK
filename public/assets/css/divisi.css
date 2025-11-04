@@ -1,0 +1,410 @@
+/* =======================================================================
+   NUSANTARA PORTAL - GLOBAL CSS (1 FILE UNTUK SEMUA HALAMAN)
+   Struktur:
+   - Theme Variables per Role
+   - Base / Shared Components
+   - Page: Dashboard
+   - Page: Pengajuan
+   - Page: History
+   - Utilities
+   - Untuk Divisi
+   ======================================================================= */
+
+/* =========================
+   THEME VARIABLES (DEFAULT)
+   ========================= */
+:root {
+  --primary: #0d6efd;
+  --primary-2: #0dcaf0;
+  --text: #212529;
+  --muted: #6c757d;
+  --bg: #f9fafc;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.15);
+
+  --sidebar-bg: #ffffff;
+  --sidebar-hover-bg: #e7f1ff;
+  --sidebar-hover-border: var(--primary);
+
+  --table-head-from: var(--primary);
+  --table-head-to: var(--primary-2);
+
+  --btn-primary: var(--primary);
+  --btn-primary-hover: #0b5ed7;
+
+  --badge-success: #198754;
+  --badge-danger: #dc3545;
+  --badge-secondary: #6c757d;
+  --badge-primary: var(--primary);
+}
+
+/* ==================================
+   THEME OVERRIDE PER ROLE (BY BODY)
+   ================================== */
+/* DIVISI = Biru (default dari :root) */
+ body.role-divisi {}
+
+/* HRD = Ungu */
+body.role-hrd {
+  --primary: #6f42c1;        /* purple */
+  --primary-2: #b07bff;      /* soft purple */
+  --sidebar-hover-bg: #f1e9ff;
+  --table-head-to: #b07bff;
+  --btn-primary-hover: #5b35a0;
+}
+
+/* MANAGEMENT = Hijau/Teal */
+body.role-management {
+  --primary: #0aa27c;        /* teal-ish */
+  --primary-2: #4de1ba;
+  --sidebar-hover-bg: #e6fff7;
+  --table-head-to: #4de1ba;
+  --btn-primary-hover: #088a69;
+  --badge-primary: #0aa27c;
+}
+
+/* REKRUTMEN = Oranye */
+body.role-rekrutmen {
+  --primary: #fd7e14;        /* orange */
+  --primary-2: #ffb26b;
+  --sidebar-hover-bg: #fff3e7;
+  --table-head-to: #ffb26b;
+  --btn-primary-hover: #e16f12;
+  --badge-primary: #fd7e14;
+}
+
+/* ======================
+   BASE / SHARED STYLES
+   ====================== */
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+}
+
+/* Sidebar (shared) */
+.sidebar {
+  width: 220px;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  padding-top: 20px;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+}
+.sidebar h6 {
+  color: var(--primary);
+  font-weight: 700;
+}
+.sidebar a {
+  display: block;
+  padding: 10px 20px;
+  color: #444;
+  text-decoration: none;
+  font-size: 14px;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+.sidebar a:hover {
+  background: var(--sidebar-hover-bg);
+  border-left: 3px solid var(--sidebar-hover-border);
+  color: var(--primary);
+}
+
+/* Content wrapper (shared) */
+.content {
+  margin-left: 220px;
+  padding: 25px;
+}
+
+/* Cards (shared) */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease;
+  background: var(--surface);
+}
+.card:hover { transform: translateY(-3px); }
+.card h3, .card h4, .card h5 { color: var(--primary); font-weight: 700; }
+
+/* Tables (shared) */
+.table thead {
+  background: linear-gradient(90deg, var(--table-head-from), var(--table-head-to));
+  color: #fff;
+}
+.table-hover tbody tr:hover { background: #f1f5ff; }
+.badge {
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 8px;
+}
+
+/* Buttons (shared) */
+.btn-primary {
+  background: var(--btn-primary);
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover { background: var(--btn-primary-hover); }
+.btn-info {
+  background: var(--primary-2);
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.btn-info:hover { filter: brightness(0.95); }
+
+/* Footer (shared) */
+footer {
+  margin-left: 220px;
+  background: #111;
+  color: #bbb;
+  text-align: center;
+  padding: 15px;
+  font-size: 14px;
+}
+
+/* Avatar (shared) */
+.dropdown-toggle img { border: 2px solid var(--primary); }
+
+/* Modal (shared) */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+.modal-header {
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  color: #fff;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* =======================================================================
+   PAGE: DASHBOARD
+   Gunakan class body: .page-dashboard
+   ======================================================================= */
+body.page-dashboard h2 { color: var(--primary); font-weight: 700; }
+
+body.page-dashboard .table-compact th,
+body.page-dashboard .table-compact td {
+  padding: 4px 6px !important;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+/* Kolom tabel compact (sesuai contohmu) */
+body.page-dashboard .table-compact th:nth-child(1),
+body.page-dashboard .table-compact td:nth-child(1) { width: 40px; }    /* ID */
+body.page-dashboard .table-compact th:nth-child(2),
+body.page-dashboard .table-compact td:nth-child(2) { max-width: 80px; }/* Divisi */
+body.page-dashboard .table-compact th:nth-child(3),
+body.page-dashboard .table-compact td:nth-child(3) { max-width: 100px;}/* Posisi */
+body.page-dashboard .table-compact th:nth-child(4),
+body.page-dashboard .table-compact td:nth-child(4) { max-width: 80px; }/* Cabang */
+body.page-dashboard .table-compact th:nth-child(5),
+body.page-dashboard .table-compact td:nth-child(5) { width: 50px; }    /* Jumlah */
+body.page-dashboard .table-compact th:nth-child(6),
+body.page-dashboard .table-compact td:nth-child(6) { width: 80px; }    /* Job Post */
+body.page-dashboard .table-compact th:nth-child(7),
+body.page-dashboard .table-compact td:nth-child(7) { width: 80px; }    /* Tipe */
+body.page-dashboard .table-compact th:nth-child(8),
+body.page-dashboard .table-compact td:nth-child(8) { width: 110px; }   /* Tanggal */
+body.page-dashboard .table-compact th.status-col,
+body.page-dashboard .table-compact td.status-col { width: 60px; text-align:center; }
+body.page-dashboard .table-compact th:last-child,
+body.page-dashboard .table-compact td:last-child { width: 65px; text-align:center; }
+
+/* =======================================================================
+   PAGE: PENGAJUAN
+   Gunakan class body: .page-pengajuan
+   ======================================================================= */
+
+/* Header bar khusus pengajuan */
+body.page-pengajuan .header {
+  height: 55px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Content center form */
+body.page-pengajuan .content {
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 55px);
+}
+
+/* Form card */
+body.page-pengajuan .form-card {
+  width: 600px;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 30px 35px;
+}
+body.page-pengajuan .form-card h4 {
+  font-weight: 700;
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Label & input sejajar */
+body.page-pengajuan .form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+body.page-pengajuan .form-label {
+  display: inline-block;
+  width: 140px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+body.page-pengajuan .form-select,
+body.page-pengajuan .form-control {
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+/* Batasi dropdown tertentu */
+body.page-pengajuan select[name="id_divisi"],
+body.page-pengajuan select[name="id_posisi"],
+body.page-pengajuan select[name="id_cabang"],
+body.page-pengajuan select[name="tipe_pekerjaan"] {
+  max-width: 320px;
+  display: inline-block;
+}
+
+/* Buttons bawaan halaman pengajuan pakai shared .btn-primary/.btn-secondary */
+
+/* Footer pengajuan mengikuti shared footer */
+
+/* =======================================================================
+   PAGE: HISTORY
+   Gunakan class body: .page-history
+   ======================================================================= */
+body.page-history .card h4 {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Tabel history sudah mendapat header gradient dari shared .table thead */
+
+/* =======================================================================
+   UTILITIES (badge status, dsb)
+   ======================================================================= */
+.badge-success { background-color: var(--badge-success) !important; }
+.badge-danger  { background-color: var(--badge-danger) !important; }
+.badge-secondary { background-color: var(--badge-secondary) !important; }
+.badge-primary { background-color: var(--badge-primary) !important; }
+
+/* Row hover lembut */
+.table-hover tbody tr:hover { background: #f1f5ff; }
+
+/* Helper spacing */
+.mt-4 { margin-top: 1.5rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+
+/* Responsive tweak kecil */
+@media (max-width: 991.98px) {
+  .sidebar { position: static; width: 100%; height: auto; box-shadow: none; }
+  .content, footer { margin-left: 0; }
+  body.page-pengajuan .content { min-height: auto; }
+}
+
+/* ============================================================
+   KHUSUS KUALIFIKASI (QUILL) — APPEND-ONLY PATCH
+   ============================================================ */
+
+/* Ubah layout hanya utk form-group yg punya editor Quill */
+body.page-pengajuan .form-group:has(#kualifikasiEditor) {
+  display: block;                 /* pisahkan dari layout flex default */
+}
+
+/* Label kualifikasi full-width di atas editor */
+body.page-pengajuan .form-group:has(#kualifikasiEditor) .form-label {
+  display: block;
+  width: auto;                    /* abaikan width:140px utk kasus ini */
+  margin-bottom: 8px;
+}
+
+/* Toolbar & editor full width */
+#kualifikasiToolbar,
+#kualifikasiEditor {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tinggi editor + estetika selaras tema portal */
+#kualifikasiEditor {
+  height: 180px;                  /* silakan sesuaikan */
+  background: var(--surface);
+  border-radius: 0 0 8px 8px;
+  overflow-y: auto;
+}
+
+/* Samakan border & radius atas/bawah antara toolbar & editor */
+#kualifikasiToolbar.ql-toolbar.ql-snow {
+  border-color: var(--border) !important;
+  border-radius: 8px 8px 0 0;
+}
+#kualifikasiEditor.ql-container.ql-snow {
+  border-color: var(--border) !important;
+}
+
+/* Warna hover/aktif Quill pakai warna tema */
+.ql-snow .ql-picker-label:hover,
+.ql-snow .ql-picker-item:hover,
+.ql-snow .ql-picker-label.ql-active,
+.ql-snow .ql-picker-item.ql-selected,
+.ql-snow .ql-stroke:hover,
+.ql-snow .ql-fill:hover,
+.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+  color: var(--primary) !important;
+  stroke: var(--primary) !important;
+}
+
+/* Fokus editor: glow halus seperti komponen lain */
+#kualifikasiEditor.ql-container.ql-snow:focus-within {
+  box-shadow: 0 0 0 0.2rem rgba(13,110,253,.15);
+  border-color: var(--primary) !important;
+}
+
+/* Spasi paragraf & list rapi di dalam editor */
+#kualifikasiEditor .ql-editor p { margin: 0 0 .5rem; }
+#kualifikasiEditor .ql-editor ul,
+#kualifikasiEditor .ql-editor ol { margin: 0 0 .5rem 1.25rem; }
+
+/* Mobile tweak */
+@media (max-width: 575.98px) {
+  #kualifikasiEditor { height: 220px; }
+}

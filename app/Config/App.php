@@ -16,7 +16,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://10.101.56.69:8080/nusantara_api/public/';
+    public string $baseURL = 'http://localhost/nusantara_api/public/';
 
 
     /**

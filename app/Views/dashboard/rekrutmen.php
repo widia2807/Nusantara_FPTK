@@ -104,13 +104,35 @@
   <!-- Content -->
   <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dashboard Rekrutmen</h2>
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <img src="https://via.placeholder.com/30" class="rounded-circle"> Rekrutmen
+      <h2>Dashboard Divisi</h2>
+      <!-- Dropdown profil -->
+      <div class="dropdown text-end">
+        <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 
+                type="button" data-bs-toggle="dropdown" aria-expanded="false" 
+                style="border-radius: 50px;">
+          <img id="profilePic" 
+               src="<?= base_url('uploads/profile/default.png') ?>" 
+               class="rounded-circle border border-primary" 
+               width="32" height="32" 
+               style="object-fit: cover;">
+          <span class="fw-semibold">Divisi</span>
         </button>
-        <ul class="dropdown-menu">
-          <li><a href="<?= base_url('logout') ?>" class="dropdown-item text-danger">Logout</a></li>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" 
+            style="width: 250px;">
+          <div class="text-center">
+            <img id="profilePreview" 
+                 src="<?= base_url('uploads/profile/default.png') ?>" 
+                 class="rounded-circle mb-2 border border-2 border-primary" 
+                 width="70" height="70" 
+                 style="object-fit: cover;">
+            <h6 class="fw-bold mb-0"><?= session()->get('nama_user') ?? 'Nama Divisi' ?></h6>
+            <p class="text-muted small mb-2"><?= session()->get('email_user') ?? 'divisi@example.com' ?></p>
+            <input type="file" id="uploadProfile" accept="image/*" 
+                   class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
+            <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
+            <hr class="my-2">
+            <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
+          </div>
         </ul>
       </div>
     </div>
@@ -307,7 +329,7 @@
 let currentId = null;
 
 async function loadPengajuanRekrutmen() {
-  const res = await fetch('http://10.101.56.69:8080/api/pengajuan');
+  const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
   const json = await res.json();
   const tbody = document.getElementById('pengajuanTable');
   tbody.innerHTML = '';
@@ -386,7 +408,7 @@ function copyField(id) {
 
 async function selesaiPengajuan() {
   try {
-    await fetch(`http://10.101.56.69:8080/api/pengajuan/${currentId}/rekrutmen-review`, {
+    await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/rekrutmen-review`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status_rekrutmen: 'Selesai' })

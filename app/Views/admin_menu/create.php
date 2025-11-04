@@ -5,85 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tambah User - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #f9fafc;
-      color: #212529;
-    }
+  <link rel="stylesheet" href="<?= base_url('assets/css/divisi.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('assets/css/admin-shared.css') ?>">
 
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      background: #fff;
-      border-right: 1px solid #e5e7eb;
-      padding-top: 20px;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.05);
-    }
-    .sidebar h6 {
-      color: #0d6efd;
-      font-weight: 700;
-    }
-    .sidebar a {
-      display: block;
-      padding: 10px 20px;
-      color: #444;
-      text-decoration: none;
-      font-size: 14px;
-      border-left: 3px solid transparent;
-      transition: all 0.2s ease;
-    }
-    .sidebar a:hover {
-      background: #e7f1ff;
-      border-left: 3px solid #0d6efd;
-      color: #0d6efd;
-    }
-
-    /* Content */
-    .content {
-      margin-left: 240px;
-      padding: 30px;
-    }
-
-    /* Form Card */
-    .form-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      padding: 25px 30px;
-      max-width: 600px;
-      margin: auto;
-    }
-    .form-card h3 {
-      color: #0d6efd;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-    .form-label {
-      font-weight: 600;
-    }
-
-    /* Button */
-    .btn-primary {
-      background: #0d6efd;
-      border: none;
-      font-weight: 500;
-      border-radius: 8px;
-      padding: 8px 16px;
-    }
-    .btn-primary:hover {
-      background: #0b5ed7;
-    }
-    .btn-secondary {
-      border-radius: 8px;
-    }
-  </style>
 </head>
-<body>
+
+<body class="role-divisi page-history">
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -92,9 +19,10 @@
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
     <a href="<?= base_url('dashboard/hr') ?>">📊 Dashboard</a>
-    <a href="<?= base_url('users/create') ?>">➕ Tambah Akun</a>
-    <a href="<?= base_url('users/manage') ?>" class="active">👥 Manajemen User</a>
-    <a href="<?= base_url('users/hr_history') ?>">📂 History</a>
+    <a href="<?= base_url('admin_menu/create') ?>">➕ Tambah Akun</a>
+    <a href="<?= base_url('admin_menu/manage') ?>">👥 Manajemen User</a>
+    <a href="<?= base_url('admin_menu/manage_all') ?>" class="active">⚙️ Kelola Data</a>
+    <a href="<?= base_url('history/hr') ?>">📂 History</a>
   </div>
 
   <!-- Content -->
@@ -124,7 +52,6 @@
           </select>
         </div>
 
-        <!-- ⚠️ Checkbox aktif dihilangkan, default is_active = 0 -->
         <small class="text-muted d-block mb-3">*Akun baru otomatis tidak aktif. Aktifkan nanti melalui menu Aktivasi.</small>
 
         <div class="d-flex justify-content-end gap-2">
@@ -137,13 +64,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    const BASE = "<?= rtrim(base_url(), '/') ?>"; // contoh: http://localhost/nusantara_api/public
+
     document.getElementById('createUserForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const emailRegex = /^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$/;
       const username = this.username.value.trim();
 
-      // ✅ Validasi email format
       if (!emailRegex.test(username)) {
         alert("Username harus berupa alamat email yang valid!");
         return;
@@ -152,32 +80,35 @@
       const data = {
         username: username,
         full_name: this.full_name.value.trim(),
-        password: "123456", // default password
+        password: "123456",     // default password
         role: this.role.value,
-        is_active: 0 // default akun belum aktif
+        is_active: 0            // default akun belum aktif
       };
 
       try {
-        let response = await fetch("http://10.101.56.69:8080/api/users", {
+        const response = await fetch(`${BASE}/api/users`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          credentials: "include",
+          // NOTE:
+          // Jika server CORS kamu masih pakai Access-Control-Allow-Origin: *,
+          // JANGAN pakai credentials. Aktifkan setelah CORS diubah ke origin spesifik.
+          // credentials: "include",
           body: JSON.stringify(data)
         });
 
         if (!response.ok) {
-          let text = await response.text();
+          const text = await response.text();
           throw new Error("HTTP " + response.status + ": " + text);
         }
 
-        let result = await response.json();
+        const result = await response.json();
 
         if (result.status === "success") {
           alert("User berhasil dibuat dengan password default 123456. Akun belum aktif.");
-          window.location.href = "<?= base_url('dashboard/hr') ?>";
+          window.location.href = `${BASE}/dashboard/hr`;
         } else {
           alert(result.error || "Gagal menambahkan user");
         }
