@@ -255,102 +255,58 @@ public function hrReview($id = null)
     return $this->failValidationErrors("Aksi HR tidak valid. Gunakan accept / send / reject.");
 }
 
-// =====================
-// REVIEW MANAGEMENT (PUT /api/pengajuan/{id}/management-review)
-// =====================
 public function managementReview($id = null)
 {
-    // --- 1) Cek ID valid & data ada
-    if (!$id || !is_numeric($id)) {
-        return $this->failValidationErrors('ID pengajuan tidak valid.');
-    }
-
+    $data = $this->input();
     $pengajuan = $this->model->find($id);
-    if (!$pengajuan) {
-        return $this->failNotFound('Pengajuan tidak ditemukan.');
+    if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
+
+    // Ambil input
+    $status  = $data['status_management'] ?? null;   // 'Approved' | 'Rejected' | 'Pending'
+    $comment = $data['comment']            ?? '';    // wajib kalau Rejected
+    $idUser  = session()->get('id_user')    ?? null; // opsional, untuk history
+
+    if (!$status) {
+        return $this->failValidationErrors('status_management wajib.');
+    }
+    if (strcasecmp($status, 'Rejected') === 0 && trim($comment) === '') {
+        return $this->failValidationErrors('Comment wajib diisi jika Reject.');
     }
 
-    // --- 2) Ambil input & siapkan context user
-    //    Boleh pakai helpermu $this->input(), tapi pastikan return array asosiatif.
-    //    Kalau ragu, pakai getJSON(true) saja.
-    $data = $this->request->getJSON(true) ?? [];
-    $status  = $data['status_management'] ?? null;   // "Approved" | "Rejected"
-    $comment = $data['comment'] ?? null;
-    $idUser  = session()->get('id_user') ?? ($data['id_user'] ?? null);
-
-    if (!$idUser) {
-        // Optional: batasi hanya role management
-        // if (session()->get('role') !== 'Management') { return $this->failForbidden('Hanya Management.'); }
-        return $this->failValidationErrors('id_user tidak terdeteksi (session atau payload).');
+    // Update status management (+ simpan comment kalau ada kolomnya)
+    $ok = $this->model->update($id, [
+        'status_management'  => $status,
+        'comment_management' => $comment,
+    ]);
+    if (!$ok) {
+        return $this->failValidationErrors($this->model->errors() ?: 'Gagal update.');
     }
 
-    // --- 3) Validasi bisnis
-    $allowed = ['Approved','Rejected'];
-    if (!$status || !in_array($status, $allowed, true)) {
-        return $this->failValidationErrors('Status management wajib "Approved" atau "Rejected".');
+    // Tulis history
+    $this->history->insert([
+        'id_pengajuan' => $id,
+        'id_user'      => $idUser,
+        'role_user'    => 'Management',
+        'action'       => $status,               // 'Approved' atau 'Rejected'
+        'comment'      => $comment ?: null,
+        'created_at'   => date('Y-m-d H:i:s'),
+    ]);
+
+    // (Opsional) auto-archive jika semua sudah Approved
+    $updated = $this->model->find($id);
+    if (
+        ($updated['status_hr'] ?? null)         === 'Approved' &&
+        ($updated['status_management'] ?? null) === 'Approved' &&
+        ($updated['status_rekrutmen'] ?? null)  === 'Selesai'
+    ) {
+        $this->model->update($id, ['archived' => 1]);
     }
-    if ($status === 'Rejected' && (!$comment || trim($comment) === '')) {
-        return $this->failValidationErrors('Comment wajib diisi jika status "Rejected".');
-    }
 
-    // Idempotensi ringan: kalau tidak ada perubahan, balas sukses tanpa update
-    $noChange =
-        ($pengajuan['status_management'] ?? null) === $status
-        && (trim((string)($pengajuan['comment_management'] ?? '')) === trim((string)($comment ?? '')));
-
-    if ($noChange) {
-        return $this->respond([
-            'message' => "Tidak ada perubahan. Review Management tetap ($status).",
-            'data'    => $pengajuan,
-        ]);
-    }
-
-    // --- 4) Transaksi DB
-    $db = \Config\Database::connect();
-    $db->transStart();
-
-    try {
-        // 4a) Update pengajuan
-        $this->model->update($id, [
-            'status_management'  => $status,
-            'comment_management' => $comment,
-            'updated_at'         => date('Y-m-d H:i:s'),
-        ]);
-
-        // 4b) Flag minta review ulang HR kalau ditolak setelah HR sempat approve
-        if ($status === 'Rejected' && ($pengajuan['status_hr'] ?? null) === 'Approved') {
-            $this->model->update($id, ['needs_hr_check' => 1]);
-        }
-
-        // 4c) Tulis history
-        // Pastikan $this->history adalah instance model HistoryModel
-        $this->history->insert([
-            'id_pengajuan' => $id,
-            'id_user'      => $idUser,
-            'role_user'    => 'Management',
-            'action'       => $status,
-            'comment'      => $comment,
-            'created_at'   => date('Y-m-d H:i:s'),
-        ]);
-
-        $db->transComplete();
-
-        if ($db->transStatus() === false) {
-            throw new \RuntimeException('Transaksi DB gagal.');
-        }
-
-        return $this->respond([
-            'message' => "Review Management berhasil ($status).",
-            'data'    => $this->model->find($id),
-        ], 200);
-
-    } catch (\Throwable $e) {
-        $db->transRollback();
-        log_message('error', 'ManagementReview error: {msg}', ['msg' => $e->getMessage()]);
-        return $this->failServerError('Terjadi kesalahan saat menyimpan review management.');
-    }
+    return $this->respondUpdated([
+        'ok'   => true,
+        'data' => $this->model->find($id),
+    ]);
 }
-
 
     // =====================
     // REVIEW REKRUTMEN

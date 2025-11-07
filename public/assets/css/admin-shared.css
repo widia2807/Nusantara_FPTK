@@ -559,3 +559,7 @@ input[type="text"]:disabled {
   color: #6b7280;
 }
 
+.quill-content p { margin: 0 0 .5rem; }
+.quill-content ul, .quill-content ol { margin: 0 0 .5rem; padding-left: 1.25rem; }
+.quill-content li { margin: .125rem 0; }
+

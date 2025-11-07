@@ -175,9 +175,12 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Kualifikasi</label>
-            <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
-          </div>
+        <label class="form-label">Kualifikasi</label>
+        <!-- div styled seperti form-control agar tampilannya tetap seragam -->
+        <div id="detailKualifikasi" class="form-control quill-content"
+            style="min-height:96px; overflow:auto;"></div>
+      </div>
+
 
           <div class="row" id="gajiRow" style="display:none;">
             <div class="col-md-6 mb-3">
