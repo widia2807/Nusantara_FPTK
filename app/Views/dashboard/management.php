@@ -71,7 +71,7 @@
   <!-- Content -->
   <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dashboard Divisi</h2>
+      <h2>Dashboard Management</h2>
       <!-- Dropdown profil -->
       <div class="dropdown text-end">
         <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 

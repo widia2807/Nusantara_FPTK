@@ -71,30 +71,20 @@
       }
 
       json.data.forEach(item => {
-  let statusBadge = `<span class="badge bg-secondary">Pending</span>`;
-  let reviewer = item.full_name || "-";
-  let role = item.role_user || "-";
+  let label = item.action || 'Pending';         // ← aksi historis per baris
+  const a = (label || '').toLowerCase();
 
-  // Status badge berdasar role dan status terkait
-  if (item.role_user === 'HR') {
-    if (item.status_hr?.toLowerCase() === 'approved') {
-      statusBadge = `<span class="badge bg-primary">HR Approved</span>`;
-    } else if (item.status_hr?.toLowerCase() === 'rejected') {
-      statusBadge = `<span class="badge bg-danger">HR Rejected</span>`;
-    }
-  } 
-  else if (item.role_user === 'Management') {
-    if (item.status_management?.toLowerCase() === 'approved') {
-      statusBadge = `<span class="badge bg-primary">Mng Approved</span>`;
-    } else if (item.status_management?.toLowerCase() === 'rejected') {
-      statusBadge = `<span class="badge bg-danger">Mng Rejected</span>`;
-    }
-  } 
-  else if (item.role_user === 'Rekrutmen') {
-    if (item.status_rekrutmen?.toLowerCase() === 'selesai') {
-      statusBadge = `<span class="badge bg-success">Rekrutmen Selesai</span>`;
-    }
-  }
+  // Normalisasi label supaya rapi
+  if (a === 'approved')  label = 'Approved';
+  else if (a === 'rejected') label = 'Rejected';
+  else if (a.includes('rekrutmen') && a.includes('selesai')) label = 'Rekrutmen Selesai';
+  else if (a.includes('sent') || a.includes('kirim') || a.includes('dikirim')) label = 'Dikirim ke Management';
+
+  let color = 'secondary';
+  if (label === 'Approved' || label === 'Rekrutmen Selesai') color = 'primary';
+  if (label === 'Rejected') color = 'danger';
+
+  const statusBadge = `<span class="badge bg-${color}">${item.role_user === 'HR' ? 'HR ' : item.role_user === 'Management' ? 'Mng ' : (item.role_user === 'Rekrutmen' ? '' : '')}${label}</span>`;
 
   tbody.innerHTML += `
     <tr>
@@ -107,8 +97,8 @@
       <td>${item.tipe_pekerjaan}</td>
       <td>${item.created_at}</td>
       <td>${statusBadge}</td>
-      <td>${reviewer}</td>
-      <td>${role}</td>
+      <td>${item.full_name || '-'}</td>
+      <td>${item.role_user || '-'}</td>
       <td>${item.comment || '-'}</td>
     </tr>
   `;

@@ -303,17 +303,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function allRequiredFilledExceptKualifikasiAndJobPost() {
-    const requiredEls = Array.from(form.querySelectorAll('[required]'));
-    const filtered = requiredEls.filter(el => {
-      const isKualifikasi = (el.id === 'kualifikasiHidden' || (el.tagName === 'TEXTAREA' && el.name === 'kualifikasi'));
-      const isJobPost = (el.id === 'jobPost' || el.name === 'job_post_number');
-      return !isKualifikasi && !isJobPost;
-    });
-    return filtered.every(el => {
-      if (el.offsetParent === null) return true; // elemen hidden → skip
-      return el.value !== '';
-    });
-  }
+  const requiredEls = Array.from(form.querySelectorAll('[required]'));
+  const filtered = requiredEls.filter(el => {
+    const isKualifikasi = (el.id === 'kualifikasiHidden' || (el.tagName === 'TEXTAREA' && el.name === 'kualifikasi'));
+    const isJobPost = (el.id === 'jobPost' || el.name === 'job_post_number');
+    const isReplaceName = (el.id === 'replaceName' || el.name === 'replace_employee_name'); // ⬅️ tambahkan ini
+    return !isKualifikasi && !isJobPost && !isReplaceName; // ⬅️ dikecualikan dari prasyarat generate JP
+  });
+  return filtered.every(el => {
+    if (el.offsetParent === null) return true; // hidden → skip
+    return el.value !== '';
+  });
+}
 
   function generateJobPostIfReady() {
     if (!allRequiredFilledExceptKualifikasiAndJobPost()) {

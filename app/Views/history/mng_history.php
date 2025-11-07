@@ -109,10 +109,12 @@
         }
 
         filtered.forEach(item => {
-          const badge = `<span class="badge bg-${
-            item.action === 'Approved' ? 'success' : 
-            item.action === 'Rejected' ? 'danger' : 'secondary'
-          }">${item.action}</span>`;
+         const a = (item.action || '').toLowerCase();
+        let label = 'Pending', color = 'secondary';
+        if (a === 'approved') { label = 'Approved'; color = 'primary'; }
+        else if (a === 'rejected') { label = 'Rejected'; color = 'danger'; }
+
+        const badge = `<span class="badge bg-${color}">${label}</span>`;
 
           tbody.innerHTML += `
             <tr>

@@ -104,6 +104,10 @@ $routes->group('api', static function($routes) {
     $routes->put('pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
     $routes->put('pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
     
+      // 🔧 tangkap PUT/POST/PATCH + OPTIONS
+    $routes->match(['put','post','patch','options'], 'pengajuan/(:num)/hr-review', 'Pengajuan::hrReview/$1');
+    $routes->match(['put','post','patch','options'], 'pengajuan/(:num)/management-review', 'Pengajuan::managementReview/$1');
+    $routes->match(['put','post','patch','options'], 'pengajuan/(:num)/rekrutmen-review', 'Pengajuan::rekrutmenReview/$1');
     // CABANG
     $routes->get('cabang', 'Cabang::index');    // ambil semua cabang
     $routes->post('cabang', 'Cabang::create');  // tambah cabang baru

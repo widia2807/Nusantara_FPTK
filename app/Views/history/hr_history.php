@@ -66,35 +66,19 @@
       }
 
       json.data.forEach(item => {
-  let statusText = "Pending";
-  let badgeClass = "secondary";
+  let label = item.action || 'Pending';
+  const a = (label || '').toLowerCase();
 
-  const hr = item.status_hr ? item.status_hr.toLowerCase() : "";
-  const mng = item.status_management ? item.status_management.toLowerCase() : "";
-  const rek = item.status_rekrutmen ? item.status_rekrutmen.toLowerCase() : "";
+  if (a === 'approved')  label = 'Approved';
+  else if (a === 'rejected') label = 'Rejected';
+  else if (a.includes('rekrutmen') && a.includes('selesai')) label = 'Rekrutmen Selesai';
+  else if (a.includes('sent') || a.includes('kirim') || a.includes('dikirim')) label = 'Dikirim ke Management';
 
-  if (rek === "selesai") {
-    statusText = "Rekrutmen Selesai";
-    badgeClass = "success";
-  }
-  else if (mng === "rejected") {
-    statusText = "Mng Rejected";
-    badgeClass = "danger";
-  }
-  else if (hr === "rejected") {
-    statusText = "HR Rejected";
-    badgeClass = "danger";
-  }
-  else if (mng === "accepted") {
-    statusText = "Mng Accepted";
-    badgeClass = "primary";
-  }
-  else if (hr === "accepted") {
-    statusText = "HR Accepted";
-    badgeClass = "primary";
-  }
+  let color = 'secondary';
+  if (label === 'Approved' || label === 'Rekrutmen Selesai') color = 'primary';
+  if (label === 'Rejected') color = 'danger';
 
-  const badge = `<span class="badge bg-${badgeClass}">${statusText}</span>`;
+  const badge = `<span class="badge bg-${color}">${label}</span>`;
 
   tbody.innerHTML += `
     <tr>
