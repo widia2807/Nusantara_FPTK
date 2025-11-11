@@ -88,6 +88,22 @@
       font-size: 14px;
     }
   </style>
+  <style>
+  .ql-align-center { text-align: center; }
+  .ql-align-right { text-align: right; }
+  .ql-align-justify { text-align: justify; }
+</style>
+<style>
+  #detailKualifikasiPreview ol, 
+  #detailKualifikasiPreview ul {
+    margin: 0 0 0.5rem 1.25rem; /* rapikan indent */
+    list-style-position: outside;
+  }
+  #detailKualifikasiPreview .ql-align-center { text-align:center; }
+  #detailKualifikasiPreview .ql-align-right { text-align:right; }
+  #detailKualifikasiPreview .ql-align-justify { text-align:justify; }
+</style>
+
 </head>
 <body>
 
@@ -328,84 +344,306 @@
   <script>
 let currentId = null;
 
+// ========== Loader utama ==========
 async function loadPengajuanRekrutmen() {
-  const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
-  const json = await res.json();
   const tbody = document.getElementById('pengajuanTable');
-  tbody.innerHTML = '';
+  tbody.innerHTML = `<tr><td colspan="10" class="text-center">Loading...</td></tr>`;
 
-  if (!json.data || json.data.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="text-center">Belum ada data pengajuan</td></tr>`;
-    return;
+  try {
+    const res = await fetch('http://localhost/nusantara_api/public/api/pengajuan');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+
+    tbody.innerHTML = '';
+    const list = Array.isArray(json.data) ? json.data : [];
+
+    let pendingCount = 0, doneCount = 0, rendered = 0;
+
+    list.forEach(item => {
+      // hanya yang sudah Approved oleh HR & Management
+      if (item.status_hr !== 'Approved' || item.status_management !== 'Approved') return;
+
+      if (item.status_rekrutmen === 'Pending') pendingCount++;
+      else if (item.status_rekrutmen === 'Selesai') doneCount++;
+
+      // tampilkan hanya Pending di tabel
+      if (item.status_rekrutmen === 'Pending') {
+        const badgeRek = `<span class="badge bg-secondary">${item.status_rekrutmen}</span>`;
+
+        // aman-kan JSON untuk atribut HTML
+        const safeItem = JSON.stringify({
+          id_pengajuan: item.id_pengajuan,
+          nama_divisi: item.nama_divisi,
+          nama_posisi: item.nama_posisi,
+          nama_cabang: item.nama_cabang,
+          jumlah_karyawan: item.jumlah_karyawan,
+          job_post_number: item.job_post_number,
+          tipe_pekerjaan: item.tipe_pekerjaan,
+          created_at: item.created_at,
+          min_gaji: item.min_gaji,
+          max_gaji: item.max_gaji,
+          kualifikasi: item.kualifikasi,
+          status_hr: item.status_hr,
+          status_management: item.status_management,
+          status_rekrutmen: item.status_rekrutmen,
+          comment: item.comment
+        }).replace(/</g, '\\u003c');
+
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${item.id_pengajuan}</td>
+            <td>${item.nama_divisi ?? ''}</td>
+            <td>${item.nama_posisi ?? ''}</td>
+            <td>${item.nama_cabang ?? ''}</td>
+            <td>${item.jumlah_karyawan ?? ''}</td>
+            <td>${item.job_post_number ?? ''}</td>
+            <td>${item.tipe_pekerjaan ?? ''}</td>
+            <td>${item.created_at ?? ''}</td>
+            <td>${badgeRek}</td>
+            <td><button class="btn btn-sm btn-info" data-item='${safeItem}' onclick="showDetail(this)">Detail</button></td>
+          </tr>
+        `);
+        rendered++;
+      }
+    });
+
+    document.getElementById('cardPending').textContent = String(pendingCount);
+    document.getElementById('cardDone').textContent = String(doneCount);
+
+    if (rendered === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">
+        Tidak ada pengajuan <b>Pending</b> dengan status HR & Management = Approved.<br>
+        Pending: ${pendingCount}, Selesai: ${doneCount}.
+      </td></tr>`;
+    }
+  } catch (err) {
+    console.error('[Rekrutmen] gagal load:', err);
+    tbody.innerHTML = `<tr><td colspan="10" class="text-center text-danger">
+      Gagal memuat data (cek Console).
+    </td></tr>`;
+    document.getElementById('cardPending').textContent = '0';
+    document.getElementById('cardDone').textContent = '0';
   }
+}
 
-  let pendingCount = 0, doneCount = 0;
+// ========== Helper render HTML aman utk Kualifikasi ==========
+function decodeEntities(html) {
+  const ta = document.createElement('textarea');
+  ta.innerHTML = html ?? '';
+  return ta.value;
+}
+function sanitize(html) {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html || '';
 
-  json.data.forEach(item => {
-    // hanya tampilkan yg sudah lolos HR & Mng
-    if (item.status_hr !== 'Approved' || item.status_management !== 'Approved') return;
+  tpl.content.querySelectorAll('script, iframe, object, embed, link, meta').forEach(el => el.remove());
+  tpl.content.querySelectorAll('*').forEach(el => {
+    [...el.attributes].forEach(attr => {
+      const name = attr.name.toLowerCase();
+      const val  = (attr.value || '').toLowerCase();
+      if (name.startsWith('on')) el.removeAttribute(attr.name);
+      if ((name === 'src' || name === 'href') && val.startsWith('javascript:')) el.removeAttribute(attr.name);
+    });
+  });
+  return tpl.innerHTML;
+}
+function ensureKualifikasiPreview() {
+  const ta = document.getElementById('detailKualifikasi');
+  if (!ta) return null;
 
-    if (item.status_rekrutmen === 'Pending') pendingCount++;
-    else if (item.status_rekrutmen === 'Selesai') doneCount++;
+  let preview = document.getElementById('detailKualifikasiPreview');
+  if (!preview) {
+    preview = document.createElement('div');
+    preview.id = 'detailKualifikasiPreview';
+    preview.className = 'form-control mt-2';
+    preview.style.minHeight = '100px';
+    preview.style.maxHeight = '250px';
+    preview.style.overflow = 'auto';
+    preview.style.background = '#fff';
+    // taruh setelah textarea
+    ta.parentElement.insertAdjacentElement('afterend', preview);
+  }
+  return preview;
+}
 
-    const badgeRek = `<span class="badge bg-${item.status_rekrutmen === 'Selesai' ? 'success' : 'secondary'}">${item.status_rekrutmen}</span>`;
+// Gabungkan beberapa list tunggal berurutan jadi <ol> saja
+function normalizeLists(html) {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
 
-    // hanya tampilkan yg masih Pending di dashboard
-    if (item.status_rekrutmen === 'Pending') {
-      tbody.innerHTML += `
-        <tr>
-          <td>${item.id_pengajuan}</td>
-          <td>${item.nama_divisi}</td>
-          <td>${item.nama_posisi}</td>
-          <td>${item.nama_cabang}</td>
-          <td>${item.jumlah_karyawan}</td>
-          <td>${item.job_post_number}</td>
-          <td>${item.tipe_pekerjaan}</td>
-          <td>${item.created_at}</td>
-          <td>${badgeRek}</td>
-          <td><button class="btn btn-sm btn-info" data-item='${JSON.stringify(item)}' onclick="showDetail(this)">Detail</button></td>
-        </tr>`;
+  // Kumpulkan list berurutan (<ol> atau <ul>) dan gabung jadi satu <ol>
+  const frag = tpl.content;
+  const nodes = Array.from(frag.childNodes);
+  const groups = [];
+  let current = [];
+
+  nodes.forEach(n => {
+    if (n.nodeType === 1 && (n.tagName === 'OL' || n.tagName === 'UL')) {
+      current.push(n);
+    } else {
+      if (current.length) groups.push(current), current = [];
+      groups.push([n]);
+    }
+  });
+  if (current.length) groups.push(current);
+
+  const outFrag = document.createDocumentFragment();
+  groups.forEach(group => {
+    const onlyLists = group.every(n => n.nodeType === 1 && (n.tagName === 'OL' || n.tagName === 'UL'));
+    if (onlyLists) {
+      const merged = document.createElement('ol');
+      group.forEach(list => {
+        Array.from(list.children).forEach(li => merged.appendChild(li.cloneNode(true)));
+      });
+      outFrag.appendChild(merged);
+    } else {
+      group.forEach(n => outFrag.appendChild(n.cloneNode(true)));
     }
   });
 
-  document.getElementById('cardPending').textContent = pendingCount;
-  document.getElementById('cardDone').textContent = doneCount;
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(outFrag);
+  return wrapper.innerHTML;
 }
 
+// ========== showDetail (bersih & tertutup rapi) ==========
 function showDetail(btn) {
-  const data = JSON.parse(btn.getAttribute('data-item'));
+  const dataAttr = btn.getAttribute('data-item') || '{}';
+  let data = {};
+  try { data = JSON.parse(dataAttr); } catch (e) { console.error('Parse data-item:', e, dataAttr); }
+
   currentId = data.id_pengajuan;
 
-  document.getElementById('detailId').value = data.id_pengajuan;
-  document.getElementById('detailDivisi').value = data.nama_divisi;
-  document.getElementById('detailPosisi').value = data.nama_posisi;
-  document.getElementById('detailCabang').value = data.nama_cabang;
-  document.getElementById('detailJumlah').value = data.jumlah_karyawan;
-  document.getElementById('detailJobPost').value = data.job_post_number || '';
-  document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
-  document.getElementById('detailUmur').value = data.range_umur || '';
-  document.getElementById('detailTanggal').value = data.created_at || '';
-  document.getElementById('detailMinGaji').value = data.min_gaji || '';
-  document.getElementById('detailMaxGaji').value = data.max_gaji || '';
-  document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
-  document.getElementById('detailStatusHR').value = data.status_hr || '';
-  document.getElementById('detailStatusMng').value = data.status_management || '';
-  document.getElementById('detailStatusRek').value = data.status_rekrutmen || '';
-  document.getElementById('detailComment').value = data.comment || '';
+  // isi field lain
+  document.getElementById('detailId').value        = data.id_pengajuan ?? '';
+  document.getElementById('detailDivisi').value    = data.nama_divisi ?? '';
+  document.getElementById('detailPosisi').value    = data.nama_posisi ?? '';
+  document.getElementById('detailCabang').value    = data.nama_cabang ?? '';
+  document.getElementById('detailJumlah').value    = data.jumlah_karyawan ?? '';
+  document.getElementById('detailJobPost').value   = data.job_post_number ?? '';
+  document.getElementById('detailTipe').value      = data.tipe_pekerjaan ?? '';
+  document.getElementById('detailUmur').value      = data.range_umur ?? '';
+  document.getElementById('detailTanggal').value   = data.created_at ?? '';
+  document.getElementById('detailMinGaji').value   = data.min_gaji ?? '';
+  document.getElementById('detailMaxGaji').value   = data.max_gaji ?? '';
+  document.getElementById('detailStatusHR').value  = data.status_hr ?? '';
+  document.getElementById('detailStatusMng').value = data.status_management ?? '';
+  document.getElementById('detailStatusRek').value = data.status_rekrutmen ?? '';
+  document.getElementById('detailComment').value   = data.comment ?? '';
 
-  new bootstrap.Modal(document.getElementById('detailModal')).show();
+  // kualifikasi
+  const ta = document.getElementById('detailKualifikasi');
+  ta.value = data.kualifikasi ?? '';
+
+  const preview = ensureKualifikasiPreview();
+  const decoded    = decodeEntities(ta.value || '');
+  const normalized = normalizeLists(decoded);      // gabung list-list jadi rapi
+  const safeHtml   = sanitize(normalized);
+  preview.innerHTML = safeHtml;
+
+  // sembunyikan textarea supaya tidak terlihat dobel
+  ta.classList.add('visually-hidden');
+
+  // simpan plain text bersih untuk tombol copy
+  preview.dataset.plain = (preview.textContent || '').trim();
+
+  // tampilkan modal
+  if (window.bootstrap && bootstrap.Modal) {
+    new bootstrap.Modal(document.getElementById('detailModal')).show();
+  }
 }
 
-function copyField(id) {
+async function copyField(id) {
+  if (id === 'detailKualifikasi') {
+    const preview = document.getElementById('detailKualifikasiPreview');
+    if (!preview) return alert('Tidak ada konten untuk disalin.');
+
+    // Ambil HTML dari preview termasuk <ul>/<ol> lengkap
+    const html  = preview.innerHTML
+      .replace(/<ul>/g, '<ul style="list-style-type:disc;margin-left:1.5em;">')
+      .replace(/<ol>/g, '<ol style="list-style-type:decimal;margin-left:1.5em;">');
+    const plain = preview.textContent.trim();
+
+    // Coba salin dengan format HTML
+    if (navigator.clipboard && window.ClipboardItem) {
+      try {
+        const item = new ClipboardItem({
+          "text/html": new Blob([html],  { type: "text/html" }),
+          "text/plain": new Blob([plain], { type: "text/plain" }),
+        });
+        await navigator.clipboard.write([item]);
+        alert("✅ Kualifikasi berhasil disalin dengan format (bold, italic, list, dsb).");
+        return;
+      } catch (e) {
+        console.warn("ClipboardItem gagal, fallback ke execCommand", e);
+      }
+    }
+
+    // Fallback lama untuk browser tanpa dukungan ClipboardItem
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+    temp.contentEditable = true;
+    temp.style.position = "fixed";
+    temp.style.left = "-9999px";
+    document.body.appendChild(temp);
+
+    const range = document.createRange();
+    range.selectNodeContents(temp);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand("copy");
+    document.body.removeChild(temp);
+    sel.removeAllRanges();
+
+    alert("✅ Kualifikasi berhasil disalin (fallback).");
+    return;
+  }
+
+  // field lain tetap plain text
   const el = document.getElementById(id);
-  const value = el.value || el.textContent;
+  const value = el ? (el.value || el.textContent || '') : '';
   navigator.clipboard.writeText(value).then(() => {
-    alert("Disalin: " + value);
-  }).catch(err => {
-    console.error("Gagal copy", err);
-  });
+    alert('Disalin: ' + value);
+  }).catch(err => console.error('Gagal copy', err));
 }
 
+async function copyHtmlWithFallback(html, plain) {
+  // 1) Coba ClipboardItem (butuh https/localhost)
+  if (navigator.clipboard && window.ClipboardItem) {
+    try {
+      const item = new ClipboardItem({
+        "text/html": new Blob([html],  { type: "text/html" }),
+        "text/plain": new Blob([plain ?? ""], { type: "text/plain" }),
+      });
+      await navigator.clipboard.write([item]);
+      return true;
+    } catch (e) {
+      console.warn("ClipboardItem gagal, fallback...", e);
+    }
+  }
+
+  // 2) Fallback: contentEditable + execCommand (dukungan luas)
+  const holder = document.createElement('div');
+  holder.setAttribute('contenteditable', 'true');
+  holder.style.position = 'fixed';
+  holder.style.left = '-99999px';
+  holder.innerHTML = html;
+  document.body.appendChild(holder);
+
+  const sel = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(holder);
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch (_) {}
+  sel.removeAllRanges();
+  document.body.removeChild(holder);
+  return ok;
+}
+// ========== Update status ==========
 async function selesaiPengajuan() {
   try {
     await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/rekrutmen-review`, {
@@ -413,17 +651,20 @@ async function selesaiPengajuan() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status_rekrutmen: 'Selesai' })
     });
-
-    bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
+    if (window.bootstrap && bootstrap.Modal) {
+      bootstrap.Modal.getInstance(document.getElementById('detailModal'))?.hide();
+    }
     loadPengajuanRekrutmen();
   } catch (e) {
     console.error(e);
-    alert("Gagal update status rekrutmen");
+    alert('Gagal update status rekrutmen');
   }
 }
 
+// Init
 loadPengajuanRekrutmen();
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -55,6 +55,12 @@
       padding: 8px 10px;
     }
   </style>
+  <style>
+  .ql-align-center { text-align:center; }
+  .ql-align-right { text-align:right; }
+  .ql-align-justify { text-align:justify; }
+</style>
+
 </head>
 <body>
 
@@ -229,10 +235,9 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Kualifikasi</label>
-            <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
-          </div>
+          <div id="detailKualifikasi"
+     class="form-control"
+     style="min-height:100px; max-height:250px; overflow:auto; background:#fff;"></div>
 
           <div class="row">
             <div class="col-md-4 mb-3">
@@ -311,27 +316,60 @@
       document.getElementById('cardApproved').innerText = approved;
       document.getElementById('cardRejected').innerText = rejected;
     }
+     function decodeEntities(html) {
+    const ta = document.createElement('textarea');
+    ta.innerHTML = html ?? '';
+    return ta.value;
+  }
+
+  // Sanitizer sederhana: buang tag/atribut berisiko
+  function sanitize(html) {
+    const tpl = document.createElement('template');
+    tpl.innerHTML = html || '';
+
+    // hapus tag berbahaya
+    tpl.content.querySelectorAll('script, iframe, object, embed, link, meta').forEach(el => el.remove());
+
+    // bersihkan atribut on* dan javascript:
+    tpl.content.querySelectorAll('*').forEach(el => {
+      [...el.attributes].forEach(attr => {
+        const name = attr.name.toLowerCase();
+        const val  = (attr.value || '').toLowerCase();
+        if (name.startsWith('on')) el.removeAttribute(attr.name);
+        if ((name === 'src' || name === 'href') && val.startsWith('javascript:')) {
+          el.removeAttribute(attr.name);
+        }
+      });
+    });
+
+    return tpl.innerHTML;
+  }
 
     function showDetail(btn) {
   const data = JSON.parse(btn.getAttribute('data-item'));
 
-  document.getElementById('detailIdPengajuan').value = data.id_pengajuan;
-  document.getElementById('detailDivisi').value = data.nama_divisi;
-  document.getElementById('detailPosisi').value = data.nama_posisi;
-  document.getElementById('detailCabang').value = data.nama_cabang;
-  document.getElementById('detailJumlah').value = data.jumlah_karyawan;
-  document.getElementById('detailJobPost').value = data.job_post_number || '';
-  document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
-  document.getElementById('detailUmur').value = data.range_umur || '';
-  document.getElementById('detailTanggal').value = data.created_at || '';
-  document.getElementById('detailMinGaji').value = data.min_gaji || '';
-  document.getElementById('detailMaxGaji').value = data.max_gaji || '';
-  document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
-  document.getElementById('detailStatusHR').value = data.status_hr || '';
-  document.getElementById('detailStatusMng').value = data.status_management || '';
-  document.getElementById('detailStatusRek').value = data.status_rekrutmen || '';
-  document.getElementById('detailCommentMng').value = data.comment_management || '';
+    document.getElementById('detailIdPengajuan').value = data.id_pengajuan;
+    document.getElementById('detailDivisi').value = data.nama_divisi;
+    document.getElementById('detailPosisi').value = data.nama_posisi;
+    document.getElementById('detailCabang').value = data.nama_cabang;
+    document.getElementById('detailJumlah').value = data.jumlah_karyawan;
+    document.getElementById('detailJobPost').value = data.job_post_number || '';
+    document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
+    document.getElementById('detailUmur').value = data.range_umur || '';
+    document.getElementById('detailTanggal').value = data.created_at || '';
+    document.getElementById('detailMinGaji').value = data.min_gaji || '';
+    document.getElementById('detailMaxGaji').value = data.max_gaji || '';
+    document.getElementById('detailStatusHR').value = data.status_hr || '';
+    document.getElementById('detailStatusMng').value = data.status_management || '';
+    document.getElementById('detailStatusRek').value = data.status_rekrutmen || '';
+    document.getElementById('detailCommentMng').value = data.comment_management || '';
 
+    // render Kualifikasi sebagai HTML aman (div, bukan .value)
+    const kvalRaw = data.kualifikasi || '';
+    const kvalDecoded = decodeEntities(kvalRaw);
+    const kvalSafe = sanitize(kvalDecoded);
+    const kvalEl = document.getElementById('detailKualifikasi');
+    kvalEl.innerHTML = kvalSafe;
   new bootstrap.Modal(document.getElementById('detailModal')).show();
 }
 
@@ -363,7 +401,6 @@
         if (confirm('Yakin ingin menyetujui pengajuan ini?')) updateStatus(id, 'Approved');
       });
     });
-
     loadPengajuan();
   </script>
 </body>
