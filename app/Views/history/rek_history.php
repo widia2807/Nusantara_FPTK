@@ -125,45 +125,79 @@
 
   
   <script>
-    async function loadHistory() {
+  async function loadHistory() {
+    try {
       const res = await fetch('http://localhost/nusantara_api/public/api/history');
       const json = await res.json();
+
       const tbody = document.getElementById('historyTable');
       tbody.innerHTML = '';
 
-      if (!json.data || json.data.length === 0) {
+      const rows = json?.data || [];
+      if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="11" class="text-center">Belum ada history</td></tr>`;
         return;
       }
 
-      json.data.forEach(item => {
-        if (item.role_user === 'Rekrutmen') {
-          const badge = `<span class="badge bg-${
-            item.action === 'Approved' ? 'success' : 
-            item.action === 'Rejected' ? 'danger' : 'secondary'
-          }">${item.action}</span>`;
-
-          tbody.innerHTML += `
-            <tr>
-              <td>${item.id_pengajuan}</td>
-              <td>${item.nama_divisi}</td>
-              <td>${item.nama_posisi}</td>
-              <td>${item.nama_cabang}</td>
-              <td>${item.jumlah_karyawan}</td>
-              <td>${item.job_post_number}</td>
-              <td>${item.tipe_pekerjaan}</td>
-              <td>${item.created_at}</td>
-              <td>${item.full_name || '-'}</td>
-              <td>${badge}</td>
-              <td>${item.comment || '-'}</td>
-            </tr>
-          `;
-        }
+      // ✅ Tampilkan hanya entri dari Rekrutmen yang SUDAH approved HR & Management
+      const filtered = rows.filter(item => {
+        const roleOk = item.role_user === 'Rekrutmen';
+        const hr = (item.status_hr || '').toLowerCase();
+        const mg = (item.status_management || '').toLowerCase();
+        const approvedBoth = (hr === 'approved' && mg === 'approved');
+        return roleOk && approvedBoth;
       });
-    }
 
-    loadHistory();
-  </script>
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center">Belum ada history (menunggu Approve HR & Management)</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        // Pakai label & badge dari API (fallback kalau belum ada)
+        let label = item.label || 'Pending';
+        let badgeColor = item.badge || 'secondary';
+
+        // Fallback kecil jika server belum mengirim label/badge
+        if (!item.label || !item.badge) {
+          const a  = (item.action || '').toLowerCase();
+          const rk = (item.status_rekrutmen || '').toLowerCase();
+          if (a.startsWith('reject') || a === 'rejected') label = 'Rejected';
+          else if (a.includes('approve') || a === 'approved') label = 'Approved';
+          else if (['selesai','done','complete'].includes(rk)) label = 'Rekrutmen Selesai';
+          badgeColor = (label === 'Rejected') ? 'danger'
+                     : (label === 'Approved' || label === 'Rekrutmen Selesai') ? 'primary'
+                     : 'secondary';
+        }
+
+        const badge = `<span class="badge bg-${badgeColor}">${label}</span>`;
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.id_pengajuan}</td>
+            <td>${item.nama_divisi ?? '-'}</td>
+            <td>${item.nama_posisi ?? '-'}</td>
+            <td>${item.nama_cabang ?? '-'}</td>
+            <td>${item.jumlah_karyawan ?? '-'}</td>
+            <td>${item.job_post_number ?? '-'}</td>
+            <td>${item.tipe_pekerjaan ?? '-'}</td>
+            <td>${item.created_at ?? '-'}</td>
+            <td>${item.full_name || '-'}</td>
+            <td>${badge}</td>
+            <td>${item.comment || '-'}</td>
+          </tr>
+        `;
+      });
+    } catch (e) {
+      console.error(e);
+      document.getElementById('historyTable').innerHTML =
+        `<tr><td colspan="11" class="text-center text-danger">Gagal memuat data</td></tr>`;
+    }
+  }
+
+  loadHistory();
+</script>
+
 
 </body>
 </html>

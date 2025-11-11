@@ -17,7 +17,7 @@ $routes->setAutoRoute(false);
 $routes->get('/', 'PageController::index');
 $routes->get('login', 'PageController::login');
 $routes->get('logout', 'Auth::logout');
-$routes->post('api/users/upload-profile', 'User::uploadProfile');
+//$routes->post('api/users/upload-profile', 'User::uploadProfile');
 
 
 // Dashboard
@@ -40,14 +40,6 @@ $routes->group('admin_menu', static function ($routes) {
 });
 
 
-
-// $routes->group('api', ['namespace' => 'App\Controllers'], function($routes) {
-//     $routes->get('users', 'Users::index');
-//     $routes->post('users/create', 'Users::create');
-//     $routes->post('users/activate/(:num)', 'Users::activate/$1');
-//     $routes->post('users/deactivate/(:num)', 'Users::deactivate/$1');
-//     $routes->post('users/reset_password/(:num)', 'Users::reset_password/$1');
-// });
 
 $routes->get('history', 'DashboardController::div_history');
 // History (khusus web / tampilan)
@@ -74,10 +66,10 @@ $routes->group('auth', static function ($routes) {
 // ==================
 $routes->group('api', static function($routes) {
     // Preflight untuk semua /api/*
-    $routes->options('(:any)', 'Auth::options');     // OPTIONS /api/*
+    $routes->options('(:any)', 'Auth::options');     
 
     // Health check
-    $routes->get('ping', 'Auth::ping');              // GET /api/ping
+    $routes->get('ping', 'Auth::ping');             
 
     // Auth
     $routes->post('login', 'Auth::login');
@@ -85,16 +77,22 @@ $routes->group('api', static function($routes) {
     // Dev util (hapus di produksi)
     $routes->get('dev/set-password', 'Auth::devSetPassword');
 
-    $routes->post('users', 'Users::create'); // POST /api/users
+    // USERS
+    $routes->get('users', 'Users::index');   
+    $routes->post('users', 'Users::create'); 
     $routes->put('users/(:num)/change-password', 'Users::changePassword/$1');
 
     // DIVISI
     $routes->get('divisi', 'Divisi::index');
     $routes->post('divisi', 'Divisi::create');
+     $routes->put('divisi/(:num)', 'Divisi::update/$1');     
+    $routes->delete('divisi/(:num)', 'Divisi::delete/$1'); 
 
     // POSISI
-    $routes->get('posisi', 'Posisi::index');               // ambil semua posisi / by divisi
-    $routes->post('posisi', 'Posisi::create');             // tambah posisi
+    $routes->get('posisi', 'Posisi::index');               
+    $routes->post('posisi', 'Posisi::create');
+    $routes->put('posisi/(:num)', 'Posisi::update/$1');     
+    $routes->delete('posisi/(:num)', 'Posisi::delete/$1');            
 
     // PENGAJUAN
     $routes->get('pengajuan', 'Pengajuan::index'); 
@@ -116,4 +114,6 @@ $routes->group('api', static function($routes) {
 
     // HISTORY
     $routes->get('history', 'History::index');
+    // Upload profile pindahkan ke sini & pakai controller yang sama (plural)
+    $routes->post('users/upload-profile', 'Users::uploadProfile'); // ✅
 });

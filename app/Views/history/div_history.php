@@ -59,55 +59,53 @@
   </div>
 
   <script>
-    async function loadHistory() {
+  async function loadHistory() {
+    try {
       const res = await fetch('http://localhost/nusantara_api/public/api/history');
       const json = await res.json();
+
       const tbody = document.getElementById('historyTable');
       tbody.innerHTML = '';
 
-      if (!json.data || json.data.length === 0) {
+      const rows = json?.data || [];
+      if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="12" class="text-center">Belum ada history</td></tr>`;
         return;
       }
 
-      json.data.forEach(item => {
-  let label = item.action || 'Pending';         // ← aksi historis per baris
-  const a = (label || '').toLowerCase();
+      rows.forEach(item => {
+        // jika API sudah kirimkan label & badge dari controller
+        const label = item.label || 'Pending';
+        const badge = item.badge || 'secondary';
+        const statusBadge = `<span class="badge bg-${badge}">${label}</span>`;
 
-  // Normalisasi label supaya rapi
-  if (a === 'approved')  label = 'Approved';
-  else if (a === 'rejected') label = 'Rejected';
-  else if (a.includes('rekrutmen') && a.includes('selesai')) label = 'Rekrutmen Selesai';
-  else if (a.includes('sent') || a.includes('kirim') || a.includes('dikirim')) label = 'Dikirim ke Management';
-
-  let color = 'secondary';
-  if (label === 'Approved' || label === 'Rekrutmen Selesai') color = 'primary';
-  if (label === 'Rejected') color = 'danger';
-
-  const statusBadge = `<span class="badge bg-${color}">${item.role_user === 'HR' ? 'HR ' : item.role_user === 'Management' ? 'Mng ' : (item.role_user === 'Rekrutmen' ? '' : '')}${label}</span>`;
-
-  tbody.innerHTML += `
-    <tr>
-      <td>${item.id_pengajuan}</td>
-      <td>${item.nama_divisi}</td>
-      <td>${item.nama_posisi}</td>
-      <td>${item.nama_cabang}</td>
-      <td>${item.jumlah_karyawan}</td>
-      <td>${item.job_post_number}</td>
-      <td>${item.tipe_pekerjaan}</td>
-      <td>${item.created_at}</td>
-      <td>${statusBadge}</td>
-      <td>${item.full_name || '-'}</td>
-      <td>${item.role_user || '-'}</td>
-      <td>${item.comment || '-'}</td>
-    </tr>
-  `;
-});
-
+        tbody.innerHTML += `
+          <tr>
+            <td>${item.id_pengajuan}</td>
+            <td>${item.nama_divisi ?? '-'}</td>
+            <td>${item.nama_posisi ?? '-'}</td>
+            <td>${item.nama_cabang ?? '-'}</td>
+            <td>${item.jumlah_karyawan ?? '-'}</td>
+            <td>${item.job_post_number ?? '-'}</td>
+            <td>${item.tipe_pekerjaan ?? '-'}</td>
+            <td>${item.created_at ?? '-'}</td>
+            <td>${statusBadge}</td>
+            <td>${item.full_name || '-'}</td>
+            <td>${item.role_user || '-'}</td>
+            <td>${item.comment || '-'}</td>
+          </tr>
+        `;
+      });
+    } catch (e) {
+      console.error(e);
+      document.getElementById('historyTable').innerHTML =
+        `<tr><td colspan="12" class="text-center text-danger">Gagal memuat data</td></tr>`;
     }
+  }
 
-    loadHistory();
-  </script>
+  loadHistory();
+</script>
+
 
 </body>
 </html>

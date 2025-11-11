@@ -6,7 +6,7 @@
   <title>Dashboard HR - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="<?= base_url('assets/css/admin-shared.css') ?>">
-  <link rel="stylesheet" href="<?= base_url('assets/css/admin-dashboard.css') ?>">
+  
 </head>
 <body>
 
@@ -176,7 +176,6 @@
 
           <div class="mb-3">
         <label class="form-label">Kualifikasi</label>
-        <!-- div styled seperti form-control agar tampilannya tetap seragam -->
         <div id="detailKualifikasi" class="form-control quill-content"
             style="min-height:96px; overflow:auto;"></div>
       </div>
@@ -283,7 +282,7 @@ function showDetail(btn) {
   document.getElementById('detailDivisi').value = data.nama_divisi;
   document.getElementById('detailPosisi').value = data.nama_posisi;
   document.getElementById('detailUmur').value = data.range_umur || '';
-  document.getElementById('detailKualifikasi').value = data.kualifikasi || '';
+  document.getElementById('detailKualifikasi').innerHTML = data.kualifikasi || '<em>(Kosong)</em>';
   document.getElementById('detailCabang').value = data.nama_cabang || '';
 document.getElementById('detailJumlah').value = data.jumlah_karyawan || '';
 document.getElementById('detailJobPost').value = data.job_post_number || '';
@@ -377,15 +376,37 @@ async function rejectPengajuan() {
     return;
   }
 
-  await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/hr-review`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status_hr: 'Rejected', comment })
-  });
+  try {
+    const res = await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/hr-review`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status_hr: 'Rejected',
+        comment,
+        action: 'reject' // ✅ penting!
+      })
+    });
 
-  bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
-  loadPengajuan();
+    // cek response jelas
+    let payloadText = await res.text();
+    let payload;
+    try { payload = JSON.parse(payloadText); } catch { payload = { message: payloadText }; }
+
+    if (!res.ok) {
+      alert("Gagal reject: " + (payload?.message || res.status));
+      console.error('Reject error:', payload);
+      return;
+    }
+
+    // tutup modal & refresh tabel
+    bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
+    loadPengajuan();
+  } catch (e) {
+    console.error(e);
+    alert("Terjadi error jaringan saat reject.");
+  }
 }
+
 
 async function sendPengajuan() {
   const minGaji = document.getElementById('minGaji').value;
