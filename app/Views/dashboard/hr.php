@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard HR - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= base_url('assets/css/admin-shared.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/divisi.css') ?>">
   
 </head>
-<body>
+<body class="role-hrd page-dashboard">
+
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -92,7 +93,7 @@
       <div class="card-body">
         <h5 class="mb-3">Review Pengajuan HR</h5>
         <div class="table-responsive">
-          <table class="table table-hover table-sm align-middle">
+          <table class="table table-hover table-sm table-compact align-middle">
             <thead>
               <tr>
                 <th>ID</th>

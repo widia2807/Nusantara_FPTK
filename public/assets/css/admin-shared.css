@@ -536,11 +536,14 @@ h2, h5 {
   color: #0d6efd;
 }
 
+/* override gaya active biar gak jadi tombol biru */
 .sidebar a.active {
-  background: linear-gradient(90deg, #0d6efd, #0dcaf0);
-  color: #fff;
-  font-weight: 600;
+  background: transparent;   /* atau background: none; */
+  color: #374151;            /* warna text sama seperti menu biasa */
+  font-weight: 500;          /* boleh 600 kalau mau tetap bold */
+  border-left: 3px solid transparent;
 }
+
 
 /* MAIN CONTENT */
 .content {

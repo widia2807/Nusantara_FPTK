@@ -94,37 +94,63 @@ private function sanitizeAndValidateFK(array $in): array
     return $in;
 }
 
-    // =====================
-    // HELPER ACTOR & HISTORY
-    // =====================
-    private function actor(): array
-    {
-        return [
-            'id'   => session()->get('id_user') ?? null,
-            'role' => session()->get('role')    ?? 'System',
-        ];
+// =====================
+// HELPER ACTOR & HISTORY
+// =====================
+private function actor(): array
+{
+    return [
+        'id'   => session()->get('id_user') ?? null,
+        'role' => session()->get('role')    ?? 'System',
+        'name' => session()->get('full_name') ?? null, // kalau ada
+    ];
+}
+
+/**
+ * Simpan 1 baris history untuk actor yang login.
+ * Cegah duplikat (aksi sama oleh actor yang sama dalam 1 menit).
+ */
+private function logHistoryOnce(
+    int $idPengajuan,
+    ?string $role,
+    ?int $idUser,
+    string $action,
+    ?string $comment = null,
+    ?string $reviewerName = null // opsional
+): bool {
+    // Wajib ada actor yang valid
+    $role   = $role   ?: (session()->get('role') ?? null);
+    $idUser = $idUser ?: (session()->get('id_user') ?? null);
+    if (!$role || !$idUser) {
+        log_message('error', 'logHistoryOnce: actor kosong (id_user/role).');
+        return false;
     }
 
-    private function logHistoryOnce(int $idPengajuan, string $role, ?int $idUser, string $action, ?string $comment = null): void
-    {
-        $exists = $this->history
-            ->where('id_pengajuan', $idPengajuan)
-            ->where('role_user', $role)
-            ->where('action', $action)
-            ->where('created_at >=', date('Y-m-d H:i:s', strtotime('-1 minute')))
-            ->first();
+    $action = strtolower(trim($action));
 
-        if ($exists) return;
+    // Cegah duplikat
+    $qb = $this->history
+        ->where('id_pengajuan', $idPengajuan)
+        ->where('action', $action)
+        ->where('created_at >=', date('Y-m-d H:i:s', strtotime('-1 minute')))
+        ->where('id_user', $idUser);
 
-        $this->history->insert([
-            'id_pengajuan' => $idPengajuan,
-            'id_user'      => $idUser,
-            'role_user'    => $role,
-            'action'       => $action, // gunakan label final yang konsisten
-            'comment'      => $comment ?: null,
-            'created_at'   => date('Y-m-d H:i:s'),
-        ]);
-    }
+    if ($qb->first()) return false;
+
+    $this->history->insert([
+        'id_pengajuan'  => $idPengajuan,
+        'id_user'       => $idUser,
+        'role_user'     => $role,
+        'action'        => $action,          // 'hr_send', 'management_approve', 'rekrutmen_done', dll.
+        'comment'       => $comment,
+        'reviewer_name' => $reviewerName,    // jika kolomnya kamu tambahkan (lihat #3)
+        'created_at'    => date('Y-m-d H:i:s'),
+    ]);
+
+    return true;
+}
+
+
 
     // =====================
     // POST /api/pengajuan
@@ -195,58 +221,53 @@ if (!$this->model->update($id, $data)) {
     // REVIEW HR
     // =====================
     public function hrReview($id = null)
-    {
-        $data = $this->input();
-        $pengajuan = $this->model->find($id);
-        if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
+{
+    $data = $this->input();
+    $pengajuan = $this->model->find($id);
+    if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
 
-        $statusIn = isset($data['status_hr']) ? trim($data['status_hr']) : null; // 'Approved' | 'Rejected'
-        $actionIn = isset($data['action']) ? strtolower(trim($data['action'])) : ''; // 'accept' | 'send' | 'reject'
-        $minGaji  = $data['min_gaji'] ?? null;
-        $maxGaji  = $data['max_gaji'] ?? null;
-        $comment  = $data['comment']  ?? '-';
+    $statusIn = isset($data['status_hr']) ? trim($data['status_hr']) : null; // 'Approved' | 'Rejected'
+    $actionIn = isset($data['action']) ? strtolower(trim($data['action'])) : ''; // 'accept' | 'send' | 'reject'
+    $minGaji  = $data['min_gaji'] ?? null;
+    $maxGaji  = $data['max_gaji'] ?? null;
+    $comment  = $data['comment']  ?? '-';
 
-        $actor = $this->actor();
+    $actor = $this->actor();
+    if (!$statusIn) return $this->failValidationErrors("Status HR wajib diisi");
 
-        if (!$statusIn) {
-            return $this->failValidationErrors("Status HR wajib diisi");
+    // REJECT
+    if ($actionIn === 'reject') {
+        if (trim($comment) === '') return $this->failValidationErrors("Comment wajib diisi jika Reject");
+
+        // guard: hanya kalau berubah
+        if (($pengajuan['status_hr'] ?? null) !== 'Rejected') {
+            $this->model->update($id, ['status_hr' => 'Rejected', 'archived' => 1]);
+            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_reject', $comment);
         }
+        return $this->respond(['message' => 'Pengajuan ditolak oleh HR.']);
+    }
 
-        // REJECT
-        if ($actionIn === 'reject') {
-            if (trim($comment) === '') {
-                return $this->failValidationErrors("Comment wajib diisi jika Reject");
-            }
-
-            $this->model->update($id, [
-                'status_hr' => 'Rejected',
-                'archived'  => 1,
-            ]);
-
-            $this->logHistoryOnce($id, 'HR', $actor['id'], 'Rejected', $comment);
-            return $this->respond(['message' => 'Pengajuan ditolak oleh HR.']);
-        }
-
-        // ACCEPT (belum kirim)
-        if ($actionIn === 'accept') {
+    // ACCEPT (belum kirim)
+    if ($actionIn === 'accept') {
+        if (($pengajuan['status_hr'] ?? null) !== 'Approved') {
             $this->model->update($id, ['status_hr' => 'Approved']);
-            $this->logHistoryOnce($id, 'HR', $actor['id'], 'Approved', $comment);
-            return $this->respond(['message' => 'HR menyetujui pengajuan, menunggu pengisian range gaji.']);
+            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_accept', $comment);
         }
+        return $this->respond(['message' => 'HR menyetujui pengajuan, menunggu pengisian range gaji.']);
+    }
 
-        // SEND (isi gaji + kirim ke management)
-        if ($actionIn === 'send') {
-            if (!$minGaji || !$maxGaji) {
-                return $this->failValidationErrors("Range gaji wajib diisi sebelum dikirim.");
-            }
+    // SEND (isi gaji + kirim ke management)
+    if ($actionIn === 'send') {
+        if (!$minGaji || !$maxGaji) return $this->failValidationErrors("Range gaji wajib diisi sebelum dikirim.");
 
-            // Update status pengajuan
+        // guard: kirim ke management hanya jika belum Pending/Approved/Rejected
+        $prevMng = $pengajuan['status_management'] ?? null;
+        if ($prevMng !== 'Pending' && $prevMng !== 'Approved' && $prevMng !== 'Rejected') {
             $this->model->update($id, [
                 'status_hr'         => 'Approved',
                 'status_management' => 'Pending',
             ]);
-
-            // Upsert range gaji
+            // upsert range gaji (tetap)
             $existingGaji = $this->rangeGaji->where('id_pengajuan', $id)->first();
             if ($existingGaji) {
                 $this->rangeGaji->update($existingGaji['id_range'] ?? $existingGaji['id'], [
@@ -264,86 +285,90 @@ if (!$this->model->update($id, $data)) {
                 ]);
             }
 
-            $this->logHistoryOnce($id, 'HR', $actor['id'], 'Sent to Management', $comment ?: 'Dikirim ke Management');
-            return $this->respond(['message' => 'Pengajuan dikirim ke Management.']);
+            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_send', $comment ?: 'Dikirim ke Management');
         }
-
-        return $this->failValidationErrors("Aksi HR tidak valid. Gunakan accept / send / reject.");
+        return $this->respond(['message' => 'Pengajuan dikirim ke Management.']);
     }
+
+    return $this->failValidationErrors("Aksi HR tidak valid. Gunakan accept / send / reject.");
+}
+
 
     // =====================
     // REVIEW MANAGEMENT
     // =====================
-    public function managementReview($id = null)
-    {
-        $data = $this->input();
-        $pengajuan = $this->model->find($id);
-        if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
+   public function managementReview($id = null)
+{
+    $data = $this->input();
+    $pengajuan = $this->model->find($id);
+    if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
 
-        $status  = $data['status_management'] ?? null;   // 'Approved' | 'Rejected' | 'Pending'
-        $comment = $data['comment']            ?? '';    // wajib kalau Rejected
-        $actor   = $this->actor();
+    $status  = $data['status_management'] ?? null;   // 'Approved' | 'Rejected' | 'Pending'
+    $comment = $data['comment']            ?? '';
+    $actor   = $this->actor();
 
-        if (!$status) {
-            return $this->failValidationErrors('status_management wajib.');
-        }
-        if (strcasecmp($status, 'Rejected') === 0 && trim($comment) === '') {
-            return $this->failValidationErrors('Comment wajib diisi jika Reject.');
-        }
+    if (!$status) return $this->failValidationErrors('status_management wajib.');
+    if (strcasecmp($status, 'Rejected') === 0 && trim($comment) === '')
+        return $this->failValidationErrors('Comment wajib diisi jika Reject.');
 
+    // guard: hanya kalau berubah
+    $prev = $pengajuan['status_management'] ?? null;
+    if ($prev !== $status) {
         $ok = $this->model->update($id, [
             'status_management'  => $status,
             'comment_management' => $comment,
         ]);
-        if (!$ok) {
-            return $this->failValidationErrors($this->model->errors() ?: 'Gagal update.');
-        }
+        if (!$ok) return $this->failValidationErrors($this->model->errors() ?: 'Gagal update.');
 
-        $this->logHistoryOnce($id, 'Management', $actor['id'], $status, $comment ?: null);
+        $action = (strcasecmp($status,'Approved')===0) ? 'management_approve'
+                 : ((strcasecmp($status,'Rejected')===0) ? 'management_reject' : 'management_pending');
 
-        // Auto-archive opsional
-        $updated = $this->model->find($id);
-        if (
-            ($updated['status_hr'] ?? null)         === 'Approved' &&
-            ($updated['status_management'] ?? null) === 'Approved' &&
-            ($updated['status_rekrutmen'] ?? null)  === 'Selesai'
-        ) {
-            $this->model->update($id, ['archived' => 1]);
-        }
-
-        return $this->respondUpdated([
-            'ok'   => true,
-            'data' => $this->model->find($id),
-        ]);
+        $this->logHistoryOnce($id, 'Management', $actor['id'], $action, $comment ?: null);
     }
+
+    // Auto-archive opsional (tetap)
+    $updated = $this->model->find($id);
+    if (($updated['status_hr'] ?? null) === 'Approved'
+        && ($updated['status_management'] ?? null) === 'Approved'
+        && ($updated['status_rekrutmen'] ?? null)  === 'Selesai') {
+        $this->model->update($id, ['archived' => 1]);
+    }
+
+    return $this->respondUpdated(['ok' => true, 'data' => $this->model->find($id)]);
+}
+
 
     // =====================
     // REVIEW REKRUTMEN
     // =====================
     public function rekrutmenReview($id = null)
-    {
-        $data = $this->input();
-        $pengajuan = $this->model->find($id);
-        if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
+{
+    $data = $this->input();
+    $pengajuan = $this->model->find($id);
+    if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
 
-        $status = $data['status_rekrutmen'] ?? null;
+    $status = $data['status_rekrutmen'] ?? null;
+    if (!$status) return $this->failValidationErrors('status_rekrutmen wajib.');
+
+    // guard: hanya jika berubah
+    if (($pengajuan['status_rekrutmen'] ?? null) !== $status) {
         $this->model->update($id, ['status_rekrutmen' => $status]);
 
-        if (
-            strcasecmp((string)$status, 'Selesai') === 0 &&
-            ($pengajuan['status_hr'] ?? null) === 'Approved' &&
-            ($pengajuan['status_management'] ?? null) === 'Approved'
-        ) {
+        if (strcasecmp((string)$status, 'Selesai') === 0
+            && ($pengajuan['status_hr'] ?? null) === 'Approved'
+            && ($pengajuan['status_management'] ?? null) === 'Approved') {
             $actor = $this->actor();
-            $this->logHistoryOnce($id, 'Rekrutmen', $actor['id'], 'Rekrutmen Selesai', $pengajuan['comment'] ?? null);
+            $this->logHistoryOnce($id, 'Rekrutmen', $actor['id'], 'rekrutmen_done', $pengajuan['comment'] ?? null);
             $this->model->update($id, ['archived' => 1]);
         }
-
-        return $this->respond([
-            'message' => 'Review Rekrutmen berhasil',
-            'data'    => $this->model->find($id),
-        ]);
     }
+
+    return $this->respond([
+        'message' => 'Review Rekrutmen berhasil',
+        'data'    => $this->model->find($id),
+    ]);
+}
+
 
     // =====================
     // ENDPOINT MANUAL MOVE TO HISTORY

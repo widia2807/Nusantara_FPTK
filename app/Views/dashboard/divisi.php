@@ -98,7 +98,7 @@
         <h5 class="mb-3">Status Pengajuan Divisi</h5>
         <div class="table-responsive">
           <table class="table table-hover table-sm table-compact align-middle">
-            <thead class="table-dark">
+            <thead >
               <tr>
                 <th>ID</th>
                 <th>Divisi</th>
@@ -126,7 +126,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Script 1: load & render tabel (dipisah agar tidak nested) -->
+  <!-- Script utama -->
   <script>
   async function loadPengajuan() {
     const tbody = document.getElementById('pengajuanTable');
@@ -203,24 +203,34 @@
     }
   }
 
+  // Convert Quill HTML → text rapi (bullet & enter)
+  function quillToPlain(html) {
+    if (!html) return '';
+
+    return html
+      .replace(/<\/p>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<li>/gi, '• ')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+  }
+
   function showDetail(btn) {
     try {
       const data = JSON.parse(decodeURIComponent(btn.getAttribute('data-item')));
 
-      document.getElementById('detailDivisi').value      = data.nama_divisi ?? '';
-      document.getElementById('detailPosisi').value      = data.nama_posisi ?? '';
-      document.getElementById('detailCabang').value      = data.nama_cabang ?? '';
-      document.getElementById('detailJumlah').value      = data.jumlah_karyawan ?? '';
-      document.getElementById('detailJobPost').value     = data.job_post_number ?? '';
-      document.getElementById('detailTipe').value        = data.tipe_pekerjaan ?? '';
-      document.getElementById('detailUmur').value        = data.range_umur ?? '';
-      document.getElementById('detailTempat').value      = data.tempat_kerja ?? '';
-      // Quill HTML -> plain text
-      const qual = (data.kualifikasi ?? '').replace(/<[^>]*>/g, '');
-      document.getElementById('detailKualifikasi').value = qual;
-      document.getElementById('detailCreated').value     = data.created_at ?? '';
+      document.getElementById('detailDivisi').value  = data.nama_divisi ?? '';
+      document.getElementById('detailPosisi').value  = data.nama_posisi ?? '';
+      document.getElementById('detailCabang').value  = data.nama_cabang ?? '';
+      document.getElementById('detailJumlah').value  = data.jumlah_karyawan ?? '';
+      document.getElementById('detailJobPost').value = data.job_post_number ?? '';
+      document.getElementById('detailTipe').value    = data.tipe_pekerjaan ?? '';
+      document.getElementById('detailUmur').value    = data.range_umur ?? '';
+      document.getElementById('detailCreated').value = data.created_at ?? '';
+      document.getElementById('detailKualifikasi').innerHTML = data.kualifikasi ?? '';
 
-      // Optional jika field ini ada di API
       if (document.getElementById('detailCommentHR')) {
         document.getElementById('detailCommentHR').value = data.comment_hr ?? '';
       }
@@ -235,12 +245,6 @@
     }
   }
 
-  // initial load
-  loadPengajuan();
-  </script>
-
-  <!-- Script 2: profil (dipisah, tidak nested) -->
-  <script>
   function previewProfile(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -264,7 +268,6 @@
     formData.append('profile', file);
 
     try {
-      // Ganti ke host API kamu yang benar
       const res = await fetch('http://10.101.56.69:8080/api/users/upload-profile', {
         method: 'POST',
         body: formData
@@ -283,78 +286,77 @@
       alert('Gagal mengupload foto.');
     }
   }
+
+  // initial load
+  loadPengajuan();
   </script>
 
-  <!-- Modal Detail Pengajuan -->
+  <!-- Modal Detail Pengajuan (Divisi, view only) -->
   <div class="modal fade" id="detailModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Detail Pengajuan</h5>
+      <div class="modal-content modal-readonly">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-semibold">Detail Pengajuan</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
-          <form>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Divisi</label>
-                <input type="text" id="detailDivisi" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Posisi</label>
-                <input type="text" id="detailPosisi" class="form-control" disabled>
-              </div>
+
+        <div class="modal-body pt-0">
+          <form class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Divisi</label>
+              <input type="text" id="detailDivisi" class="form-control" disabled>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Cabang</label>
-                <input type="text" id="detailCabang" class="form-control" disabled>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Jumlah Karyawan</label>
-                <input type="text" id="detailJumlah" class="form-control" disabled>
-              </div>
+            <div class="col-md-6">
+              <label class="form-label">Posisi</label>
+              <input type="text" id="detailPosisi" class="form-control" disabled>
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Cabang</label>
+              <input type="text" id="detailCabang" class="form-control" disabled>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Jumlah Karyawan</label>
+              <input type="text" id="detailJumlah" class="form-control" disabled>
+            </div>
+
+            <div class="col-md-6">
               <label class="form-label">Job Post Number</label>
               <input type="text" id="detailJobPost" class="form-control" disabled>
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-6">
               <label class="form-label">Tipe Pekerjaan</label>
               <input type="text" id="detailTipe" class="form-control" disabled>
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-6">
               <label class="form-label">Range Umur</label>
               <input type="text" id="detailUmur" class="form-control" disabled>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Tempat Kerja</label>
-              <input type="text" id="detailTempat" class="form-control" disabled>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Kualifikasi</label>
-              <textarea id="detailKualifikasi" class="form-control" rows="3" disabled></textarea>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Tanggal Dibuat</label>
+            <div class="col-md-6">
+              <label class="form-label">Tanggal Pengajuan</label>
               <input type="text" id="detailCreated" class="form-control" disabled>
             </div>
 
-            <!-- Tambahan Comment HR -->
-            <div class="mb-3">
+            <div class="col-12">
+              <label class="form-label">Kualifikasi</label>
+              <div id="detailKualifikasi"
+                  class="form-control bg-light ql-view"
+                  style="min-height: 120px; max-height: 300px; overflow-y: auto;">
+                  </div>
+            </div>
+
+            <div class="col-12">
               <label class="form-label">Comment HR</label>
               <textarea id="detailCommentHR" class="form-control" rows="2" disabled></textarea>
             </div>
 
-            <!-- Tambahan Comment Management -->
-            <div class="mb-3">
+            <div class="col-12">
               <label class="form-label">Comment Management</label>
               <textarea id="detailCommentMng" class="form-control" rows="2" disabled></textarea>
             </div>

@@ -6,71 +6,121 @@
   <title>Login - Nusantara Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #313233ff, #0dcaf0);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+  :root{
+    /* Palet korporat */
+    --blue-600:#0b5ed7;
+    --blue-500:#0d6efd;
+    --blue-300:#57b7ff;
+    --gold-500:#ffc107;
+    --gold-600:#e0a800;
+    --ink-900:#1c2430;
+    --ink-700:#313a49;
+    --ink-600:#435062;
+  }
 
-    .login-container {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #243040, #0b5ed7, #0dcaf0);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    .login-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 420px;
-      animation: fadeIn 0.8s ease;
-    }
 
-    .login-card img {
-      height: 65px;
-    }
+  .login-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
 
-    .login-card h3 {
-      font-weight: 700;
-      color: #2f2f30ff;
-    }
+  .login-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 28px rgba(13,110,253,0.18);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    animation: fadeIn 0.8s ease;
+    position: relative;
+  }
+  /* aksen emas tipis di atas kartu */
+  .login-card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:6px;
+    border-radius:16px 16px 0 0;
+    background: linear-gradient(90deg, var(--gold-500), #ffe082);
+  }
 
-    .form-label {
-      font-weight: 500;
-    }
+  .login-card img {
+    height: 65px;
+  }
 
-    .btn-login {
-      background: linear-gradient(90deg, #525457ff, #0dcaf0);
-      border: none;
-      border-radius: 30px;
-      font-weight: 600;
-      padding: 10px;
-      transition: all 0.3s ease;
-    }
+  .login-card h3 {
+    font-weight: 800;
+    color: var(--ink-900);
+    letter-spacing:.2px;
+  }
 
-    .btn-login:hover {
-      transform: translateY(-2px);
-      opacity: 0.9;
-    }
+  .form-label {
+    font-weight: 600;
+    color: var(--ink-700);
+  }
 
-    footer {
-      background: #111;
-      color: #bbb;
-      padding: 15px;
-      font-size: 14px;
-      text-align: center;
-    }
+  /* input & focus ring biru */
+  .form-control{
+    border-radius:12px;
+    border-color:#e6e9ef;
+  }
+  .form-control:focus{
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+  }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  /* checkbox focus */
+  .form-check-input:focus{
+    box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+    border-color: var(--blue-500);
+  }
+  .form-check-input:checked{
+    background-color: var(--blue-500);
+    border-color: var(--blue-500);
+  }
+
+  /* tombol login warna emas */
+  .btn-login {
+    background: linear-gradient(90deg, var(--gold-500), #ffd24d);
+    border: none;
+    border-radius: 30px;
+    font-weight: 700;
+    color:#222 !important;
+    padding: 10px;
+    transition: all 0.25s ease;
+  }
+  .btn-login:hover {
+    background: linear-gradient(90deg, var(--gold-600), #ffc93c);
+    transform: translateY(-2px);
+    filter: saturate(1.05);
+  }
+  .btn-login:focus{
+    box-shadow: 0 0 0 .25rem rgba(255,193,7,.25);
+  }
+
+  /* alert tetap, tapi sedikit rounded */
+  .alert{
+    border-radius:12px;
+  }
+
+  background: linear-gradient(90deg, var(--blue-600), var(--blue-500));
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
 </head>
 <body>
   <div class="login-container">

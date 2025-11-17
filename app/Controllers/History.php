@@ -40,74 +40,55 @@ class History extends BaseController
             return mb_substr($haystack, 0, mb_strlen($prefix)) === $prefix;
         };
 
-        $mapped = array_map(function ($row) use ($has, $starts) {
-            $action = mb_strtolower((string)($row['action'] ?? ''));
-            $hr     = mb_strtolower((string)($row['status_hr'] ?? ''));
-            $mng    = mb_strtolower((string)($row['status_management'] ?? ''));
-            $rek    = mb_strtolower((string)($row['status_rekrutmen'] ?? ''));
+        $mapped = array_map(function ($row) {
+    $action = strtolower(trim((string)($row['action'] ?? '')));
+    $hr     = strtolower((string)($row['status_hr'] ?? ''));
+    $mng    = strtolower((string)($row['status_management'] ?? ''));
+    $rek    = strtolower((string)($row['status_rekrutmen'] ?? ''));
 
-            // 1) Tentukan label utama
-            $label = null;
-            if ($action !== '') {
-                if ($action === 'rejected' || $starts($action, 'reject') || $has($action, 'tolak')) {
-                    $label = 'Rejected';
-                } elseif ($action === 'approved' || $has($action, 'approve') || $has($action, 'setuju')) {
-                    $label = 'Approved';
-                } elseif ($has($action, 'sent') || $has($action, 'kirim') || $has($action, 'dikirim')
-                          || $has($action, 'send') || $action === 'sent_to_management') {
-                    $label = 'Dikirim ke Management';
-                } elseif (($has($action, 'rekrutmen') && ($has($action, 'selesai') || $has($action, 'done') || $has($action, 'complete')))
-                          || $action === 'rekrutmen_selesai' || $action === 'finish') {
-                    $label = 'Rekrutmen Selesai';
-                }
-            }
+    // 1) Label berdasar action (kamus konsisten)
+    $labelMap = [
+        'hr_send'             => 'Dikirim ke Management',
+        'hr_approve'          => 'Approved',
+        'hr_reject'           => 'Rejected',
+        'management_review'   => 'Diterima untuk Review',
+        'management_approve'  => 'Approved',
+        'management_reject'   => 'Rejected',
+        'rekrutmen_start'     => 'Proses Rekrutmen',
+        'rekrutmen_done'      => 'Rekrutmen Selesai',
+    ];
+    $label = $labelMap[$action] ?? null;
 
-            if ($label === null) {
-                if ($hr === 'rejected' || $mng === 'rejected') {
-                    $label = 'Rejected';
-                } elseif (in_array($rek, ['selesai', 'done', 'complete'], true)) {
-                    $label = 'Rekrutmen Selesai';
-                } elseif ($hr === 'approved' && ($mng === '' || $mng === 'pending')) {
-                    $label = 'Dikirim ke Management';
-                } elseif ($hr === 'approved' || $mng === 'approved') {
-                    $label = 'Approved';
-                } else {
-                    $label = 'Pending';
-                }
-            }
+    // 2) Fallback kecil hanya jika action kosong/tidak dikenal
+    if ($label === null) {
+        if ($mng === 'rejected' || $hr === 'rejected') {
+            $label = 'Rejected';
+        } elseif (in_array($rek, ['selesai','done','complete'], true)) {
+            $label = 'Rekrutmen Selesai';
+        } elseif ($mng === 'approved' || $hr === 'approved') {
+            // kalau hr approved tapi mg masih pending → kirim ke management
+            $label = ($hr === 'approved' && ($mng === '' || $mng === 'pending'))
+                   ? 'Dikirim ke Management'
+                   : 'Approved';
+        } else {
+            $label = 'Pending';
+        }
+    }
 
-            // 2) Warna badge
-            $badge = 'secondary';
-            if ($label === 'Rejected') $badge = 'danger';
-            if ($label === 'Approved' || $label === 'Rekrutmen Selesai') $badge = 'primary';
+    // 3) Warna badge
+    $badge = 'secondary';
+    if ($label === 'Rejected') $badge = 'danger';
+    elseif (in_array($label, ['Approved', 'Rekrutmen Selesai'], true)) $badge = 'primary';
+    elseif ($label === 'Dikirim ke Management') $badge = 'warning';
 
-            // 3) Normalisasi field untuk front-end
-
-            // waktu: pakai waktu history jika ada alias-nya
-            if (!empty($row['history_created_at'])) {
-                $row['created_at'] = $row['history_created_at'];
-            }
-
-            // nama reviewer: pakai reviewer_name (dari tabel user)
-            if (!empty($row['reviewer_name'])) {
-                $row['full_name'] = $row['reviewer_name'];
-            } elseif (empty($row['full_name'])) {
-                $row['full_name'] = '-';
-            }
-
-            // role reviewer: prioritas role_user_effective (COALESCE(history.role_user, user.role))
-            if (!empty($row['role_user_effective'])) {
-                $row['role_user'] = $row['role_user_effective'];
-            } elseif (empty($row['role_user'])) {
-                $row['role_user'] = '-';
-            }
-
-            // label & badge untuk dipakai front-end
-            $row['label'] = $label;
-            $row['badge'] = $badge;
-
-            return $row;
-        }, $historyData ?? []);
+    // 4) Normalisasi tampilan
+    if (!empty($row['history_created_at'])) $row['created_at'] = $row['history_created_at'];
+    $row['full_name'] = $row['reviewer_name'] ?? ($row['full_name'] ?? '-');
+    $row['role_user'] = $row['role_user_effective'] ?? ($row['role_user'] ?? '-');
+    $row['label'] = $label;
+    $row['badge'] = $badge;
+    return $row;
+}, $historyData ?? []);
 
         return $this->response
             ->setStatusCode(ResponseInterface::HTTP_OK)
