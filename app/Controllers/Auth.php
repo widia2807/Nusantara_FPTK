@@ -19,7 +19,7 @@ class Auth extends ResourceController
 
     $username = $request->username ?? '';
     $password = $request->password ?? '';
-    $remember = $request->rememberMe ?? false; // ✅ tangkap rememberMe dari request
+    $remember = $request->rememberMe ?? false; 
 
     $userModel = new UserModel();
     $user = $userModel->where('username', $username)->first();
@@ -36,13 +36,15 @@ class Auth extends ResourceController
     // 🔴 cek password default
     if (password_verify("123456", $user['password'])) {
         $session = session();
-        $session->set([
-            'temp_user_id'   => $user['id_user'],
-            'temp_username'  => $user['username'],
-            'temp_full_name' => $user['full_name'],
-            'temp_role'      => $user['role'],
-            'force_change_password' => true
-        ]);
+        // Misal $user diambil dari UserModel
+         $sessionData = [
+        'id_user'       => $user['id_user'],
+        'username'      => $user['username'],
+        'nama_user'     => $user['full_name'] ?? $user['username'],
+        'email_user'    => $user['email']      ?? null,
+        'role'          => $user['role'],
+        'profile_photo' => $user['profile_photo'] ?? null,
+    ];
 
         return $this->respond([
             'status'  => 'force_change_password',

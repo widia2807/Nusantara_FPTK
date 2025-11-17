@@ -3,9 +3,12 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\API\ResponseTrait;
 
 class Users extends BaseController
 {
+    use ResponseTrait; // kalau BaseController sudah pakai ini, baris ini boleh dihapus
+
     private function corsHeaders()
     {
         $this->response->setHeader('Access-Control-Allow-Origin', '*');
@@ -14,20 +17,20 @@ class Users extends BaseController
         $this->response->setHeader('Access-Control-Max-Age', '86400');
     }
 
-    public function createForm() {
-    return view('admin_menu/create');
-}
+    public function createForm()
+    {
+        return view('admin_menu/create');
+    }
 
-public function manageAll()
-{
-    return view('admin_menu/manage_all');
-}
+    public function manageAll()
+    {
+        return view('admin_menu/manage_all');
+    }
 
-
-public function hr_history()
-{
-    return view('history/hr'); // ini akan load app/Views/users/hr_history.php
-}
+    public function hr_history()
+    {
+        return view('history/hr');
+    }
 
     public function create()
     {
@@ -39,8 +42,7 @@ public function hr_history()
                 ->setJSON(['error' => 'Method not allowed']);
         }
 
-        // --- Authorization (HARUS HR) ---
-        $role = session('role'); // ✅ ganti dari user.role ke role langsung
+        $role = session('role');
 
         if ($role !== 'HR') {
             log_message('notice', 'Create user blocked: required HR, got {role}', ['role' => $role ?: '(none)']);
@@ -49,7 +51,6 @@ public function hr_history()
                 ->setJSON(['error' => 'Hanya HR yang boleh membuat akun']);
         }
 
-        // --- Ambil payload ---
         $data = $this->request->getJSON(true);
         if (!is_array($data) || empty($data)) {
             $data = $this->request->getPost();
@@ -63,8 +64,7 @@ public function hr_history()
             'is_active' => isset($data['is_active']) ? (int)$data['is_active'] : 1,
         ];
 
-        // --- Validasi ---
-        $validRoles = ['HR','Management','Rekrutmen','Divisi']; // ✅ tambahin
+        $validRoles = ['HR','Management','Rekrutmen','Divisi'];
         $rules = [
             'username'  => 'required|min_length[3]|max_length[100]|is_unique[user.username]',
             'full_name' => 'required|min_length[3]|max_length[150]',
@@ -82,8 +82,7 @@ public function hr_history()
                 ]);
         }
 
-        // --- Insert data ---
-        $users = new UserModel(); // ✅ perbaikan
+        $users = new UserModel();
         $insertData = [
             'username'  => $payload['username'],
             'full_name' => $payload['full_name'],
@@ -119,7 +118,7 @@ public function hr_history()
                 ->setJSON(['error' => 'Gagal membuat user']);
         }
     }
-     // ========== LIST USER ==========
+
     public function index()
     {
         $this->corsHeaders();
@@ -128,7 +127,6 @@ public function hr_history()
         return $this->response->setJSON(['status' => 'success', 'data' => $data]);
     }
 
-    // ========== AKTIFKAN ==========
     public function activate($id = null)
     {
         $this->corsHeaders();
@@ -141,7 +139,6 @@ public function hr_history()
         return $this->response->setJSON(['status'=>'success','message'=>'User diaktifkan']);
     }
 
-    // ========== NONAKTIFKAN ==========
     public function deactivate($id = null)
     {
         $this->corsHeaders();
@@ -154,7 +151,6 @@ public function hr_history()
         return $this->response->setJSON(['status'=>'success','message'=>'User dinonaktifkan']);
     }
 
-    // ========== RESET PASSWORD ==========
     public function reset_password($id = null)
     {
         $this->corsHeaders();
@@ -172,27 +168,33 @@ public function hr_history()
 
         return $this->response->setJSON(['status'=>'success','message'=>'Password direset ke default']);
     }
+
     public function uploadProfile()
-{
-    $file = $this->request->getFile('profile');
-    if (!$file->isValid()) {
-        return $this->failValidationErrors('File tidak valid.');
+    {
+        $file = $this->request->getFile('profile');
+        if (!$file || !$file->isValid()) {
+            return $this->respond(['message' => 'File tidak valid'], 400);
+        }
+
+        $userId = session()->get('id_user');
+        if (!$userId) {
+            return $this->respond(['message' => 'User belum login'], 401);
+        }
+
+        $path = FCPATH . 'uploads/profile/';
+        if (!is_dir($path)) mkdir($path, 0777, true);
+
+        $newName = $file->getRandomName();
+        $file->move($path, $newName);
+
+        $users = new UserModel();
+        $users->update($userId, ['profile_photo' => $newName]);
+
+        session()->set('profile_photo', $newName);
+
+        return $this->respond([
+            'message' => 'Upload berhasil',
+            'url' => base_url('uploads/profile/' . $newName)
+        ]);
     }
-
-    $newName = $file->getRandomName();
-    $file->move(FCPATH . 'uploads/profile', $newName);
-
-    // simpan path ke DB user
-    $userId = session()->get('id_user');
-    if ($userId) {
-        $userModel = new \App\Models\UserModel();
-        $userModel->update($userId, ['foto_profil' => 'uploads/profile/' . $newName]);
-    }
-
-    return $this->respond([
-        'status' => 'success',
-        'url'    => base_url('uploads/profile/' . $newName)
-    ]);
-}
-
 }

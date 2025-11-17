@@ -7,15 +7,20 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="<?= base_url('assets/css/divisi.css') ?>">
 </head>
-
 <body class="role-divisi page-dashboard">
+<?php
+  $namaUser   = session()->get('nama_user')  ?? 'Divisi';
+  $emailUser  = session()->get('email_user') ?? 'divisi@example.com';
+  $fotoUser   = session()->get('profile_photo') ?: 'default.png';
+?>
+
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="text-center mb-4">
       <img src="<?= base_url('assets/images/logo-nusantara-group.png') ?>" alt="Logo" height="40">
       <h6 class="mt-2">Nusantara Portal</h6>
     </div>
-    <a href="<?= base_url('dashboard/divisi') ?>">📊 Dashboard</a>
+    <a href="<?= base_url('dashboard/divisi') ?>" class="active">📊 Dashboard</a>
     <a href="<?= base_url('pengajuan') ?>">
       <img src="<?= base_url('assets/images/checklist.png') ?>" alt="Pengajuan" height="18" class="me-2">
       Pengajuan
@@ -34,25 +39,25 @@
                 type="button" data-bs-toggle="dropdown" aria-expanded="false"
                 style="border-radius: 50px;">
           <img id="profilePic"
-               src="<?= base_url('uploads/profile/default.png') ?>"
+               src="<?= base_url('uploads/profile/' . $fotoUser) ?>"
                onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
                class="rounded-circle border border-primary"
                width="32" height="32"
                style="object-fit: cover;">
-          <span class="fw-semibold">Divisi</span>
+          <span class="fw-semibold"><?= esc($namaUser) ?></span>
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" style="width: 250px;">
           <div class="text-center">
             <img id="profilePreview"
-                 src="<?= base_url('uploads/profile/default.png') ?>"
+                 src="<?= base_url('uploads/profile/' . $fotoUser) ?>"
                  onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
                  class="rounded-circle mb-2 border border-2 border-primary"
                  width="70" height="70"
                  style="object-fit: cover;">
 
-            <h6 class="fw-bold mb-0"><?= session()->get('nama_user') ?? 'Nama Divisi' ?></h6>
-            <p class="text-muted small mb-2"><?= session()->get('email_user') ?? 'divisi@example.com' ?></p>
+            <h6 class="fw-bold mb-0"><?= esc($namaUser) ?></h6>
+            <p class="text-muted small mb-2"><?= esc($emailUser) ?></p>
 
             <input type="file" id="uploadProfile" accept="image/*"
                    class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
@@ -122,7 +127,7 @@
       </div>
     </div>
 
-  </div><!-- /.content -->
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -248,19 +253,21 @@
   function previewProfile(event) {
     const file = event.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = e => {
-      document.getElementById('profilePreview').src = e.target.result;
+      const preview = document.getElementById('profilePreview');
+      if (preview) preview.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
 
   async function saveProfile() {
-    const fileInput = document.getElementById('uploadProfile');
-    const file = fileInput.files[0];
+    const input = document.getElementById('uploadProfile');
+    const file  = input?.files?.[0];
 
     if (!file) {
-      alert('Pilih foto profil terlebih dahulu.');
+      alert('Pilih file foto terlebih dahulu.');
       return;
     }
 
@@ -268,26 +275,36 @@
     formData.append('profile', file);
 
     try {
-      const res = await fetch('http://10.101.56.69:8080/api/users/upload-profile', {
+      const res = await fetch('<?= base_url('api/users/upload-profile') ?>', {
         method: 'POST',
         body: formData
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || 'Upload gagal');
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
 
-      alert('Foto profil berhasil diperbarui!');
-      if (data.url) {
-        document.getElementById('profilePic').src = data.url;
-        document.getElementById('profilePreview').src = data.url;
+      if (!res.ok) {
+        alert(data.message || data.error || 'Upload gagal.');
+        console.error('Upload error:', data);
+        return;
       }
+
+      if (data.url) {
+        const pic     = document.getElementById('profilePic');
+        const preview = document.getElementById('profilePreview');
+
+        if (pic)     pic.src     = data.url;
+        if (preview) preview.src = data.url;
+      }
+
+      alert(data.message || 'Foto profil berhasil diupload.');
+      
     } catch (err) {
       console.error(err);
-      alert('Gagal mengupload foto.');
+      alert('Terjadi error jaringan saat upload foto.');
     }
   }
 
-  // initial load
   loadPengajuan();
   </script>
 

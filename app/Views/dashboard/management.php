@@ -28,40 +28,49 @@
   </div>
 
   <!-- Content -->
-  <div class="content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dashboard Management</h2>
-      <!-- Dropdown profil -->
-      <div class="dropdown text-end">
-        <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 
-                type="button" data-bs-toggle="dropdown" aria-expanded="false" 
-                style="border-radius: 50px;">
-          <img id="profilePic" 
-               src="<?= base_url('uploads/profile/default.png') ?>" 
-               class="rounded-circle border border-primary" 
-               width="32" height="32" 
-               style="object-fit: cover;">
-          <span class="fw-semibold">Management</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" 
-            style="width: 250px;">
-          <div class="text-center">
-            <img id="profilePreview" 
-                 src="<?= base_url('uploads/profile/default.png') ?>" 
-                 class="rounded-circle mb-2 border border-2 border-primary" 
-                 width="70" height="70" 
-                 style="object-fit: cover;">
-            <h6 class="fw-bold mb-0"><?= session()->get('nama_user') ?? 'Nama Management' ?></h6>
-            <p class="text-muted small mb-2"><?= session()->get('email_user') ?? 'management@example.com' ?></p>
-            <input type="file" id="uploadProfile" accept="image/*" 
-                   class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
-            <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
-            <hr class="my-2">
-            <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
-          </div>
-        </ul>
-      </div>
+  <?php
+  $profilePhoto = session()->get('profile_photo') ?: 'default.png';
+  $namaUser     = session()->get('nama_user')  ?? 'User Portal';
+  $emailUser    = session()->get('email_user') ?? 'user@example.com';
+  $roleLabel    = session()->get('role')       ?? 'User';
+?>
+
+<div class="dropdown text-end">
+  <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 
+          type="button" data-bs-toggle="dropdown" aria-expanded="false" 
+          style="border-radius: 50px;">
+    <img id="profilePic" 
+         src="<?= base_url('uploads/profile/' . $profilePhoto) ?>" 
+         onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+         class="rounded-circle border border-primary" 
+         width="32" height="32" 
+         style="object-fit: cover;">
+    <span class="fw-semibold"><?= esc($roleLabel) ?></span>
+  </button>
+
+  <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" 
+      style="width: 250px;">
+    <div class="text-center">
+      <img id="profilePreview" 
+           src="<?= base_url('uploads/profile/' . $profilePhoto) ?>" 
+           onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+           class="rounded-circle mb-2 border border-2 border-primary" 
+           width="70" height="70" 
+           style="object-fit: cover;">
+
+      <h6 class="fw-bold mb-0"><?= esc($namaUser) ?></h6>
+      <p class="text-muted small mb-2"><?= esc($emailUser) ?></p>
+
+      <input type="file" id="uploadProfile" accept="image/*" 
+             class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
+      <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
+
+      <hr class="my-2">
+      <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
     </div>
+  </ul>
+</div>
+
 
     <!-- Cards -->
     <div class="row mb-4">
@@ -240,32 +249,46 @@
       let total = 0, approved = 0, rejected = 0;
 
       json.data.forEach(item => {
-        if (item.status_hr !== 'Approved') return;
-        total++;
-        if (item.status_management === 'Approved') approved++;
-        if (item.status_management === 'Rejected') rejected++;
+  // Hanya yang sudah lewat HR
+  if (item.status_hr !== 'Approved') return;
 
-        const badgeMng = `<span class="badge bg-${
-          item.status_management === 'Approved' ? 'success' : 
-          item.status_management === 'Rejected' ? 'danger' : 'secondary'
-        }">${item.status_management || 'Pending'}</span>`;
+  // Hitung untuk kartu
+  total++;
+  if (item.status_management === 'Approved') {
+    approved++;
+  } else if (item.status_management === 'Rejected') {
+    rejected++;
+  }
 
-        tbody.insertAdjacentHTML('beforeend', `
-          <tr>
-            <td>${item.id_pengajuan}</td>
-            <td>${item.nama_divisi}</td>
-            <td>${item.nama_posisi}</td>
-            <td>${item.nama_cabang}</td>
-            <td>${item.jumlah_karyawan}</td>
-            <td>${item.job_post_number}</td>
-            <td>${item.tipe_pekerjaan}</td>
-            <td>${item.created_at}</td>
-            <td>${badgeMng}</td>
-            <td>
-              <button class="btn btn-sm btn-info" data-item='${JSON.stringify(item)}' onclick="showDetail(this)">Detail</button>
-            </td>
-          </tr>`);
-      });
+  // ⛔️ Jangan tampilkan yang sudah di-approve / reject di tabel
+  if (item.status_management === 'Approved' || item.status_management === 'Rejected') {
+    return;
+  }
+
+  const badgeMng = `<span class="badge bg-${
+    item.status_management === 'Approved' ? 'success' : 
+    item.status_management === 'Rejected' ? 'danger' : 'secondary'
+  }">${item.status_management || 'Pending'}</span>`;
+
+  tbody.insertAdjacentHTML('beforeend', `
+    <tr>
+      <td>${item.id_pengajuan}</td>
+      <td>${item.nama_divisi}</td>
+      <td>${item.nama_posisi}</td>
+      <td>${item.nama_cabang}</td>
+      <td>${item.jumlah_karyawan}</td>
+      <td>${item.job_post_number}</td>
+      <td>${item.tipe_pekerjaan}</td>
+      <td>${item.created_at}</td>
+      <td>${badgeMng}</td>
+      <td>
+        <button class="btn btn-sm btn-info" 
+                data-item='${JSON.stringify(item).replace(/</g,"\\u003c")}' 
+                onclick="showDetail(this)">Detail</button>
+      </td>
+    </tr>
+  `);
+});
 
       document.getElementById('cardTotal').innerText = total;
       document.getElementById('cardApproved').innerText = approved;
@@ -297,7 +320,60 @@
 
       return tpl.innerHTML;
     }
+function previewProfile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('profilePreview');
+      if (preview) preview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function saveProfile() {
+    const input = document.getElementById('uploadProfile');
+    const file  = input?.files?.[0];
+
+    if (!file) {
+      alert('Pilih file foto terlebih dahulu.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profile', file);
+
+    try {
+      const res = await fetch('<?= base_url('api/users/upload-profile') ?>', {
+        method: 'POST',
+        body: formData
+      });
+
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+
+      if (!res.ok) {
+        alert(data.message || data.error || 'Upload gagal.');
+        console.error('Upload error:', data);
+        return;
+      }
+
+      if (data.url) {
+        const pic     = document.getElementById('profilePic');
+        const preview = document.getElementById('profilePreview');
+
+        if (pic)     pic.src     = data.url;
+        if (preview) preview.src = data.url;
+      }
+
+      alert(data.message || 'Foto profil berhasil diupload.');
+      
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi error jaringan saat upload foto.');
+    }
+  }
     function showDetail(btn) {
       const data = JSON.parse(btn.getAttribute('data-item'));
 

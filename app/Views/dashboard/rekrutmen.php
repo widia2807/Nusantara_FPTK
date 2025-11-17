@@ -36,41 +36,49 @@
     <a href="<?= base_url('history/rekrutmen') ?>">📂 History</a>
   </div>
 
-  <!-- Content -->
-  <div class="content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Dashboard Rekrutmen</h2>
-      <!-- Dropdown profil -->
-      <div class="dropdown text-end">
-        <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 
-                type="button" data-bs-toggle="dropdown" aria-expanded="false" 
-                style="border-radius: 50px;">
-          <img id="profilePic" 
-               src="<?= base_url('uploads/profile/default.png') ?>" 
-               class="rounded-circle border border-primary" 
-               width="32" height="32" 
-               style="object-fit: cover;">
-          <span class="fw-semibold">Rekrutmen</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" 
-            style="width: 250px;">
-          <div class="text-center">
-            <img id="profilePreview" 
-                 src="<?= base_url('uploads/profile/default.png') ?>" 
-                 class="rounded-circle mb-2 border border-2 border-primary" 
-                 width="70" height="70" 
-                 style="object-fit: cover;">
-            <h6 class="fw-bold mb-0"><?= session()->get('nama_user') ?? 'Nama Rekrutmen' ?></h6>
-            <p class="text-muted small mb-2"><?= session()->get('email_user') ?? 'rekrutmen@example.com' ?></p>
-            <input type="file" id="uploadProfile" accept="image/*" 
-                   class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
-            <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
-            <hr class="my-2">
-            <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
-          </div>
-        </ul>
-      </div>
+  <?php
+  $profilePhoto = session()->get('profile_photo') ?: 'default.png';
+  $namaUser     = session()->get('nama_user')  ?? 'User Portal';
+  $emailUser    = session()->get('email_user') ?? 'user@example.com';
+  $roleLabel    = session()->get('role')       ?? 'User';
+?>
+
+<div class="dropdown text-end">
+  <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 
+          type="button" data-bs-toggle="dropdown" aria-expanded="false" 
+          style="border-radius: 50px;">
+    <img id="profilePic" 
+         src="<?= base_url('uploads/profile/' . $profilePhoto) ?>" 
+         onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+         class="rounded-circle border border-primary" 
+         width="32" height="32" 
+         style="object-fit: cover;">
+    <span class="fw-semibold"><?= esc($roleLabel) ?></span>
+  </button>
+
+  <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" 
+      style="width: 250px;">
+    <div class="text-center">
+      <img id="profilePreview" 
+           src="<?= base_url('uploads/profile/' . $profilePhoto) ?>" 
+           onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+           class="rounded-circle mb-2 border border-2 border-primary" 
+           width="70" height="70" 
+           style="object-fit: cover;">
+
+      <h6 class="fw-bold mb-0"><?= esc($namaUser) ?></h6>
+      <p class="text-muted small mb-2"><?= esc($emailUser) ?></p>
+
+      <input type="file" id="uploadProfile" accept="image/*" 
+             class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
+      <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
+
+      <hr class="my-2">
+      <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
     </div>
+  </ul>
+</div>
+
 
     <!-- Cards -->
     <div class="row mb-4">
@@ -508,7 +516,60 @@
         alert('Disalin: ' + value);
       }).catch(err => console.error('Gagal copy', err));
     }
+function previewProfile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('profilePreview');
+      if (preview) preview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function saveProfile() {
+    const input = document.getElementById('uploadProfile');
+    const file  = input?.files?.[0];
+
+    if (!file) {
+      alert('Pilih file foto terlebih dahulu.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('profile', file);
+
+    try {
+      const res = await fetch('<?= base_url('api/users/upload-profile') ?>', {
+        method: 'POST',
+        body: formData
+      });
+
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+
+      if (!res.ok) {
+        alert(data.message || data.error || 'Upload gagal.');
+        console.error('Upload error:', data);
+        return;
+      }
+
+      if (data.url) {
+        const pic     = document.getElementById('profilePic');
+        const preview = document.getElementById('profilePreview');
+
+        if (pic)     pic.src     = data.url;
+        if (preview) preview.src = data.url;
+      }
+
+      alert(data.message || 'Foto profil berhasil diupload.');
+      
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi error jaringan saat upload foto.');
+    }
+  }
     async function selesaiPengajuan() {
       try {
         await fetch(`http://localhost/nusantara_api/public/api/pengajuan/${currentId}/rekrutmen-review`, {

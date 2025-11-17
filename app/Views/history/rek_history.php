@@ -180,7 +180,7 @@
             <td>${item.nama_cabang ?? '-'}</td>
             <td>${item.jumlah_karyawan ?? '-'}</td>
             <td>${item.job_post_number ?? '-'}</td>
-            <td>${item.tipe_pekerjaan ?? '-'}</td>
+             <td>${item.tipe_pekerjaan ?? '-'}</td>
             <td>${item.created_at ?? '-'}</td>
             <td>${item.full_name || '-'}</td>
             <td>${badge}</td>

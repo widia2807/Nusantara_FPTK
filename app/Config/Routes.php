@@ -27,6 +27,7 @@ $routes->group('dashboard', static function ($routes) {
     $routes->get('management', 'DashboardController::management');
     $routes->get('rekrutmen', 'DashboardController::rekrutmen');
     $routes->get('divisi', 'DashboardController::divisi');
+    
 });
 
 // Admin Menu - WEB ROUTES
@@ -115,5 +116,6 @@ $routes->group('api', static function($routes) {
     // HISTORY
     $routes->get('history', 'History::index');
     // Upload profile pindahkan ke sini & pakai controller yang sama (plural)
-    $routes->post('users/upload-profile', 'Users::uploadProfile'); // ✅
+   $routes->post('users/upload-profile', 'Users::uploadProfile');
+
 });
