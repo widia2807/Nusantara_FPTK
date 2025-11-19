@@ -8,11 +8,13 @@
   <link rel="stylesheet" href="<?= base_url('assets/css/divisi.css') ?>">
 </head>
 <body class="role-divisi page-dashboard">
+
 <?php
-  $namaUser   = session()->get('nama_user')  ?? 'Divisi';
-  $emailUser  = session()->get('email_user') ?? 'divisi@example.com';
+  $namaUser   = session()->get('nama_user')  ?? (session()->get('username') ?? 'User Portal');
+  $emailUser  = session()->get('email_user') ?? session()->get('username') ?? 'user@example.com';
   $fotoUser   = session()->get('profile_photo') ?: 'default.png';
 ?>
+
 
   <!-- Sidebar -->
   <div class="sidebar">

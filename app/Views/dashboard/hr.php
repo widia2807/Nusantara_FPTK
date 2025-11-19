@@ -8,8 +8,12 @@
 <link rel="stylesheet" href="<?= base_url('assets/css/divisi.css') ?>">
   
 </head>
-<body class="role-hrd page-dashboard">
-
+<?php
+  // 🔹 Ambil info user dari session (di-set di Auth::login)
+  $namaUser   = session()->get('nama_user')  ?? (session()->get('username') ?? 'User Portal');
+  $emailUser  = session()->get('email_user') ?? session()->get('username') ?? 'user@example.com';
+  $fotoUser   = session()->get('profile_photo') ?: 'default.png';
+?>
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -24,48 +28,48 @@
     <a href="<?= base_url('history/hr') ?>">📂 History</a>
   </div>
 
-  <?php
-  $profilePhoto = session()->get('profile_photo') ?: 'default.png';
-  $namaUser     = session()->get('nama_user')  ?? 'User Portal';
-  $emailUser    = session()->get('email_user') ?? 'user@example.com';
-  $roleLabel    = session()->get('role')       ?? 'User';
-?>
+  <div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-0">Dashboard HR</h2>
+      </div>
 
-<div class="dropdown text-end">
-  <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm" 
-          type="button" data-bs-toggle="dropdown" aria-expanded="false" 
-          style="border-radius: 50px;">
-    <img id="profilePic" 
-         src="<?= base_url('uploads/profile/' . $profilePhoto) ?>" 
-         onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
-         class="rounded-circle border border-primary" 
-         width="32" height="32" 
-         style="object-fit: cover;">
-    <span class="fw-semibold"><?= esc($roleLabel) ?></span>
-  </button>
+      <!-- Dropdown profil -->
+      <div class="dropdown text-end">
+        <button class="btn btn-light d-flex align-items-center gap-2 shadow-sm"
+                type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                style="border-radius: 50px;">
+          <img id="profilePic"
+               src="<?= base_url('uploads/profile/' . $fotoUser) ?>"
+               onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+               class="rounded-circle border border-primary"
+               width="32" height="32"
+               style="object-fit: cover;">
+          <span class="fw-semibold"><?= esc($namaUser) ?></span>
+        </button>
 
-  <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" 
-      style="width: 250px;">
-    <div class="text-center">
-      <img id="profilePreview" 
-           src="<?= base_url('uploads/profile/' . $profilePhoto) ?>" 
-           onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
-           class="rounded-circle mb-2 border border-2 border-primary" 
-           width="70" height="70" 
-           style="object-fit: cover;">
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3" style="width: 250px;">
+          <div class="text-center">
+            <img id="profilePreview"
+                 src="<?= base_url('uploads/profile/' . $fotoUser) ?>"
+                 onerror="this.onerror=null;this.src='<?= base_url('assets/images/default.png') ?>';"
+                 class="rounded-circle mb-2 border border-2 border-primary"
+                 width="70" height="70"
+                 style="object-fit: cover;">
 
-      <h6 class="fw-bold mb-0"><?= esc($namaUser) ?></h6>
-      <p class="text-muted small mb-2"><?= esc($emailUser) ?></p>
+            <h6 class="fw-bold mb-0"><?= esc($namaUser) ?></h6>
+            <p class="text-muted small mb-2"><?= esc($emailUser) ?></p>
 
-      <input type="file" id="uploadProfile" accept="image/*" 
-             class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
-      <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
-
-      <hr class="my-2">
-      <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
+            <input type="file" id="uploadProfile" accept="image/*"
+                   class="form-control form-control-sm mb-2" onchange="previewProfile(event)">
+            <button class="btn btn-primary btn-sm w-100 mb-2" onclick="saveProfile()">Simpan Foto</button>
+            <hr class="my-2">
+            <a href="<?= base_url('logout') ?>" class="btn btn-outline-danger btn-sm w-100">Logout</a>
+          </div>
+        </ul>
+      </div>
     </div>
-  </ul>
-</div>
+
 
 
     <!-- Cards -->
@@ -126,6 +130,7 @@
       </div>
     </div>
   </div>
+  
 
   <!-- Modal Detail -->
 <div class="modal fade" id="detailModal" tabindex="-1">

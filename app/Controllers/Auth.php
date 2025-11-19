@@ -13,7 +13,7 @@ class Auth extends ResourceController
     // ================================
     // POST /api/login  
     // ================================
-    public function login()
+   public function login()
 {
     $request = $this->request->getJSON() ?? (object) $this->request->getPost();
 
@@ -33,18 +33,24 @@ class Auth extends ResourceController
         return $this->respond(['error' => 'Password salah'], 401);
     }
 
-    // 🔴 cek password default
+    // ==========================
+    // 1) KALAU MASIH PAKAI PASSWORD DEFAULT
+    // ==========================
     if (password_verify("123456", $user['password'])) {
         $session = session();
-        // Misal $user diambil dari UserModel
-         $sessionData = [
-        'id_user'       => $user['id_user'],
-        'username'      => $user['username'],
-        'nama_user'     => $user['full_name'] ?? $user['username'],
-        'email_user'    => $user['email']      ?? null,
-        'role'          => $user['role'],
-        'profile_photo' => $user['profile_photo'] ?? null,
-    ];
+
+        // simpan data penting ke session, termasuk profile_photo
+        $session->set([
+            'id_user'       => $user['id_user'],
+            'username'      => $user['username'],
+            'nama_user'     => $user['full_name'] ?? $user['username'],
+            'email_user'    => $user['username'],  
+            'role'          => $user['role'],
+            'profile_photo' => $user['profile_photo'] ?? 'default.png',
+            'force_change_password' => true,
+            'temp_user_id'  => $user['id_user'],
+        ]);
+        $session->regenerate();
 
         return $this->respond([
             'status'  => 'force_change_password',
@@ -59,14 +65,18 @@ class Auth extends ResourceController
         ]);
     }
 
-    // ✅ set session kalau bukan default password
+    // ==========================
+    // 2) LOGIN NORMAL (BUKAN PASSWORD DEFAULT)
+    // ==========================
     $session = session();
     $session->set([
-        'id_user'   => $user['id_user'],
-        'username'  => $user['username'],
-        'full_name' => $user['full_name'],
-        'role'      => $user['role'],
-        'isLoggedIn'=> true
+        'id_user'       => $user['id_user'],
+        'username'      => $user['username'],
+        'nama_user'     => $user['full_name'] ?? $user['username'], 
+        'email_user'    => $user['username'],          
+        'role'          => $user['role'],
+        'profile_photo' => $user['profile_photo'] ?? 'default.png', 
+        'isLoggedIn'    => true
     ]);
     $session->regenerate();
 
@@ -95,6 +105,8 @@ class Auth extends ResourceController
             'username'  => $user['username'],
             'full_name' => $user['full_name'],
             'role'      => $user['role'],
+            // boleh tambahin juga profile_photo di response kalau mau dipakai di FE
+            'profile_photo' => $user['profile_photo'] ?? 'default.png',
         ]
     ]);
 }
