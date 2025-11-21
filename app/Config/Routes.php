@@ -83,6 +83,9 @@ $routes->group('api', static function($routes) {
     $routes->post('users', 'Users::create'); 
     $routes->put('users/(:num)/change-password', 'Users::changePassword/$1');
 
+   $routes->match(['put','post'], 'users/activate/(:num)', 'Users::activate/$1');
+$routes->match(['put','post'], 'users/deactivate/(:num)', 'Users::deactivate/$1');
+
     // DIVISI
     $routes->get('divisi', 'Divisi::index');
     $routes->post('divisi', 'Divisi::create');
@@ -115,7 +118,7 @@ $routes->group('api', static function($routes) {
 
     // HISTORY
     $routes->get('history', 'History::index');
-    // Upload profile pindahkan ke sini & pakai controller yang sama (plural)
+    
    $routes->post('users/upload-profile', 'Users::uploadProfile');
 
 });

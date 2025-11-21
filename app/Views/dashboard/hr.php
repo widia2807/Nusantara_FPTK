@@ -434,48 +434,50 @@ function previewProfile(event) {
   }
 
   async function saveProfile() {
-    const input = document.getElementById('uploadProfile');
-    const file  = input?.files?.[0];
+  const input = document.getElementById('uploadProfile');
+  const file  = input?.files?.[0];
 
-    if (!file) {
-      alert('Pilih file foto terlebih dahulu.');
+  if (!file) {
+    alert('Pilih file foto terlebih dahulu.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('profile', file); // sesuaikan nama field dengan backend
+
+  try {
+    const res = await fetch('<?= base_url('api/users/upload-profile') ?>', {
+      method: 'POST',
+      // TIDAK PERLU headers Authorization
+      body: formData
+    });
+
+    let data = {};
+    try { data = await res.json(); } catch (e) {}
+
+    if (!res.ok) {
+      alert(data.message || data.error || 'Upload gagal.');
+      console.error('Upload error:', data);
       return;
     }
 
-    const formData = new FormData();
-    formData.append('profile', file);
+    if (data.url) {
+      const pic     = document.getElementById('profilePic');
+      const preview = document.getElementById('profilePreview');
 
-    try {
-      const res = await fetch('<?= base_url('api/users/upload-profile') ?>', {
-        method: 'POST',
-        body: formData
-      });
-
-      let data = {};
-      try { data = await res.json(); } catch (e) {}
-
-      if (!res.ok) {
-        alert(data.message || data.error || 'Upload gagal.');
-        console.error('Upload error:', data);
-        return;
-      }
-
-      if (data.url) {
-        const pic     = document.getElementById('profilePic');
-        const preview = document.getElementById('profilePreview');
-
-        if (pic)     pic.src     = data.url;
-        if (preview) preview.src = data.url;
-      }
-
-      alert(data.message || 'Foto profil berhasil diupload.');
-      // kalau mau sekalian sync session di server & refresh tampilan:
-      // location.reload();
-    } catch (err) {
-      console.error(err);
-      alert('Terjadi error jaringan saat upload foto.');
+      if (pic)     pic.src     = data.url;
+      if (preview) preview.src = data.url;
     }
+
+    alert(data.message || 'Foto profil berhasil diupload.');
+    
+  } catch (err) {
+    console.error(err);
+    alert('Terjadi error jaringan saat upload foto.');
   }
+}
+
+
 async function sendPengajuan() {
   const minGaji = document.getElementById('minGaji').value;
   const maxGaji = document.getElementById('maxGaji').value;

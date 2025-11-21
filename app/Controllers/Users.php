@@ -127,29 +127,27 @@ class Users extends BaseController
         return $this->response->setJSON(['status' => 'success', 'data' => $data]);
     }
 
-    public function activate($id = null)
-    {
-        $this->corsHeaders();
-        if (!$id) return $this->response->setStatusCode(400)->setJSON(['error'=>'Missing id']);
-        
-        $users = new UserModel();
-        if (!$users->find($id)) return $this->response->setStatusCode(404)->setJSON(['error'=>'User tidak ditemukan']);
-        
-        $users->update($id, ['is_active'=>1]);
-        return $this->response->setJSON(['status'=>'success','message'=>'User diaktifkan']);
-    }
+    public function activate($id)
+{
+    $model = new UserModel();
+    $model->update($id, ['is_active' => 1]);
 
-    public function deactivate($id = null)
-    {
-        $this->corsHeaders();
-        if (!$id) return $this->response->setStatusCode(400)->setJSON(['error'=>'Missing id']);
-        
-        $users = new UserModel();
-        if (!$users->find($id)) return $this->response->setStatusCode(404)->setJSON(['error'=>'User tidak ditemukan']);
-        
-        $users->update($id, ['is_active'=>0]);
-        return $this->response->setJSON(['status'=>'success','message'=>'User dinonaktifkan']);
-    }
+    return $this->respond([
+        'status' => 'success',
+        'message' => 'User berhasil diaktifkan'
+    ]);
+}
+
+public function deactivate($id)
+{
+    $model = new UserModel();
+    $model->update($id, ['is_active' => 0]);
+
+    return $this->respond([
+        'status' => 'success',
+        'message' => 'User berhasil dinonaktifkan'
+    ]);
+}
 
     public function reset_password($id = null)
     {
@@ -170,77 +168,79 @@ class Users extends BaseController
     }
 
   public function uploadProfile()
-    {
-        // Pastikan user sudah login
-        $userId = session()->get('user_id'); // sesuaikan dengan key milikmu
-        if (!$userId) {
-            return $this->failUnauthorized('User belum login.');
-        }
-
-        $file = $this->request->getFile('profile');
-        if (!$file || !$file->isValid()) {
-            return $this->failValidationErrors('File foto tidak valid.');
-        }
-
-        // Validasi basic tipe file (opsional tapi bagus)
-        $validMime = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-        if (!in_array($file->getMimeType(), $validMime)) {
-            return $this->failValidationErrors('Tipe file harus gambar (JPG/PNG/WEBP).');
-        }
-
-        // Folder simpan (public/uploads/profile)
-        $uploadPath = FCPATH . 'uploads/profile';
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0775, true);
-        }
-
-        // Nama file unik per user, biar nggak tabrakan
-        $ext        = $file->getExtension();
-        $newName    = 'user_' . $userId . '_' . time() . '.' . $ext;
-
-        // Ambil data user lama (buat hapus foto lama kalau bukan default)
-        $userModel  = new UserModel();
-        $user       = $userModel->find($userId);
-
-        if (!$user) {
-            return $this->failNotFound('User tidak ditemukan.');
-        }
-
-        // Pindah file ke folder uploads/profile
-        if (!$file->move($uploadPath, $newName, true)) {
-            return $this->fail('Gagal menyimpan file.');
-        }
-
-        // Hapus foto lama kalau ada dan bukan default
-        if (!empty($user['profile_photo']) && $user['profile_photo'] !== 'default.png') {
-            $oldPath = $uploadPath . '/' . $user['profile_photo'];
-            if (is_file($oldPath)) {
-                @unlink($oldPath);
-            }
-        }
-
-        // Update kolom profile_photo di tabel user
-        $userModel->update($userId, [
-            'profile_photo' => $newName,
-        ]);
-
-        // Refresh data user dari DB (biar fresh)
-        $user = $userModel->find($userId);
-
-        // Update session user yang sedang login
-        session()->set([
-            'nama_user'     => $user['nama'] ?? $user['username'] ?? 'User Portal',
-            'email_user'    => $user['email'] ?? $user['username'] ?? 'user@example.com',
-            'profile_photo' => $user['profile_photo'] ?? 'default.png',
-        ]);
-
-        // URL untuk dipakai di front-end
-        $url = base_url('uploads/profile/' . $newName);
-
-        return $this->respond([
-            'status'  => 'success',
-            'message' => 'Foto profil berhasil diupdate.',
-            'url'     => $url,
-        ]);
+{
+    // 🔐 1. Pastikan user sudah login (pakai session, bukan token)
+    $userId = session()->get('id_user'); // ✔ sesuai Auth::login()
+    if (!$userId) {
+        return $this->failUnauthorized('User belum login.');
     }
+
+    // 🔍 2. Ambil file dari FormData
+    $file = $this->request->getFile('profile');
+    if (!$file || !$file->isValid()) {
+        return $this->failValidationErrors('File foto tidak valid.');
+    }
+
+    // 🎨 3. Validasi tipe gambar
+    $validMime = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+    if (!in_array($file->getMimeType(), $validMime)) {
+        return $this->failValidationErrors('Tipe file harus gambar (JPG/PNG/WEBP).');
+    }
+
+    // 📁 4. Siapkan folder upload
+    $uploadPath = FCPATH . 'uploads/profile';
+    if (!is_dir($uploadPath)) {
+        mkdir($uploadPath, 0775, true);
+    }
+
+    // 🎯 5. Buat nama file unik
+    $ext     = $file->getExtension();
+    $newName = 'user_' . $userId . '_' . time() . '.' . $ext;
+
+    // 🗂 6. Ambil data user lama
+    $userModel = new UserModel();
+    $user      = $userModel->find($userId);
+
+    if (!$user) {
+        return $this->failNotFound('User tidak ditemukan.');
+    }
+
+    // 💾 7. Pindahkan file ke folder upload
+    if (!$file->move($uploadPath, $newName, true)) {
+        return $this->fail('Gagal menyimpan file.');
+    }
+
+    // 🧹 8. Hapus foto lama jika ada dan bukan default
+    if (!empty($user['profile_photo']) && $user['profile_photo'] !== 'default.png') {
+        $oldPath = $uploadPath . '/' . $user['profile_photo'];
+        if (is_file($oldPath)) {
+            @unlink($oldPath);
+        }
+    }
+
+    // 📝 9. Update server-side (database)
+    $userModel->update($userId, [
+        'profile_photo' => $newName,
+    ]);
+
+    // 🔄 10. Refresh ulang dari DB
+    $user = $userModel->find($userId);
+
+    // 🔁 11. Update session (supaya UI langsung ganti)
+    session()->set([
+        'nama_user'     => $user['full_name'] ?? $user['username'] ?? 'User Portal',
+        'email_user'    => $user['username'] ?? $user['email'] ?? 'user@example.com',
+        'profile_photo' => $user['profile_photo'] ?? 'default.png',
+    ]);
+
+    // 🌐 12. Kirim URL ke frontend
+    $url = base_url('uploads/profile/' . $newName);
+
+    return $this->respond([
+        'status'  => 'success',
+        'message' => 'Foto profil berhasil diupdate.',
+        'url'     => $url,
+    ]);
+}
+
 }
