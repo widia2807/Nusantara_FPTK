@@ -217,81 +217,7 @@ if (!$this->model->update($id, $data)) {
         return $this->respondDeleted(['id' => $id]);
     }
 
-    // =====================
-    // REVIEW HR
-    // =====================
-    public function hrReview($id = null)
-{
-    $data = $this->input();
-    $pengajuan = $this->model->find($id);
-    if (!$pengajuan) return $this->failNotFound('Pengajuan tidak ditemukan');
-
-    $statusIn = isset($data['status_hr']) ? trim($data['status_hr']) : null; // 'Approved' | 'Rejected'
-    $actionIn = isset($data['action']) ? strtolower(trim($data['action'])) : ''; // 'accept' | 'send' | 'reject'
-    $minGaji  = $data['min_gaji'] ?? null;
-    $maxGaji  = $data['max_gaji'] ?? null;
-    $comment  = $data['comment']  ?? '-';
-
-    $actor = $this->actor();
-    if (!$statusIn) return $this->failValidationErrors("Status HR wajib diisi");
-
-    // REJECT
-    if ($actionIn === 'reject') {
-        if (trim($comment) === '') return $this->failValidationErrors("Comment wajib diisi jika Reject");
-
-        // guard: hanya kalau berubah
-        if (($pengajuan['status_hr'] ?? null) !== 'Rejected') {
-            $this->model->update($id, ['status_hr' => 'Rejected', 'archived' => 1]);
-            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_reject', $comment);
-        }
-        return $this->respond(['message' => 'Pengajuan ditolak oleh HR.']);
-    }
-
-    // ACCEPT (belum kirim)
-    if ($actionIn === 'accept') {
-        if (($pengajuan['status_hr'] ?? null) !== 'Approved') {
-            $this->model->update($id, ['status_hr' => 'Approved']);
-            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_accept', $comment);
-        }
-        return $this->respond(['message' => 'HR menyetujui pengajuan, menunggu pengisian range gaji.']);
-    }
-
-    // SEND (isi gaji + kirim ke management)
-    if ($actionIn === 'send') {
-        if (!$minGaji || !$maxGaji) return $this->failValidationErrors("Range gaji wajib diisi sebelum dikirim.");
-
-        // guard: kirim ke management hanya jika belum Pending/Approved/Rejected
-        $prevMng = $pengajuan['status_management'] ?? null;
-        if ($prevMng !== 'Pending' && $prevMng !== 'Approved' && $prevMng !== 'Rejected') {
-            $this->model->update($id, [
-                'status_hr'         => 'Approved',
-                'status_management' => 'Pending',
-            ]);
-            // upsert range gaji (tetap)
-            $existingGaji = $this->rangeGaji->where('id_pengajuan', $id)->first();
-            if ($existingGaji) {
-                $this->rangeGaji->update($existingGaji['id_range'] ?? $existingGaji['id'], [
-                    'min_gaji'   => $minGaji,
-                    'max_gaji'   => $maxGaji,
-                    'updated_at' => date('Y-m-d H:i:s'),
-                ]);
-            } else {
-                $this->rangeGaji->insert([
-                    'id_pengajuan' => $id,
-                    'min_gaji'     => $minGaji,
-                    'max_gaji'     => $maxGaji,
-                    'created_by'   => $actor['id'],
-                    'created_at'   => date('Y-m-d H:i:s'),
-                ]);
-            }
-
-            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_send', $comment ?: 'Dikirim ke Management');
-        }
-        return $this->respond(['message' => 'Pengajuan dikirim ke Management.']);
-    }
-
-    return $this->failValidationErrors("Aksi HR tidak valid. Gunakan accept / send / reject.");
-}
+    
 
 
     // =====================
@@ -335,6 +261,125 @@ if (!$this->model->update($id, $data)) {
     }
 
     return $this->respondUpdated(['ok' => true, 'data' => $this->model->find($id)]);
+}
+
+// =====================
+// REVIEW HR
+// =====================
+public function hrReview($id = null)
+{
+    // Ambil input (JSON / raw / POST)
+    $data = $this->input();
+
+    // Cari pengajuan
+    $pengajuan = $this->model->find($id);
+    if (!$pengajuan) {
+        return $this->failNotFound('Pengajuan tidak ditemukan');
+    }
+
+    // Ambil nilai dari body
+    $statusIn = isset($data['status_hr']) ? trim($data['status_hr']) : null;    // 'Approved' | 'Rejected'
+    $actionIn = isset($data['action'])    ? strtolower(trim($data['action'])) : '';  // 'accept' | 'send' | 'reject'
+    $minGaji  = $data['min_gaji'] ?? null;
+    $maxGaji  = $data['max_gaji'] ?? null;
+    $comment  = $data['comment']  ?? '-';
+
+    $actor = $this->actor();
+
+    if (!$statusIn) {
+        return $this->failValidationErrors("Status HR wajib diisi");
+    }
+
+    // =====================
+    // REJECT
+    // =====================
+    if ($actionIn === 'reject') {
+        if (trim($comment) === '') {
+            return $this->failValidationErrors("Comment wajib diisi jika Reject");
+        }
+
+        // hanya update kalau sebelumnya belum Rejected
+        if (($pengajuan['status_hr'] ?? null) !== 'Rejected') {
+            $this->model->update($id, [
+                'status_hr' => 'Rejected',
+                'archived'  => 1,
+            ]);
+
+            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_reject', $comment);
+        }
+
+        return $this->respond(['message' => 'Pengajuan ditolak oleh HR.']);
+    }
+
+    // =====================
+    // ACCEPT (belum kirim ke management)
+    // =====================
+    if ($actionIn === 'accept') {
+
+        if (($pengajuan['status_hr'] ?? null) !== 'Approved') {
+            $this->model->update($id, [
+                'status_hr' => 'Approved',
+            ]);
+
+            $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_accept', $comment);
+        }
+
+        return $this->respond([
+            'message' => 'HR menyetujui pengajuan, menunggu pengisian range gaji.'
+        ]);
+    }
+
+    // =====================
+    // SEND (isi gaji + kirim ke management)
+    // =====================
+    if ($actionIn === 'send') {
+
+        // wajib isi gaji
+        if (!$minGaji || !$maxGaji) {
+            return $this->failValidationErrors("Range gaji wajib diisi sebelum dikirim.");
+        }
+
+        // 1. SELALU upsert range gaji di tabel rangegaji
+        $existingGaji = $this->rangeGaji->where('id_pengajuan', $id)->first();
+
+        if ($existingGaji) {
+            // pakai primary key yang benar: id_gaji
+            $this->rangeGaji->update($existingGaji['id_gaji'], [
+                'min_gaji'   => $minGaji,
+                'max_gaji'   => $maxGaji,
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        } else {
+            $this->rangeGaji->insert([
+                'id_pengajuan' => $id,
+                'min_gaji'     => $minGaji,
+                'max_gaji'     => $maxGaji,
+                'created_by'   => $actor['id'],
+                'created_at'   => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        // 2. Status hanya di-set kalau belum pernah dikirim ke management
+        $prevMng = $pengajuan['status_management'] ?? null;
+        if ($prevMng !== 'Pending' && $prevMng !== 'Approved' && $prevMng !== 'Rejected') {
+            $this->model->update($id, [
+                'status_hr'         => 'Approved',
+                'status_management' => 'Pending',
+                // kalau di tabel pengajuan ada kolom min_gaji & max_gaji dan mau ikut disimpan, boleh aktifkan:
+                // 'min_gaji'          => $minGaji,
+                // 'max_gaji'          => $maxGaji,
+            ]);
+        }
+
+        $this->logHistoryOnce($id, 'HR', $actor['id'], 'hr_send', $comment ?: 'Dikirim ke Management');
+
+        return $this->respond(['message' => 'Pengajuan dikirim ke Management.']);
+    }
+
+    // =====================
+    // ACTION tidak dikenal
+    // =====================
+    return $this->failValidationErrors("Aksi HR tidak valid. Gunakan accept / send / reject.");
 }
 
 

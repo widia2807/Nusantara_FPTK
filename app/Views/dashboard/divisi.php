@@ -237,6 +237,23 @@
       document.getElementById('detailUmur').value    = data.range_umur ?? '';
       document.getElementById('detailCreated').value = data.created_at ?? '';
       document.getElementById('detailKualifikasi').innerHTML = data.kualifikasi ?? '';
+  // Jenis Pengajuan & Nama yang Diganti
+  const reqType = data.request_type || '';                // 'Penambahan' / 'Pergantian'
+  const replaceName = data.replace_employee_name || '';   // Contoh nama
+
+  const reqTypeInput   = document.getElementById('detailRequestType');
+  const replaceGroup   = document.getElementById('detailReplaceGroup');
+  const replaceInput   = document.getElementById('detailReplaceName');
+
+  if (reqTypeInput) reqTypeInput.value = reqType;
+
+  if (reqType.toLowerCase() === 'pergantian') {
+    if (replaceGroup)  replaceGroup.style.display = 'block';
+    if (replaceInput)  replaceInput.value = replaceName || '-';
+  } else {
+    if (replaceGroup)  replaceGroup.style.display = 'none';
+    if (replaceInput)  replaceInput.value = '';
+  }
 
       if (document.getElementById('detailCommentHR')) {
         document.getElementById('detailCommentHR').value = data.comment_hr ?? '';
@@ -364,6 +381,17 @@
               <input type="text" id="detailCreated" class="form-control" disabled>
             </div>
 
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Jenis Pengajuan</label>
+                <input type="text" id="detailRequestType" class="form-control" disabled>
+              </div>
+              <div class="col-md-6 mb-3" id="detailReplaceGroup" style="display:none;">
+                <label class="form-label">Nama yang Diganti</label>
+                <input type="text" id="detailReplaceName" class="form-control" disabled>
+              </div>
+            </div>
+
             <div class="col-12">
               <label class="form-label">Kualifikasi</label>
               <div id="detailKualifikasi"
@@ -373,7 +401,7 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label">Comment HR</label>
+              <label class="form-label">Comment Rekrutment</label>
               <textarea id="detailCommentHR" class="form-control" rows="2" disabled></textarea>
             </div>
 

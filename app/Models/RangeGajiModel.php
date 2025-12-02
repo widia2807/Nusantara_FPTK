@@ -13,7 +13,8 @@ class RangeGajiModel extends Model
         'min_gaji',
         'max_gaji',
         'created_by',
-        'created_at'
+        'created_at',
+        'updated_at',
     ];
 
     protected $useTimestamps = false;

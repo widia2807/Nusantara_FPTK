@@ -187,6 +187,16 @@
               <input type="text" id="detailTanggal" class="form-control" disabled>
             </div>
           </div>
+<div class="row">
+  <div class="col-md-6 mb-3">
+    <label class="form-label">Jenis Pengajuan</label>
+    <input type="text" id="detailRequestType" class="form-control" disabled>
+  </div>
+  <div class="col-md-6 mb-3" id="detailReplaceGroup" style="display:none;">
+    <label class="form-label">Nama yang Diganti</label>
+    <input type="text" id="detailReplaceName" class="form-control" disabled>
+  </div>
+</div>
 
           <div class="mb-3">
         <label class="form-label">Kualifikasi</label>
@@ -302,10 +312,26 @@ document.getElementById('detailJumlah').value = data.jumlah_karyawan || '';
 document.getElementById('detailJobPost').value = data.job_post_number || '';
 document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
 document.getElementById('detailTanggal').value = data.created_at || '';
-
-
-
   document.getElementById('detailComment').value = data.comment || '';
+
+
+    // Jenis Pengajuan & Nama yang Diganti
+  const reqType = data.request_type || '';                // 'Penambahan' / 'Pergantian'
+  const replaceName = data.replace_employee_name || '';   // Contoh nama
+
+  const reqTypeInput   = document.getElementById('detailRequestType');
+  const replaceGroup   = document.getElementById('detailReplaceGroup');
+  const replaceInput   = document.getElementById('detailReplaceName');
+
+  if (reqTypeInput) reqTypeInput.value = reqType;
+
+  if (reqType.toLowerCase() === 'pergantian') {
+    if (replaceGroup)  replaceGroup.style.display = 'block';
+    if (replaceInput)  replaceInput.value = replaceName || '-';
+  } else {
+    if (replaceGroup)  replaceGroup.style.display = 'none';
+    if (replaceInput)  replaceInput.value = '';
+  }
 
   // default reset
   document.getElementById('minGaji').value = '';
@@ -443,12 +469,12 @@ function previewProfile(event) {
   }
 
   const formData = new FormData();
-  formData.append('profile', file); // sesuaikan nama field dengan backend
+  formData.append('profile', file); 
 
   try {
     const res = await fetch('<?= base_url('api/users/upload-profile') ?>', {
       method: 'POST',
-      // TIDAK PERLU headers Authorization
+      
       body: formData
     });
 

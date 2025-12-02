@@ -46,13 +46,30 @@ abstract class BaseController extends Controller
     /**
      * @return void
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
+     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Do Not Edit This Line
         parent::initController($request, $response, $logger);
+        // $this->session = service('session'); // kalau mau pakai session
+    }
 
-        // Preload any models, libraries, etc, here.
+    /**
+     * Helper untuk ambil input dari request (JSON / raw / POST).
+     */
+    protected function input(): array
+    {
+        // 1. Coba baca JSON (kayak dari fetch body)
+        $json = $this->request->getJSON(true);
+        if (!empty($json)) {
+            return $json;
+        }
 
-        // E.g.: $this->session = service('session');
+        // 2. Coba raw input (PUT/PATCH form-encoded)
+        $raw = $this->request->getRawInput();
+        if (!empty($raw)) {
+            return $raw;
+        }
+
+        // 3. Fallback ke POST biasa (form)
+        return $this->request->getPost();
     }
 }

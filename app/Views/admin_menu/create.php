@@ -92,10 +92,7 @@
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          // NOTE:
-          // Jika server CORS kamu masih pakai Access-Control-Allow-Origin: *,
-          // JANGAN pakai credentials. Aktifkan setelah CORS diubah ke origin spesifik.
-          // credentials: "include",
+          
           body: JSON.stringify(data)
         });
 
