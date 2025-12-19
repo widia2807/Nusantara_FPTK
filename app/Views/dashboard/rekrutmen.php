@@ -212,7 +212,19 @@
                 </div>
               </div>
             </div>
+              <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Jenis Pengajuan</label>
+              <input type="text" id="detailRequestType" class="form-control" disabled>
+            </div>
 
+            <div class="col-md-6 mb-3" id="detailReplaceGroup" style="display:none;">
+              <label class="form-label">Nama yang Diganti</label>
+              <input type="text" id="detailReplaceName" class="form-control" disabled>
+            </div>
+          </div>
+
+          
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Min Gaji</label>
@@ -307,6 +319,9 @@
               job_post_number: item.job_post_number,
               tipe_pekerjaan: item.tipe_pekerjaan,
               created_at: item.created_at,
+              range_umur: item.range_umur,
+              request_type: item.request_type,
+              replace_employee_name: item.replace_employee_name,
               min_gaji: item.min_gaji,
               max_gaji: item.max_gaji,
               kualifikasi: item.kualifikasi,
@@ -452,6 +467,20 @@
       document.getElementById('detailStatusMng').value = data.status_management ?? '';
       document.getElementById('detailStatusRek').value = data.status_rekrutmen ?? '';
       document.getElementById('detailComment').value   = data.comment ?? '';
+      document.getElementById('detailRequestType').value = data.request_type || '-';
+      document.getElementById('detailAlasan').value = data.alasan_pengajuan || '';
+      const replaceGroup = document.getElementById('detailReplaceGroup');
+      const replaceName  = document.getElementById('detailReplaceName');
+
+      if ((data.request_type || '').toLowerCase() === 'pergantian') {
+        replaceGroup.style.display = 'block';
+        replaceName.value = data.replace_employee_name || '-';
+      } else {
+        replaceGroup.style.display = 'none';
+        replaceName.value = '';
+      }
+
+     
 
       const ta = document.getElementById('detailKualifikasi');
       ta.value = data.kualifikasi ?? '';

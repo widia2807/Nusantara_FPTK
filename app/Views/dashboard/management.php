@@ -189,6 +189,19 @@
             </div>
 
             <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Jenis Pengajuan</label>
+              <input type="text" id="detailRequestType" class="form-control" disabled>
+            </div>
+
+            <div class="col-md-6 mb-3" id="detailReplaceGroup" style="display:none;">
+              <label class="form-label">Nama yang Diganti</label>
+              <input type="text" id="detailReplaceName" class="form-control" disabled>
+            </div>
+          </div>
+
+
+            <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Min Gaji</label>
                 <input type="number" id="detailMinGaji" class="form-control" disabled>
@@ -392,13 +405,24 @@ function previewProfile(event) {
       document.getElementById('detailTipe').value = data.tipe_pekerjaan || '';
       document.getElementById('detailUmur').value = data.range_umur || '';
       document.getElementById('detailTanggal').value = data.created_at || '';
+      document.getElementById('detailRequestType').value = data.request_type || '-';
       document.getElementById('detailMinGaji').value = data.min_gaji || '';
       document.getElementById('detailMaxGaji').value = data.max_gaji || '';
       document.getElementById('detailStatusHR').value = data.status_hr || '';
       document.getElementById('detailStatusMng').value = data.status_management || '';
       document.getElementById('detailStatusRek').value = data.status_rekrutmen || '';
       document.getElementById('detailCommentMng').value = data.comment_management || '';
+      
+        const replaceGroup = document.getElementById('detailReplaceGroup');
+        const replaceInput = document.getElementById('detailReplaceName');
 
+        if ((data.request_type || '').toLowerCase() === 'pergantian') {
+          replaceGroup.style.display = 'block';
+          replaceInput.value = data.replace_employee_name || '-';
+        } else {
+          replaceGroup.style.display = 'none';
+          replaceInput.value = '';
+        }
       const kvalRaw = data.kualifikasi || '';
       const kvalDecoded = decodeEntities(kvalRaw);
       const kvalSafe = sanitize(kvalDecoded);
