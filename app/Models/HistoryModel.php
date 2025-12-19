@@ -23,7 +23,7 @@ class HistoryModel extends Model
                 'h.id_history',
                 'h.id_pengajuan',
                 'h.id_user',
-                'h.role_user',                 // masih ikut dipilih (asli)
+                'h.role_user',                
                 'h.action',
                 'h.comment',
                 'h.created_at AS history_created_at',

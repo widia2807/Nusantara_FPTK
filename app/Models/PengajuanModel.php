@@ -8,11 +8,27 @@ class PengajuanModel extends Model
     protected $table = 'pengajuan';
     protected $primaryKey = 'id_pengajuan';
     protected $allowedFields = [
-        'id_user_divisi','id_divisi','id_posisi','id_cabang','jumlah_karyawan',
-        'job_post_number','tipe_pekerjaan','range_umur','tempat_kerja','kualifikasi',
-        'status_hr','status_management','status_rekrutmen','comment',
-        'archived','needs_hr_check','created_at'
-    ];
+    'id_user_divisi',
+    'id_divisi',
+    'id_posisi',
+    'id_cabang',
+    'jumlah_karyawan',
+    'job_post_number',
+    'tipe_pekerjaan',
+    'range_umur',
+    'tempat_kerja',
+    'kualifikasi',
+    'request_type',           // ✅ INI PENTING
+    'replace_employee_name',  // ✅ kalau ada
+    'status_hr',
+    'status_management',
+    'status_rekrutmen',
+    'comment',
+    'archived',
+    'needs_hr_check',
+    'created_at'
+];
+
 
     // ✅ Ambil semua pengajuan dengan relasi + pagination
     public function getWithRelations($perPage = 20)

@@ -1,3 +1,8 @@
+<?php
+helper('form');
+$oldReq = old('request_type') ?? 'Penambahan';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -151,28 +156,35 @@
           </div>
 
         <!-- Jenis Pengajuan -->
-        <div class="form-group">
-          <label class="form-label">Jenis Pengajuan</label>
-          <div class="d-flex gap-3">
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="request_type" id="reqAdd" value="Penambahan" checked>
-              <label class="form-check-label" for="reqAdd">Penambahan</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="request_type" id="reqReplace" value="Pergantian">
-              <label class="form-check-label" for="reqReplace">Pergantian</label>
-            </div>
-          </div>
-        </div>
+<div class="form-group">
+  <label class="form-label">Jenis Pengajuan</label>
+  <div class="d-flex gap-3">
+    <div class="form-check">
+      <input class="form-check-input" type="radio"
+             name="request_type" id="reqAdd" value="Penambahan"
+             <?= $oldReq === 'Penambahan' ? 'checked' : '' ?>>
+      <label class="form-check-label" for="reqAdd">Penambahan</label>
+    </div>
+
+    <div class="form-check">
+      <input class="form-check-input" type="radio"
+             name="request_type" id="reqReplace" value="Pergantian"
+             <?= $oldReq === 'Pergantian' ? 'checked' : '' ?>>
+      <label class="form-check-label" for="reqReplace">Pergantian</label>
+    </div>
+  </div>
+</div>
 
 <!-- Nama yang Diganti (muncul saat Pergantian) -->
-<div class="form-group" id="groupReplace" style="display:none;">
+<div class="form-group" id="groupReplace" style="<?= $oldReq === 'Pergantian' ? '' : 'display:none;' ?>">
   <label class="form-label">Nama yang Diganti</label>
   <div class="form-field" style="width:320px">
     <input type="text" class="form-control" id="replaceName" name="replace_employee_name"
-           placeholder="contoh: Budi Santoso" disabled>
+           placeholder="contoh: Budi Santoso"
+           value="<?= esc(old('replace_employee_name') ?? '') ?>" disabled>
   </div>
 </div>
+
 
         <!-- Kualifikasi (Quill) -->
        <div class="form-group form-richtext">

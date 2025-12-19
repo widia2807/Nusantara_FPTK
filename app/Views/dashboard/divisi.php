@@ -115,7 +115,7 @@
                 <th>Job Post</th>
                 <th>Tipe</th>
                 <th>Tanggal</th>
-                <th class="status-col">HR</th>
+                <th class="status-col">Div Rek</th>
                 <th class="status-col">Mng</th>
                 <th class="status-col">Rek</th>
                 <th>Detail</th>

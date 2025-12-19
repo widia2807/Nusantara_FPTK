@@ -31,7 +31,7 @@
   <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h2 class="mb-0">Dashboard HR</h2>
+        <h2 class="mb-0">Dashboard Div Rekrutmen</h2>
       </div>
 
       <!-- Dropdown profil -->
@@ -103,7 +103,7 @@
     <!-- Table -->
     <div class="card shadow mt-4">
       <div class="card-body">
-        <h5 class="mb-3">Review Pengajuan HR</h5>
+        <h5 class="mb-3">Review Pengajuan Divisi Rekrutmen</h5>
         <div class="table-responsive">
           <table class="table table-hover table-sm table-compact align-middle">
             <thead>
@@ -116,7 +116,7 @@
                 <th>Job Post</th>
                 <th>Tipe</th>
                 <th>Tanggal</th>
-                <th>Status HR</th>
+                <th>Status Div Rek</th>
                 <th>Status Mng</th>
                 <th>Status Rek</th>
                 <th>Detail</th>
