@@ -31,7 +31,7 @@
   <div class="content">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h2 class="mb-0">Dashboard Div Rekrutmen</h2>
+        <h2 class="mb-0">Dashboard HRD</h2>
       </div>
 
       <!-- Dropdown profil -->

@@ -468,7 +468,7 @@
       document.getElementById('detailStatusRek').value = data.status_rekrutmen ?? '';
       document.getElementById('detailComment').value   = data.comment ?? '';
       document.getElementById('detailRequestType').value = data.request_type || '-';
-      document.getElementById('detailAlasan').value = data.alasan_pengajuan || '';
+      
       const replaceGroup = document.getElementById('detailReplaceGroup');
       const replaceName  = document.getElementById('detailReplaceName');
 
